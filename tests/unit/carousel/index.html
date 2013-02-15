@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>jQuery Mobile Carousel Test Suite</title>
+	<script src="../../../external/requirejs/require.js"></script>
+	<script src="../../../js/jquery.tag.inserter.js"></script>
+	<script src="../jquery.setNameSpace.js"></script>
+	<script src="../../../tests/jquery.testHelper.js"></script>
+	<script src="../../../external/qunit.js"></script>
+	<script>
+		$.testHelper.asyncLoad([
+			[
+				"widgets/carousel",
+				"widgets/page" // Needed by the test suite
+			],
+			[
+				"carousel_core.js"
+			],
+			[ "jquery.mobile.init" ]
+		]);
+	</script>
+
+	<link rel="stylesheet"  href="../../../css/themes/default/jquery.mobile.css"/>
+	<link rel="stylesheet" href="../../../external/qunit.css"/>
+</head>
+<body>
+	<h1 id="qunit-header">jQuery Mobile Carousel Test Suite</h1>
+	<h2 id="qunit-banner"></h2>
+	<h2 id="qunit-userAgent"></h2>
+	<ol id="qunit-tests">
+	</ol>
+<div data-nstest-role="page" data-nstest-theme="a">
+	<div data-nstest-role="content">
+		<div data-nstest-role="carousel" id="carousel" data-options='{"animationDuration": 20}'>
+	        <ul>
+	            <li data-item-type="image" data-image-url="../../../css/themes/default/images/ajax-loader.gif"></li>
+	            <li data-item-type="html">
+	                <h1>2</h1>
+	                <p>Lorem</p>
+	                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
+	                tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+	                quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+	                consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
+	                cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
+	                proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+	            </li>
+	            <li data-item-type="image" data-image-url="../../../css/themes/default/images/icons-36-black.png"></li>
+	            <li data-item-type="html">
+	                <h1>4</h1><p>
+	                	Lorem ipsum dolor sit amet, consectetur adipisicing elit.
+	                </p>
+	            </li>
+	        </ul>
+	    </div>
+	</div>
+</div>
+</body>
+</html>

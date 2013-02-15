@@ -1,0 +1,57 @@
+.ui-carousel {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 180px; /* !!! */
+    text-align: center;
+}
+
+.ui-carousel-list {
+    /*height: 100px;
+    margin-left: 0px;*/
+}
+
+.ui-carousel-item {
+    list-style-type: none;
+    right: 100%; /* !!! */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    display: block;
+    position: absolute;
+}
+
+.ui-carousel-show {
+    right: 0%; /* !!! */
+}
+
+.ui-carousel-box {
+    display: block;
+    /*width: 200px; !!! */
+    margin: 0 auto;
+}
+
+.ui-carousel-links {
+    width: 100%;
+}
+
+.ui-carousel-link {
+    display: block;
+    border: 3px solid black;
+    width: 5px;
+    height: 5px;
+    background-color: black;
+    border-radius: 5px;
+    margin: 6px;
+    float: left;
+    cursor: pointer;
+}
+
+.ui-carousel-item-loading {
+    background-color: #ccc;
+    border-color: #ccc;
+}
+
+.ui-carousel-link-selected {
+    background-color: grey;
+    border-color: grey;
+}
