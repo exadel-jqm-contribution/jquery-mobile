@@ -59,9 +59,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_bindEvents: function() {
-			if ( this.options.depended ) {
-				return;
-			}
 			this.element.on( "swipeleft", this.next.bind(this) );
 			this.element.on( "swiperight", this.previous.bind(this) );
 			this.element.find( ".ui-right-arrow" ).on('click', this.next.bind(this));
@@ -134,11 +131,17 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return el;
 		},
 
-		next: function() {
+		next: function(e) {
+			if ( this.options.depended && e ) {
+				return;
+			}
 			this.slide( "next" );
 		},
 
-		previous: function() {
+		previous: function(e) {
+			if ( this.options.depended && e ) {
+				return;
+			}
 			this.slide( "prev" );
 		},
 
@@ -146,17 +149,21 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var $active = this.element.find( ".ui-carousel-item.ui-carousel-active" ),
 				$next = next || $active[type]( ".ui-carousel-item" );
 
+			if ( $active.length === 0 ) {
+				$next.trigger( "show" );
+				return;
+			}
+
+			if ( !this.options.enabled ) {
+				return;
+			}
+
 			if ( type !== "next" && type !== "prev" ) {
 				type = $next.nextAll(".ui-carousel-active").length == 0 ? "next" : "prev";
 			}
 
 			var	direction = type == "next" ? 1 : -1,
 				fallback = type == "next" ? "first" : "last";
-
-			if ( $active.length === 0 ) {
-				$next.trigger( "show" );
-				return;
-			}
 
 			if ( $next.hasClass( "ui-carousel-active" ) ) {
 				return;
@@ -181,7 +188,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			});
 		},
 
-		to: function ( index ) {
+		to: function ( index, e ) {
+			if ( this.options.depended && e ) {
+				return;
+			}
 			var $el = $( ".ui-carousel-item:eq(" + index + ")", this.element );
 			this.slide( null, $el );
 		},
@@ -218,7 +228,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 						move: this.to.bind( this )
 					}, function ( event ) {
 						var n = $( this ).data( "slideTo" );
-						event.data.move( n );
+						event.data.move( n, event );
 					});
 				}
 
