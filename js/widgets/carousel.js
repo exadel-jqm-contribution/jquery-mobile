@@ -69,10 +69,15 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.element.find( ".ui-left-arrow" ).on('click', this.previous.bind(this));
 		},
 
-		_wraperBox: function( el, title) {
-			var box = $( "<div></div>" );
-			box.addClass( "ui-carousel-box" );
-			box.appendTo( el );
+		_wraperBox: function( el, title ) {
+			var box;
+			if ( $(".ui-carousel-box", el).length == 0 ){
+				box = $( "<div></div>" )
+					.addClass( "ui-carousel-box" )
+					.appendTo( el );
+			} else {
+				box = $(".ui-carousel-box", el);
+			}
 
 			this.options.showTitle && this.options.createTitle( title, el );
 
@@ -80,14 +85,24 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_create_title: function( title_str, target ) {
-			var title = $( "<div></div>" ),
-				inside = null;
+			var title = $( ".ui-carousel-title", target );
+			// just update
+			if ( title.length > 0 ){
+				if ( this.options.titleBuildIn ) {
+					$( ".ui-carousel-title-inside", title ).text( title_str );
+				} else {
+					title.text( title_str );
+				}
+				return title;
+			}
+			// create title
+			title = $( "<div></div>" );
 			title.addClass( "ui-carousel-title" );
 			if ( this.options.titleBuildIn ) {
-				inside = $( "<div></div>" );
-				inside.addClass( "ui-carousel-title-inside" );
-				inside.text(title_str);
-				inside.appendTo(title);
+				$( "<div></div>" )
+					.addClass( "ui-carousel-title-inside" )
+					.text(title_str)
+					.appendTo(title);
 			} else {
 				title.text(title_str);
 			}
@@ -96,13 +111,25 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_load_image: function( url, target, parent ) {
-			var img = new Image(),
+			var img,
 				error = function () {};
+
+			if ( $("img", target).length > 0 ) {
+				img = $("img:first", target)
+				if ( img.attr("src") == url ) {
+					return;
+				}
+			}
+
+			img = new Image();
 			img.onload = function() {
 				var $img = $(this);
 				$img.addClass( "ui-carousel-content" );
+				target.empty();
 				$img.appendTo( target );
-				parent.trigger( "ready", {item: parent} );
+				parent.trigger( "ready", {
+					item: parent
+				});
 			};
 
 			img.onerror = error;
@@ -266,28 +293,33 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		_render_frame: function( index, el ) {
 			var $el = $( el ),
 				params = $el.data(),
-				item, indicator,
-				el_id = this._UID();
-			$el.addClass( "ui-carousel-item" ).attr("id", el_id);
+				$item, $indicator,
+				el_id = this._UID(),
+				new_element = $el.data("_processed") == null;
+
+			new_element && $el.addClass( "ui-carousel-item" ).attr("id", el_id);
 
 			switch ( params.type ) {
 				case "image":
-					item = this._wraperBox( $el, params.title || "" );
-					this._load_image( params.imageUrl, item, $el );
+					$item = this._wraperBox( $el, params.title || "" );
+					this._load_image( params.imageUrl, $item, $el );
 					break;
 				case "html":
 					this._load_html( $el, params.title || "" );
 					break;
 			}
 			if ( this.options.showIndicator) {
+				if ( !new_element ) {
+					return;
+				}
 				var indicator_id = this._UID();
-				indicator = this.options.createIndicator( this.options.indicators, params.title || "");
+				$indicator = this.options.createIndicator( this.options.indicators, params.title || "");
 
-				indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
+				$indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
 				$el.data( "indicator", indicator_id );
 
 				if ( !this.options.depended ) {
-					indicator.on( "click", {
+					$indicator.on( "click", {
 						move: this.slide.bind( this, false )
 					}, function ( event ) {
 						var id = $( this ).data( "targetElement" );
@@ -295,7 +327,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					});
 				}
 
-				indicator
+				$indicator
 					.on( "show", function( event ) {
 						$( this ).addClass('ui-carousel-indicator-active');
 					})
@@ -311,6 +343,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 						$( "#" + $(this).data("indicator") ).trigger( "show" );
 					});
 			}
+			$el.data("_processed", el_id);
 		},
 
 		_createIndicator: function( list, title) {

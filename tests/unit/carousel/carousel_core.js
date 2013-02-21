@@ -2,7 +2,7 @@
  * mobile carousel unit tests
  */
 (function($){
-	module( "query.mobile.carousel.js" );
+	module( "jquery.mobile.carousel.js" );
 
 	var animation_time = 160;
 
