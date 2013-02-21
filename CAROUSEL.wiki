@@ -51,7 +51,7 @@ h3. Items
 	</div>
 	{code}
 
-	As you can see in examples both types can have title-option. And only {{image}} type can have {{imageUrl}} option witch describe URL for image.
+	As you can see in examples both types can have title-option. And only {{image}} type can have {{imageUrl}} option witch define URL for image.
 
 	Image item can't have additional HTML mark-up inside element. It display only image with or without title.
 
@@ -64,6 +64,28 @@ h2. Options
 	# JavaScript code and initializing options.
 	# With HTML code in {{options}} data attribute.
 	# With HTML code in data attributes named as widget parameters.
+
+	JavaScript way we describe later.
+
+	Example for {{options}}:
+
+	{code}
+	<div data-role="carousel" data-options='{"showIndicator": true, "depended": true}'>
+	    <div class="ui-carousel-items">
+	        {{PLACE FOR ITEMS}}
+	    </div>
+	</div>
+	{code}
+
+	Example for data attributes:
+	{code}
+	<div data-role="carousel" data-show-indicator="true" data-depended="true" data-show-title="true">
+	    <div class="ui-carousel-items">
+	        {{PLACE FOR ITEMS}}
+	    </div>
+	</div>
+	{code}
+
 
 	h3. Available parameters
 
@@ -80,65 +102,134 @@ h2. Options
 
 	h4. Indicators
 
-		Indicators can by placed anywhere on the page. Defaults put HTML-code of indicators to the end of main element.
-		User can overwrite this.
+	Indicators can by placed anywhere on the page. Defaults put HTML-code of indicators to the end of main element.
+	User can overwrite this.
 
-		h5. Custom indicators.
+	h5. Custom indicators.
 
-		By setting {{indicators}} parameter user can specify his container.
-		And with setting {{createIndicator}} user can control rendering.
+	By setting {{indicators}} parameter user can specify his container.
+	And with setting {{createIndicator}} user can control rendering.
 
-		Current implementation {{createIndicator}} in widget:
-		{code}
-		function createIndicator( list, title ) {
-			var indicator = $( "<div></div>" );
-			indicator.addClass( "ui-carousel-indicator" );
-			indicator.attr( "title", title );
-			indicator.appendTo( list );
-			return indicator;
-		}
-		{code}
-		Widget will use this function for render each item of indicator.
-		* {{list}} -- container of indicators, can be set by {{indicators}} option.
-		* {{title}} -- text of title from item data attributes.
+	Current implementation {{createIndicator}} in widget:
+	{code}
+	function createIndicator( list, title ) {
+		var indicator = $( "<div></div>" );
+		indicator.addClass( "ui-carousel-indicator" );
+		indicator.attr( "title", title );
+		indicator.appendTo( list );
+		return indicator;
+	}
+	{code}
+	Widget will use this function for render each item of indicator.
+	* {{list}} -- container of indicators, can be set by {{indicators}} option.
+	* {{title}} -- text of title from item data attributes.
 
-		Function must always return jQuery-object of indicator for additional tuning in widget (events).
+	Function must always return jQuery-object of indicator for additional tuning in widget (events).
 
-		Indicators can by disabled with initialization by setting option {{showIndicator: false}}
+	Indicators can by disabled with initialization by setting option {{showIndicator: false}}
 
 	h4. Titles
 
-		Defaults put HTML-code of title to the end of item element.
-		User *can't* overwrite this.
+	Defaults put HTML-code of title to the end of item element.
+	User *can't* overwrite this.
 
-		h5. Custom title.
+	h5. Custom title.
 
-		For now we have 2 build in ways for display title.
-		* {{titleBuildIn: false}} -- wrap title text in one div with class {{ui-carousel-title}}
-		* {{titleBuildIn: true}} -- wrap title text in two divs with class {{ui-carousel-title}}
-			and inside div with class {{ui-carousel-title-inside}}
+	For now we have 2 build in ways for display title.
+	* {{titleBuildIn: false}} -- wrap title text in one div with class {{ui-carousel-title}}
+	* {{titleBuildIn: true}} -- wrap title text in two divs with class {{ui-carousel-title}}
+		and inside div with class {{ui-carousel-title-inside}}
 
-		As Indicators, this behaviour can be change by overwrite option
-		{{createTitle: null}} with owned function.
-		For this mode flag {{titleBuildIn}} will be ignore.
+	As Indicators, this behaviour can be change by overwrite option
+	{{createTitle: null}} with owned function.
+	For this mode flag {{titleBuildIn}} will be ignore.
 
-		{code}
-		function create_title ( title_str, target ) {
-			...
-			return title;
-		},
-		{code}
-		Widget will use this function for render each title.
-		* {{title_str}} -- title string
-		* {{target}} -- target to put title, function must put created title to this jQuery-object.
+	{code}
+	function create_title ( title_str, target ) {
+		...
+		return title;
+	},
+	{code}
+	Widget will use this function for render each title.
+	* {{title_str}} -- title string
+	* {{target}} -- target to put title, function must put created title to this jQuery-object.
 
-		Function can return title-object, but currently it doesn't matter.
+	Function can return title-object, but currently it doesn't matter.
 
-		Titles can by disabled with initialization by setting option {{showTitle: false}}
+	Titles can by disabled with initialization by setting option {{showTitle: false}}
 
 	h4. Animation of sliding
 
 	For animation widget use jQuery implementation of sliding by changing css-value {{left}}.
 	For showing item {{left}} == 0, otherwise {{left}} can by {{100%}} or {{-100%}}
 
+	h4. Depended widget
 
+	The {{depended}} option provide ability for create widget that ignore touch and clicks,
+	but can by controlled by using widget API.
+
+h2. API
+
+	h3. Data role
+
+	As other jQuery.Mobile widgets Carousel widget can be launch with {{data-role}} attribute {{carousel}}.
+	Widget starts with {{pageshow}} event and trigger {{i-carouselbeforecreate}} event in the beginning.
+
+	Example:
+	{code}
+	<div data-role="carousel">
+	    <div class="ui-carousel-items">
+	        {{PLACE FOR ITEMS}}
+	    </div>
+	</div>
+	{code}
+
+	h3. JS
+
+	Example. Create Carousel instance for specific element with special options:
+	{code}
+	function drawSpecialIndicator( list, title ) {
+		// ...
+	}
+
+	function drawSpecialTitle( title_str, target ) {
+		// ...
+	}
+
+	$({TARGET_SELECTOR}).carousel({
+		indicators: $("#special_place_for_indicators"),
+		indicatorsListClass: "owned-class-indicators",
+		animationDuration: 50, // we want quick animation
+		createIndicator: drawSpecialIndicator,
+		// titleBuildIn: false, // we want draw owned title, so ...
+		createTitle: drawSpecialTitle,
+		enabled: true,
+		depended: true // we will use another script for controlling widget.
+	});
+	{code}
+
+	h3. Build in public methods
+
+	# {{next}} -- move to next frame.
+	# {{previous}} -- move to previous frame.
+	# {{slide}} -- accept two parameters:
+	** {{type}} -- {{"next"}} or {{"prev"}} for navigation.
+		Else, {{slide}} method determine relative position for {{next}} object and current active frame.
+	** {{next}} -- jQuery object of next frame for showing.
+	# {{to}} -- can by using for jump to frame with specific {{index}} (as parameter).
+	# {{getFrame}} -- return jQuery-object of frame with specific {{index}} (as parameter).
+	# {{add}} -- create new frame. Accepted parameters:
+	** {{type}} -- define type of frame ({{"index"}} or {{"html"}}).
+	** {{title}} -- title of frame.
+	** {{content}} -- define content for frame. If {{type == "image"}} then this parameter use as {{imageUrl}}, otherwise as HTML-code.
+	** {{onReady}} -- can be {{undefined}}. Provide ability to set callback for frame event {{ready}}.
+	** {{onShow}} -- can be {{undefined}}. Provide ability to set callback for frame event {{show}}.
+
+	h3. Events
+
+	h4. Frame events
+
+	# {{ready}} -- fire when frame loaded. For frame with type {{"image"}}, this event fire when image is loaded.
+	# {{beforeshow}} -- fire for frame before show (before animation begin).
+	# {{show}} -- frame showing.
+	# {{hide}} -- frame hidden.

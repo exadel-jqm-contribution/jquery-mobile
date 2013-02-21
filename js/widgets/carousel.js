@@ -1,13 +1,12 @@
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-//>>description: Creates collapsible content blocks.
-//>>label: Collapsible
+//>>description: Creates carousel of images or html-blocks.
+//>>label: Carousel
 //>>group: Widgets
-//>>css.structure: ../css/structure/jquery.mobile.collapsible.css
+//>>css.structure: ../css/structure/jquery.mobile.carousel.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
 define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 //>>excludeEnd( "jqmBuildExclude" );
-
 
 (function ( $, undefined ) {
 	$.widget( "mobile.carousel", $.mobile.widget, {
@@ -115,7 +114,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$el.trigger( "ready" );
 		},
 
-		add: function( type, title, content, onShow) {
+		add: function( type, title, content, onReady, onShow) {
 			var el = $( "<div></div>" ),
 				imageUrl = type == "image" ? content : "";
 
@@ -126,8 +125,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			});
 			el.html( (type == "image" ? "" : content) );
 			el.appendTo( this._list );
+			onReady && el.on( "ready", onReady );
 			onShow && el.on( "show", onShow );
-			this._render_frame( this._list.length-1, el);
+			this._render_frame( this._list.find(".ui-carousel-item").length, el);
 			return el;
 		},
 
@@ -268,6 +268,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		return $( ":jqmData(role='carousel')", e.target ).carousel();
 	});
 })( jQuery );
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
