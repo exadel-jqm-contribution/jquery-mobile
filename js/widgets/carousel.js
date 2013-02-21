@@ -69,7 +69,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			box.addClass( "ui-carousel-box" );
 			box.appendTo( el );
 
-			this.options.showTitle && this._create_title( title, el );
+			this.options.showTitle && this.options.createTitle( title, el );
 
 			return box;
 		},
@@ -133,16 +133,16 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		next: function(e) {
 			if ( this.options.depended && e ) {
-				return;
+				return false;
 			}
-			this.slide( "next" );
+			return this.slide( "next" );
 		},
 
 		previous: function(e) {
 			if ( this.options.depended && e ) {
-				return;
+				return false;
 			}
-			this.slide( "prev" );
+			return this.slide( "prev" );
 		},
 
 		slide: function( type, next ) {
@@ -151,11 +151,11 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 			if ( $active.length === 0 ) {
 				$next.trigger( "show" );
-				return;
+				return true;
 			}
 
 			if ( !this.options.enabled ) {
-				return;
+				return false;
 			}
 
 			if ( type !== "next" && type !== "prev" ) {
@@ -166,7 +166,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				fallback = type == "next" ? "first" : "last";
 
 			if ( $next.hasClass( "ui-carousel-active" ) ) {
-				return;
+				return false;
 			}
 
 			$next = $next.length ? $next : this.element.find( ".ui-carousel-item" )[fallback]();
@@ -186,22 +186,27 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					$next.css( "left", (100 * direction + now) + "%" );
 				}
 			});
+			return true;
 		},
 
-		to: function ( index, e ) {
+		to: function( index, e ) {
 			if ( this.options.depended && e ) {
-				return;
+				return false;
 			}
 			var $el = $( ".ui-carousel-item:eq(" + index + ")", this.element );
-			this.slide( null, $el );
+			return this.slide( null, $el );
 		},
 
-		getFrame: function ( index ) {
+		getFrame: function( index ) {
 			var f = $( ".ui-carousel-item:eq(" + index + ")", this.element );
 			if ( f.length === 0 ) {
 				return false;
 			}
 			return f;
+		},
+
+		length: function() {
+			return this._list.find(".ui-carousel-item").length;
 		},
 
 		_render_frame: function( index, el ) {
@@ -220,7 +225,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					break;
 			}
 			if ( this.options.showIndicator) {
-				indicator = this._createIndicator( this.options.indicators, params.title || "" );
+				indicator = this.options.createIndicator( this.options.indicators, params.title || "" );
 				indicator.data( "slideTo", index );
 
 				if ( !this.options.depended ) {
