@@ -101,16 +101,15 @@
 		var owned_indicators = $( "<div><ul></ul></div>" );
 		owned_indicators.addClass("owned_indicators").appendTo("#qunit-fixture");
 		owned_indicators = owned_indicators.find( "ul:first" );
-		var indicators_list = [];
-		var indicator_draw = function( list, title ) {
+		var indicators_list = [],
+		indicator_draw = function( list, title ) {
 			var item = $( "<li></li>" ).addClass( "indicator" );
 			item.text( title );
 			item.appendTo( list );
 			indicators_list.push( item );
 			return item;
-		}
-
-		var c = $( "#carousel" ).carousel({
+		},
+		c = $( "#carousel" ).carousel({
 			indicators: owned_indicators,
 			createIndicator: indicator_draw
 		});
@@ -133,9 +132,8 @@
 			item.find( "span" ).addClass( "title" ).text( text );
 			item.appendTo( target );
 			return item;
-		}
-
-		var c = $("#carousel").carousel({
+		},
+		c = $("#carousel").carousel({
 			createTitle: title_draw
 		});
 		equal( $("h3", c).length, c.carousel("length"), "count h3 nodes with titles" );
@@ -166,7 +164,7 @@
 	asyncTest( "remove active frame", function() {
 		expect(6);
 		var c = $("#carousel").carousel(),
-			current_length = c.carousel( "length" );
+			current_length = c.carousel( "length" ),
 			$frame = c.carousel( "getFrame", 0 ),
 			$frame2 = c.carousel( "getFrame", 1 );
 		$frame.on( "hide", function() {
@@ -184,9 +182,95 @@
 			equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
 			equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
 			start();
-		}, 2 * c.carousel("option", "animationDuration") + 15 );
+		}, 5 * c.carousel("option", "animationDuration") + 15 );
 
 		c.carousel("remove", 0);
+	});
+
+	asyncTest( "refresh carousel from JSON" , function(){
+		expect( 4 );
+		var c = $("#carousel").carousel();
+
+		var fixture = [
+			{
+				type: "image",
+				title: "Test",
+				content: "../../../css/themes/default/images/ajax-loader.gif"
+			},
+			{
+				type: "image",
+				title: "Test2",
+				content: "../../../css/themes/default/images/ajax-loader.gif"
+			},
+			{
+				type: "image",
+				title: "Test3",
+				content: "../../../css/themes/default/images/ajax-loader.gif"
+			}
+		];
+
+		setTimeout( function() {
+			equal( c.carousel("length"), fixture.length, "count of new items" );
+
+			equal( c.carousel( "getFrame", 0 ).find("img").attr("src"),
+				fixture[0].content,
+				"check image src attribute for first frame");
+			equal( c.carousel( "getFrame", 1 ).find("img").attr("src"),
+				fixture[1].content,
+				"check image src attribute for second frame");
+			equal( c.carousel( "getFrame", 2 ).find("img").attr("src"),
+				fixture[2].content,
+				"check image src attribute for 3rd frame");
+
+			start();
+		}, c.carousel("length") * c.carousel("option", "animationDuration") + 35);
+		c.carousel( "refresh", fixture );
+	});
+
+	asyncTest( "refresh carousel from JSON with Events" , function(){
+		expect( 7 );
+		var c = $("#carousel").carousel();
+
+		var fixture = [
+			{
+				type: "image",
+				title: "Test",
+				content: "../../../css/themes/default/images/ajax-loader.gif",
+				onReady: function() {
+					ok( true, "fire READY for first item" );
+				},
+				onShow: function() {
+					ok( true, "fire SHOW for first item" );
+				},
+				onHide: function() {
+					ok( true, "fire HIDE for first item" );
+				}
+			},
+			{
+				type: "image",
+				title: "Test2",
+				content: "../../../css/themes/default/images/ajax-loader.gif",
+				onReady: function() {
+					ok( true, "fire READY for second item" );
+				},
+				onShow: function() {
+					ok( true, "fire SHOW for second item" );
+					start();
+				}
+			},
+			{
+				type: "image",
+				title: "Test3",
+				content: "../../../css/themes/default/images/ajax-loader.gif"
+			}
+		];
+
+		setTimeout( function() {
+			equal( c.carousel("length"), fixture.length, "count of new items" );
+			ok( c.carousel( "next" ), "move to the second frame" );
+		}, c.carousel("length") * c.carousel("option", "animationDuration") + 35);
+
+		c.carousel( "refresh", fixture );
 	});
 
 })( jQuery );

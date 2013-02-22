@@ -58,7 +58,14 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return this.uuid + "-" + this._counter;
 		},
 
-		refresh: function() {
+		refresh: function( data ) {
+			if ( data && $.isArray(data) ) {
+				this.clear();
+				$.each( data, this._addJSON.bind(this) );
+				this.to(0);
+				return;
+			}
+
 			$( "*[data-type]", this._list ).each( $.proxy( this._render_frame, this ) );
 		},
 
@@ -67,6 +74,62 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.element.on( "swiperight", this.previous.bind(this) );
 			this.element.find( ".ui-right-arrow" ).on('click', this.next.bind(this));
 			this.element.find( ".ui-left-arrow" ).on('click', this.previous.bind(this));
+		},
+
+		_render_frame: function( index, el, data ) {
+			var $el = $( el ),
+				params = data || $el.data(),
+				$item, $indicator,
+				el_id = this._UID(),
+				new_element = $el.data("_processed") == null;
+
+			new_element && $el.addClass( "ui-carousel-item" ).attr("id", el_id);
+
+			switch ( params.type ) {
+				case "image":
+					$item = this._wraperBox( $el, params.title || "" );
+					this._load_image( params.imageUrl, $item, $el );
+					break;
+				case "html":
+					this._load_html( $el, params.title || "" );
+					break;
+			}
+			if ( this.options.showIndicator) {
+				if ( !new_element ) {
+					return;
+				}
+				var indicator_id = this._UID();
+				$indicator = this.options.createIndicator( this.options.indicators, params.title || "");
+
+				$indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
+				$el.data( "indicator", indicator_id );
+
+				if ( !this.options.depended ) {
+					$indicator.on( "click", {
+						move: this.slide.bind( this, false )
+					}, function ( event ) {
+						var id = $( this ).data( "targetElement" );
+						event.data.move( $("#" + id), event );
+					});
+				}
+
+				$indicator
+					.on( "show", function( event ) {
+						$( this ).addClass('ui-carousel-indicator-active');
+					})
+					.on( "hide", function( event ) {
+						$( this ).removeClass('ui-carousel-indicator-active');
+					});
+
+				$el
+					.on( "hide", function( event ) {
+						$( "#" + $(this).data("indicator") ).trigger( "hide" );
+					})
+					.on( "show" , function( event ) {
+						$( "#" + $(this).data("indicator") ).trigger( "show" );
+					});
+			}
+			$el.data("_processed", el_id);
 		},
 
 		_wraperBox: function( el, title ) {
@@ -149,8 +212,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		_addJSON: function( /* , item */ ) {
 			// when we use jQuery.each we receiving in first argument INDEX of element
 			var item = arguments[arguments.length - 1],
-				el = $( "<div></div>" ),
-				imageUrl = item.type == "image" ? item.content : "";
+				el = $( "<div></div>" );
+
+			item.imageUrl = item.type == "image" ? item.content : "";
 
 			el.data( {
 				type: item.type || "html",
@@ -159,13 +223,14 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			});
 			el.html( (item.type == "image" ? "" : item.content || "") );
 			el.appendTo( this._list );
-			item.onReady && el.on( "ready", item.onReady);
+			item.onReady && el.on( "ready", item.onReady );
 			item.onShow && el.on( "show", item.onShow );
-			this._render_frame( this._list.find(".ui-carousel-item").length, el);
+			item.onHide && el.on( "hide", item.onHide );
+			this._render_frame( this._list.find(".ui-carousel-item").length, el );
 			return el;
 		},
 
-		add: function( type, title, content, onReady, onShow) {
+		add: function( type, title, content, onReady, onShow, onHide) {
 			var result = false;
 			if ( $.isArray(type) ) {
 				$.each(type, this._addJSON.bind(this));
@@ -219,7 +284,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var	direction = type == "next" ? 1 : -1,
 				fallback = type == "next" ? "first" : "last";
 
-			if ( $next.hasClass( "ui-carousel-active" ) ) {
+			if ( $next.hasClass("ui-carousel-active") ) {
 				return false;
 			}
 
@@ -264,7 +329,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return this._list.find(".ui-carousel-item").length;
 		},
 
-		remove: function(index, el) {
+		remove: function( index, el ) {
 			if ( el == undefined ) {
 				el = this._list.find( ".ui-carousel-item:eq(" + index + ")" );
 			}
@@ -272,78 +337,25 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				$indicator = $( "#" + $el.data("indicator") );
 
 			if ( $el.hasClass("ui-carousel-active") ) {
-				$el.one("hide", $.proxy(function() {
-					//debugger;
-					this.remove(index, $el);
-				}, this));
+				$el.one( "hide", this.remove.bind(this, index, $el) );
 				this.next();
 			} else {
-				$indicator.trigger( "itemremove" ).off();
-				$el.trigger( "itemremove" ).off();
-				$indicator.remove();
-				$el.remove();
+				this._remove( index, el );
 			}
 			return this;
 		},
 
-		clear: function() {
-			$(".ui-carousel-item", this.element).each(this.remove.bind(this));
+		_remove: function( index, el ) {
+			var $el = $(el),
+				$indicator = $( "#" + $el.data("indicator") );
+			$indicator.trigger( "itemremove" ).off();
+			$el.trigger( "itemremove" ).off();
+			$indicator.remove();
+			$el.remove();
 		},
 
-		_render_frame: function( index, el ) {
-			var $el = $( el ),
-				params = $el.data(),
-				$item, $indicator,
-				el_id = this._UID(),
-				new_element = $el.data("_processed") == null;
-
-			new_element && $el.addClass( "ui-carousel-item" ).attr("id", el_id);
-
-			switch ( params.type ) {
-				case "image":
-					$item = this._wraperBox( $el, params.title || "" );
-					this._load_image( params.imageUrl, $item, $el );
-					break;
-				case "html":
-					this._load_html( $el, params.title || "" );
-					break;
-			}
-			if ( this.options.showIndicator) {
-				if ( !new_element ) {
-					return;
-				}
-				var indicator_id = this._UID();
-				$indicator = this.options.createIndicator( this.options.indicators, params.title || "");
-
-				$indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
-				$el.data( "indicator", indicator_id );
-
-				if ( !this.options.depended ) {
-					$indicator.on( "click", {
-						move: this.slide.bind( this, false )
-					}, function ( event ) {
-						var id = $( this ).data( "targetElement" );
-						event.data.move( $("#" + id), event );
-					});
-				}
-
-				$indicator
-					.on( "show", function( event ) {
-						$( this ).addClass('ui-carousel-indicator-active');
-					})
-					.on( "hide", function( event ) {
-						$( this ).removeClass('ui-carousel-indicator-active');
-					});
-
-				$el
-					.on( "hide", function( event ) {
-						$( "#" + $(this).data("indicator") ).trigger( "hide" );
-					})
-					.on( "show" , function( event ) {
-						$( "#" + $(this).data("indicator") ).trigger( "show" );
-					});
-			}
-			$el.data("_processed", el_id);
+		clear: function( done ) {
+			$(".ui-carousel-item", this.element).each(this._remove.bind(this));
 		},
 
 		_createIndicator: function( list, title) {
@@ -359,6 +371,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		return $( ":jqmData(role='carousel')", e.target ).carousel();
 	});
 })( jQuery );
+
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
 //>>excludeEnd( "jqmBuildExclude" );
