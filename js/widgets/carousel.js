@@ -18,12 +18,11 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			createIndicator: null,
 			titleBuildIn: false,
 			createTitle: null,
-			enabled: true,
-			dependent: false,
-
+			enabled: true
 		},
 		_list: null,
 		_counter: 0,
+		_sliding: false,
 		_create: function() {
 			this.element.addClass( "ui-carousel" );
 			this._list = $( ".ui-carousel-items", this.element );
@@ -165,10 +164,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			if ( this.options.titleBuildIn ) {
 				$( "<div></div>" )
 					.addClass( "ui-carousel-title-inside" )
-					.text(title_str)
-					.appendTo(title);
+					.text( title_str )
+					.appendTo( title );
 			} else {
-				title.text(title_str);
+				title.text( title_str );
 			}
 			title.appendTo( target );
 			return title;
@@ -179,7 +178,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				error = function () {};
 
 			if ( $("img", target).length > 0 ) {
-				img = $("img:first", target)
+				img = $("img:first", target);
 				if ( img.attr("src") == url ) {
 					return;
 				}
@@ -250,21 +249,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return result;
 		},
 
-		next: function(e) {
-			if ( this.options.dependent && e ) {
-				return false;
-			}
+		next: function() {
 			return this.slide( "next" );
 		},
 
-		previous: function(e) {
-			if ( this.options.dependent && e ) {
-				return false;
-			}
+		previous: function() {
 			return this.slide( "prev" );
 		},
 
 		slide: function( type, next ) {
+			if ( this._sliding ) {
+				return;
+			}
 			var $active = this.element.find( ".ui-carousel-item.ui-carousel-active" ),
 				$next = next || $active[type]( ".ui-carousel-item" );
 
@@ -290,11 +286,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			}
 
 			$next = $next.length ? $next : this.element.find( ".ui-carousel-item" )[fallback]();
-
 			$next.trigger( "beforeshow" );
 
 			$next.css( "left", ( 100 * direction ) + '%' );
-
 			$active.animate( {
 				left: ( 100 * direction * -1 ) + '%'
 			}, {
@@ -302,18 +296,17 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				complete: function() {
 					$active.removeClass( "ui-carousel-active" ).trigger( "hide" );
 					$next.addClass( "ui-carousel-active" ).trigger( "show" );
+					this._sliding = false;
 				},
 				step: function( now, fx ) {
 					$next.css( "left", (100 * direction + now) + "%" );
 				}
 			});
+			this._sliding = true;
 			return true;
 		},
 
-		to: function( index, e ) {
-			if ( this.options.dependent && e ) {
-				return false;
-			}
+		to: function( index) {
 			var $el = $( ".ui-carousel-item:eq(" + index + ")", this.element );
 			return this.slide( null, $el );
 		},
@@ -330,10 +323,15 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return this._list.find(".ui-carousel-item").length;
 		},
 
+		eachItem: function(callback) {
+			this._list.find(".ui-carousel-item").each(callback);
+		},
+
 		remove: function( index, el ) {
 			if ( el == undefined ) {
 				el = this._list.find( ".ui-carousel-item:eq(" + index + ")" );
 			}
+
 			var $el = $(el),
 				$indicator = $( "#" + $el.data("indicator") );
 

@@ -65,19 +65,6 @@
 		c.carousel('to', 1);
 	});
 
-	test( "test dependent carousel", function() {
-		var c = $( "#carousel" ).carousel({dependent: true}),
-			clickEvent = $.Event("click"),
-			touchEvent = $.Event("swiperight");
-		ok( !c.carousel("next", clickEvent), "can't move Next by clicking" );
-		ok( !c.carousel("previous", clickEvent), "can't move Previous by clicking" );
-		ok( !c.carousel("next", touchEvent), "can't move Next by swiperight" );
-		ok( !c.carousel("to", 3, clickEvent), "can't move To by clicking" );
-		ok( c.carousel("to", 3), "can move To by using API call (without Event Click)" );
-		ok( c.carousel("next"), "can move Next by using API call (without Event Click)" );
-		ok( c.carousel("previous"), "can move Previous by using API call (without Event Click)" );
-	});
-
 	test( "test owned indicators", function() {
 		var owned_indicators = $( "<div><ul></ul></div>" );
 		owned_indicators.addClass("owned_indicators").appendTo("#qunit-fixture");
