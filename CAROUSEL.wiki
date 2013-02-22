@@ -70,7 +70,7 @@ h2. Options
 	Example for {{options}}:
 
 	{code}
-	<div data-role="carousel" data-options='{"showIndicator": true, "depended": true}'>
+	<div data-role="carousel" data-options='{"showIndicator": true, "dependent": true}'>
 	    <div class="ui-carousel-items">
 	        {{PLACE FOR ITEMS}}
 	    </div>
@@ -79,7 +79,7 @@ h2. Options
 
 	Example for data attributes:
 	{code}
-	<div data-role="carousel" data-show-indicator="true" data-depended="true" data-show-title="true">
+	<div data-role="carousel" data-show-indicator="true" data-dependent="true" data-show-title="true">
 	    <div class="ui-carousel-items">
 	        {{PLACE FOR ITEMS}}
 	    </div>
@@ -98,7 +98,7 @@ h2. Options
 	* {{titleBuildIn: false}} -- title can by render with two ways. Will be describe later.
 	* {{createTitle: null}} -- function for render title. Will be describe later.
 	* {{enabled: true}} -- this option for switch off sliding. After launch widget show first frame.
-	* {{depended: false}} -- this option for switching off reaction on mouse or touch, but API continues to work.
+	* {{dependent: false}} -- this option for switching off reaction on mouse or touch, but API continues to work.
 
 	h4. Indicators
 
@@ -163,9 +163,9 @@ h2. Options
 	For animation widget use jQuery implementation of sliding by changing css-value {{left}}.
 	For showing item {{left}} == 0, otherwise {{left}} can by {{100%}} or {{-100%}}
 
-	h4. Depended widget
+	h4. dependent widget
 
-	The {{depended}} option provide ability for create widget that ignore touch and clicks,
+	The {{dependent}} option provide ability for create widget that ignore touch and clicks,
 	but can by controlled by using widget API.
 
 h2. API
@@ -204,7 +204,7 @@ h2. API
 		// titleBuildIn: false, // we want draw owned title, so ...
 		createTitle: drawSpecialTitle,
 		enabled: true,
-		depended: true // we will use another script for controlling widget.
+		dependent: true // we will use another script for controlling widget.
 	});
 	{code}
 

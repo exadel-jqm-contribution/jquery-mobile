@@ -19,7 +19,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			titleBuildIn: false,
 			createTitle: null,
 			enabled: true,
-			depended: false
+			dependent: false,
+
 		},
 		_list: null,
 		_counter: 0,
@@ -104,7 +105,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				$indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
 				$el.data( "indicator", indicator_id );
 
-				if ( !this.options.depended ) {
+				if ( !this.options.dependent ) {
 					$indicator.on( "click", {
 						move: this.slide.bind( this, false )
 					}, function ( event ) {
@@ -250,14 +251,14 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		next: function(e) {
-			if ( this.options.depended && e ) {
+			if ( this.options.dependent && e ) {
 				return false;
 			}
 			return this.slide( "next" );
 		},
 
 		previous: function(e) {
-			if ( this.options.depended && e ) {
+			if ( this.options.dependent && e ) {
 				return false;
 			}
 			return this.slide( "prev" );
@@ -310,7 +311,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		to: function( index, e ) {
-			if ( this.options.depended && e ) {
+			if ( this.options.dependent && e ) {
 				return false;
 			}
 			var $el = $( ".ui-carousel-item:eq(" + index + ")", this.element );

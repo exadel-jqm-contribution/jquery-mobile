@@ -65,8 +65,8 @@
 		c.carousel('to', 1);
 	});
 
-	test( "test depended carousel", function() {
-		var c = $( "#carousel" ).carousel({depended: true}),
+	test( "test dependent carousel", function() {
+		var c = $( "#carousel" ).carousel({dependent: true}),
 			clickEvent = $.Event("click"),
 			touchEvent = $.Event("swiperight");
 		ok( !c.carousel("next", clickEvent), "can't move Next by clicking" );
