@@ -289,6 +289,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$next.trigger( "beforeshow" );
 
 			$next.css( "left", ( 100 * direction ) + '%' );
+			var that = this;
 			$active.animate( {
 				left: ( 100 * direction * -1 ) + '%'
 			}, {
@@ -296,14 +297,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				complete: function() {
 					$active.removeClass( "ui-carousel-active" ).trigger( "hide" );
 					$next.addClass( "ui-carousel-active" ).trigger( "show" );
-					this._sliding = false;
+					that._sliding = false;
 				},
 				step: function( now, fx ) {
 					$next.css( "left", (100 * direction + now) + "%" );
 				}
 			});
-			this._sliding = true;
-			return true;
+			return this._sliding = true;
 		},
 
 		to: function( index) {
@@ -370,7 +370,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		return $( ":jqmData(role='carousel')", e.target ).carousel();
 	});
 })( jQuery );
-
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
 //>>excludeEnd( "jqmBuildExclude" );
