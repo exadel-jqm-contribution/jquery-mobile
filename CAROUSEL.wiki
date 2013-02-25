@@ -77,7 +77,7 @@ h2. Options
 	</div>
 	{code}
 
-Example for data attributes:
+	Example for data attributes:
 	{code}
 	<div data-role="carousel" data-show-indicator="true" data-dependent="true" data-show-title="true">
 	    <div class="ui-carousel-items">
@@ -95,6 +95,7 @@ Example for data attributes:
 	* {{showTitle: true}} -- same for title.
 	* {{createIndicator: null}} -- function for render indicator. Will be describe later.
 	* {{titleBuildIn: false}} -- title can by render with two ways. Will be describe later.
+	* {{titleIsText: true}} -- if TRUE then widget use jQuery.text() for add title, else jQuery.html();
 	* {{createTitle: null}} -- function for render title. Will be describe later.
 	* {{enabled: true}} -- this option for switch off sliding. After launch widget show first frame.
 	* {{dependent: false}} -- this option for switching off reaction on mouse or touch, but API continues to work.
@@ -209,26 +210,51 @@ h2. API
 
 	h3. Build in public methods
 
-	# {{next}} -- move to next frame.
-	# {{previous}} -- move to previous frame.
+	# {{next}} -- move to next frame;
+	# {{previous}} -- move to previous frame;
 	# {{slide}} -- accept two parameters:
 	** {{type}} -- {{"next"}} or {{"prev"}} for navigation.
-		Else, {{slide}} method determine relative position for {{next}} object and current active frame.
+		Else, {{slide}} method determine relative position for {{next}} object and current active frame;
 	** {{next}} -- jQuery object of next frame for showing.
-	# {{to}} -- can by using for jump to frame with specific {{index}} (as parameter).
-	# {{getFrame}} -- return jQuery-object of frame with specific {{index}} (as parameter).
-	# {{add}} -- create new frame. Accepted parameters:
+	# {{to}} -- can by using for jump to frame with specific {{index}} (as parameter);
+	# {{getFrame}} -- return jQuery-object of frame with specific {{index}} (as parameter);
+	# {{add}} -- create new frame. Return jQuery-object of created element or
+		Carousel object in case Array of items in the first argument. Accepted parameters:
 	** {{type}} -- define type of frame ({{"index"}} or {{"html"}}).
-	** {{title}} -- title of frame.
-	** {{content}} -- define content for frame. If {{type == "image"}} then this parameter use as {{imageUrl}}, otherwise as HTML-code.
-	** {{onReady}} -- can be {{undefined}}. Provide ability to set callback for frame event {{ready}}.
+		Can by array of [PlainObjects|http://api.jquery.com/Types#PlainObject]
+		for adding many frames, in this case other parameters will by ignore;
+	** {{title}} -- title of frame;
+	** {{content}} -- define content for frame. If {{type == "image"}} then this parameter use as {{imageUrl}}, otherwise as HTML-code.;
+	** {{onReady}} -- can be {{undefined}}. Provide ability to set callback for frame event {{ready}};
 	** {{onShow}} -- can be {{undefined}}. Provide ability to set callback for frame event {{show}}.
+	# {{length}} -- return frames count;
+	# {{eachItem}} -- as jQuery.each for every frame;
+	# {{remove}} -- remove one frame (and indicator) by {{index}} in first parameter or frame defined in second parameter;
+	# {{clear}} -- remove all items from carousel;
+	# {{refresh}} -- method can by used for forced update from DOM or from first parameter, which must be array of objects.
+		If array of objects sets, then carousel run {{clear}}-method and build new carousel.
 
 	h3. Events
 
-	h4. Frame events
+	h4. Target: Frame
 
-	# {{ready}} -- fire when frame loaded. For frame with type {{"image"}}, this event fire when image is loaded.
-	# {{beforeshow}} -- fire for frame before show (before animation begin).
-	# {{show}} -- frame showing.
-	# {{hide}} -- frame hidden.
+	# {{ready}} -- Loaded Frame. For frame with type {{"image"}}, this event fire when image is loaded;
+	# {{beforeshow}} -- Before show (before animation begin);
+	# {{show}} -- Frame showing;
+	# {{hide}} -- Frame. Frame hidden;
+	# {{itemremove}} -- Before removing DOM element of *Frame*. Indicator still exists.
+
+	h4. Target: Indicator
+
+	# {{itemremove}} -- Before removing DOM element of *Indicator*. Frame already removed;
+	# {{show}} -- Frame showing. Trigger after {{show}} for frame;
+	# {{hide}} -- Frame hidden. Trigger after {{hide}} for frame.
+
+	h4. Target: Main Carousel DOM element
+	# {{clear_all}} --  Before removing all Frames;
+	# {{beforenext}} -- Before slide to next frame;
+	# {{beforeprev}} -- Before slide to previous frame;
+	# {{slidingstart}} -- Before any sliding starts, but after {{beforeshow}}-event for frame;
+	# {{slidingdone}} -- After sliding to next frame (animation completed). As first additional parameter
+		will be set type of sliding ({{"next"}} or {{"prev"}});
+	# {{goto}} -- Before run {{to}} method. As first additional parameter: {{index}};

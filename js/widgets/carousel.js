@@ -1,5 +1,5 @@
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-//>>description: Creates carousel of images or html-blocks.
+//>>description: Creates carousel from list of images or html-blocks.
 //>>label: Carousel
 //>>group: Widgets
 //>>css.structure: ../css/structure/jquery.mobile.carousel.css
@@ -15,6 +15,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			animationDuration: 250,
 			showIndicator: true,
 			showTitle: true,
+			titleIsText: true,
 			createIndicator: null,
 			titleBuildIn: false,
 			createTitle: null,
@@ -23,6 +24,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		_list: null,
 		_counter: 0,
 		_sliding: false,
+		_sliding_type: null,
 		_create: function() {
 			this.element.addClass( "ui-carousel" );
 			this._list = $( ".ui-carousel-items", this.element );
@@ -52,7 +54,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.refresh();
 			this.to(0);
 		},
-
+		// we need simple unique ids for elements, so we use default jQueryMobile
+		// uuid for widget and counter
 		_UID: function() {
 			this._counter++;
 			return this.uuid + "-" + this._counter;
@@ -60,13 +63,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		refresh: function( data ) {
 			if ( data && $.isArray(data) ) {
+				// we can't define compliance of frames and new data
+				// in new versions we can add optional support for data-items
+				// with specific value of frame ids.
 				this.clear();
 				$.each( data, this._addJSON.bind(this) );
+				// start view from the beginning
 				this.to(0);
 				return;
 			}
-
+			// check updates in DOM
 			$( "*[data-type]", this._list ).each( $.proxy( this._render_frame, this ) );
+			return this;
 		},
 
 		_bindEvents: function() {
@@ -81,9 +89,11 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				params = data || $el.data(),
 				$item, $indicator,
 				el_id = this._UID(),
-				new_element = $el.data("_processed") == null;
+				is_new_element = $el.data("_processed") === undefined;
 
-			new_element && $el.addClass( "ui-carousel-item" ).attr("id", el_id);
+			if ( is_new_element ){
+				$el.addClass( "ui-carousel-item" ).attr( "id", el_id );
+			}
 
 			switch ( params.type ) {
 				case "image":
@@ -94,8 +104,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					this._load_html( $el, params.title || "" );
 					break;
 			}
-			if ( this.options.showIndicator) {
-				if ( !new_element ) {
+			if ( this.options.showIndicator ) {
+				if ( !is_new_element ) {
 					return;
 				}
 				var indicator_id = this._UID();
@@ -104,14 +114,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				$indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
 				$el.data( "indicator", indicator_id );
 
-				if ( !this.options.dependent ) {
-					$indicator.on( "click", {
-						move: this.slide.bind( this, false )
-					}, function ( event ) {
-						var id = $( this ).data( "targetElement" );
-						event.data.move( $("#" + id), event );
-					});
-				}
+				$indicator.on( "click", {
+					move: this.slide.bind( this, false )
+				}, function ( event ) {
+					var id = "#" + $( this ).data( "targetElement" );
+					event.data.move( $(id), event );
+				});
 
 				$indicator
 					.on( "show", function( event ) {
@@ -121,6 +129,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 						$( this ).removeClass('ui-carousel-indicator-active');
 					});
 
+				// indicators can have actions for show and hide events
 				$el
 					.on( "hide", function( event ) {
 						$( "#" + $(this).data("indicator") ).trigger( "hide" );
@@ -132,9 +141,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$el.data("_processed", el_id);
 		},
 
+		// one place for wrap frame content
 		_wraperBox: function( el, title ) {
 			var box;
-			if ( $(".ui-carousel-box", el).length == 0 ){
+			if ( $(".ui-carousel-box", el).length === 0 ){
 				box = $( "<div></div>" )
 					.addClass( "ui-carousel-box" )
 					.appendTo( el );
@@ -142,13 +152,17 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				box = $(".ui-carousel-box", el);
 			}
 
-			this.options.showTitle && this.options.createTitle( title, el );
+			if ( this.options.showTitle ) {
+				this.options.createTitle( title, el );
+			}
 
 			return box;
 		},
 
+		// widget implementation for title renderer
 		_create_title: function( title_str, target ) {
 			var title = $( ".ui-carousel-title", target );
+			var text_function = this.options.titleIsText ? "text" : "html";
 			// just update
 			if ( title.length > 0 ){
 				if ( this.options.titleBuildIn ) {
@@ -158,17 +172,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				}
 				return title;
 			}
-			// create title
+			// create title block
 			title = $( "<div></div>" );
 			title.addClass( "ui-carousel-title" );
+			// by default styles title will occupy whole space on the bottom of frame
+			// with this option title will be sized in limited space
 			if ( this.options.titleBuildIn ) {
-				$( "<div></div>" )
-					.addClass( "ui-carousel-title-inside" )
-					.text( title_str )
-					.appendTo( title );
+				var el = $( "<div></div>" ).addClass( "ui-carousel-title-inside" );
+				el[text_function]( title_str ).appendTo( title );
 			} else {
-				title.text( title_str );
+				title[text_function]( title_str );
 			}
+			// place title at the end of frame.
 			title.appendTo( target );
 			return title;
 		},
@@ -176,14 +191,14 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		_load_image: function( url, target, parent ) {
 			var img,
 				error = function () {};
-
+			// check if image exists, then check src attribute, may be we must update image
 			if ( $("img", target).length > 0 ) {
 				img = $("img:first", target);
 				if ( img.attr("src") == url ) {
 					return;
 				}
 			}
-
+			// simple image pre loader
 			img = new Image();
 			img.onload = function() {
 				var $img = $(this);
@@ -223,9 +238,15 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			});
 			el.html( (item.type == "image" ? "" : item.content || "") );
 			el.appendTo( this._list );
-			item.onReady && el.on( "ready", item.onReady );
-			item.onShow && el.on( "show", item.onShow );
-			item.onHide && el.on( "hide", item.onHide );
+			if ( item.onReady ) {
+				el.on( "ready", item.onReady );
+			}
+			if ( item.onShow ) {
+				el.on( "show", item.onShow );
+			}
+			if (item.onHide) {
+				el.on( "hide", item.onHide );
+			}
 			this._render_frame( this._list.find(".ui-carousel-item").length, el );
 			return el;
 		},
@@ -233,10 +254,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		add: function( type, title, content, onReady, onShow, onHide) {
 			var result = false;
 			if ( $.isArray(type) ) {
-				$.each(type, this._addJSON.bind(this));
-				result = true;
-			} else if ( $.isPlainObject(type) ) {
-				result = this._addJSON(type);
+				$.each( type, this._addJSON.bind(this) );
+				result = this;
+			} else if ( $.isPlainObject( type ) ) {
+				result = this._addJSON( type );
 			} else {
 				result = this._addJSON({
 					type: type,
@@ -250,11 +271,15 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		next: function() {
-			return this.slide( "next" );
+			this.element.trigger( "beforenext" );
+			this.slide( "next" );
+			return this;
 		},
 
 		previous: function() {
-			return this.slide( "prev" );
+			this.element.trigger("beforeprev" );
+			this.slide( "prev" );
+			return this;
 		},
 
 		slide: function( type, next ) {
@@ -267,6 +292,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			if ( $active.length === 0 ) {
 				$next.trigger( "beforeshow" );
 				$next.addClass( "ui-carousel-active" ).trigger( "show" );
+				// in the beginning we doesn't have any active frames
+				// so animation is not necessary
 				return true;
 			}
 
@@ -275,21 +302,24 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			}
 
 			if ( type !== "next" && type !== "prev" ) {
-				type = $next.nextAll(".ui-carousel-active").length == 0 ? "next" : "prev";
+				// figure out type of slid if we jump to the specific frame
+				type = $next.nextAll(".ui-carousel-active").length === 0 ? "next" : "prev";
 			}
-
-			var	direction = type == "next" ? 1 : -1,
-				fallback = type == "next" ? "first" : "last";
 
 			if ( $next.hasClass("ui-carousel-active") ) {
 				return false;
 			}
 
+			var fallback = type == "next" ? "first" : "last";
 			$next = $next.length ? $next : this.element.find( ".ui-carousel-item" )[fallback]();
-			$next.trigger( "beforeshow" );
 
+			$next.trigger( "beforeshow" );
+			this.element.trigger( "slidingstart", type );
+
+			var that = this,
+				direction = type == "next" ? 1 : -1;
+			// move next frame to specific side for animation
 			$next.css( "left", ( 100 * direction ) + '%' );
-			var that = this;
 			$active.animate( {
 				left: ( 100 * direction * -1 ) + '%'
 			}, {
@@ -298,17 +328,23 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					$active.removeClass( "ui-carousel-active" ).trigger( "hide" );
 					$next.addClass( "ui-carousel-active" ).trigger( "show" );
 					that._sliding = false;
+					that.element.trigger( "slidingdone", that._sliding_type);
 				},
 				step: function( now, fx ) {
 					$next.css( "left", (100 * direction + now) + "%" );
 				}
 			});
-			return this._sliding = true;
+			// prevent any sliding before main sliding is done
+			this._sliding = true;
+			this._sliding_type = type;
+			return true;
 		},
 
-		to: function( index) {
+		to: function( index ) {
+			this.element.trigger( "goto", index );
 			var $el = $( ".ui-carousel-item:eq(" + index + ")", this.element );
-			return this.slide( null, $el );
+			this.slide( false, $el );
+			return this;
 		},
 
 		getFrame: function( index ) {
@@ -325,17 +361,20 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		eachItem: function(callback) {
 			this._list.find(".ui-carousel-item").each(callback);
+			return this;
 		},
 
 		remove: function( index, el ) {
-			if ( el == undefined ) {
+			if ( el === undefined ) {
 				el = this._list.find( ".ui-carousel-item:eq(" + index + ")" );
 			}
 
 			var $el = $(el),
 				$indicator = $( "#" + $el.data("indicator") );
 
+			// if frame is active we need move carousel to the next frame before remove it.
 			if ( $el.hasClass("ui-carousel-active") ) {
+				// and bind last event action
 				$el.one( "hide", this.remove.bind(this, index, $el) );
 				this.next();
 			} else {
@@ -346,14 +385,17 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		_remove: function( index, el ) {
 			var $el = $(el),
+				// indicator can be in any part of DOM,
+				// so we use only previously saved id for find it.
 				$indicator = $( "#" + $el.data("indicator") );
-			$indicator.trigger( "itemremove" ).off();
 			$el.trigger( "itemremove" ).off();
+			$indicator.trigger( "itemremove" ).off();
 			$indicator.remove();
 			$el.remove();
 		},
 
 		clear: function( done ) {
+			this.element.trigger("clear_all");
 			$(".ui-carousel-item", this.element).each(this._remove.bind(this));
 		},
 
@@ -369,7 +411,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		$( document ).trigger( "ui-carouselbeforecreate" );
 		return $( ":jqmData(role='carousel')", e.target ).carousel();
 	});
-})( jQuery );
+}( jQuery ));
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
 //>>excludeEnd( "jqmBuildExclude" );
