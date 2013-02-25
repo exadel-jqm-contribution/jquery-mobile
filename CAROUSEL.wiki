@@ -70,7 +70,16 @@ h2. Options
 	Example for {{options}}:
 
 	{code}
-	<div data-role="carousel" data-options>
+	<div data-role="carousel" data-options='{"showIndicator": true, "dependent": true}'>
+	    <div class="ui-carousel-items">
+	        {{PLACE FOR ITEMS}}
+	    </div>
+	</div>
+	{code}
+
+Example for data attributes:
+	{code}
+	<div data-role="carousel" data-show-indicator="true" data-dependent="true" data-show-title="true">
 	    <div class="ui-carousel-items">
 	        {{PLACE FOR ITEMS}}
 	    </div>
@@ -88,7 +97,7 @@ h2. Options
 	* {{titleBuildIn: false}} -- title can by render with two ways. Will be describe later.
 	* {{createTitle: null}} -- function for render title. Will be describe later.
 	* {{enabled: true}} -- this option for switch off sliding. After launch widget show first frame.
-	* {{depended: false}} -- this option for switching off reaction on mouse or touch, but API continues to work.
+	* {{dependent: false}} -- this option for switching off reaction on mouse or touch, but API continues to work.
 
 	h4. Indicators
 
@@ -153,11 +162,73 @@ h2. Options
 	For animation widget use jQuery implementation of sliding by changing css-value {{left}}.
 	For showing item {{left}} == 0, otherwise {{left}} can by {{100%}} or {{-100%}}
 
-	h4. Depended widget
+	h4. Dependent widget
 
-	The {{depended}} option provide ability for create widget that ignore touch and clicks,
+	The {{dependent}} option provide ability for create widget that ignore touch and clicks,
 	but can by controlled by using widget API.
 
 h2. API
 
+	h3. Data role
 
+	As other jQuery.Mobile widgets Carousel widget can be launch with {{data-role}} attribute {{carousel}}.
+	Widget starts with {{pageshow}} event and trigger {{i-carouselbeforecreate}} event in the beginning.
+
+	Example:
+	{code}
+	<div data-role="carousel">
+	    <div class="ui-carousel-items">
+	        {{PLACE FOR ITEMS}}
+	    </div>
+	</div>
+	{code}
+
+	h3. JS
+
+	Example. Create Carousel instance for specific element with special options:
+	{code}
+	function drawSpecialIndicator( list, title ) {
+		// ...
+	}
+
+	function drawSpecialTitle( title_str, target ) {
+		// ...
+	}
+
+	$({TARGET_SELECTOR}).carousel({
+		indicators: $("#special_place_for_indicators"),
+		indicatorsListClass: "owned-class-indicators",
+		animationDuration: 50, // we want quick animation
+		createIndicator: drawSpecialIndicator,
+		// titleBuildIn: false, // we want draw owned title, so ...
+		createTitle: drawSpecialTitle,
+		enabled: true,
+		dependent: true // we will use another script for controlling widget.
+	});
+	{code}
+
+	h3. Build in public methods
+
+	# {{next}} -- move to next frame.
+	# {{previous}} -- move to previous frame.
+	# {{slide}} -- accept two parameters:
+	** {{type}} -- {{"next"}} or {{"prev"}} for navigation.
+		Else, {{slide}} method determine relative position for {{next}} object and current active frame.
+	** {{next}} -- jQuery object of next frame for showing.
+	# {{to}} -- can by using for jump to frame with specific {{index}} (as parameter).
+	# {{getFrame}} -- return jQuery-object of frame with specific {{index}} (as parameter).
+	# {{add}} -- create new frame. Accepted parameters:
+	** {{type}} -- define type of frame ({{"index"}} or {{"html"}}).
+	** {{title}} -- title of frame.
+	** {{content}} -- define content for frame. If {{type == "image"}} then this parameter use as {{imageUrl}}, otherwise as HTML-code.
+	** {{onReady}} -- can be {{undefined}}. Provide ability to set callback for frame event {{ready}}.
+	** {{onShow}} -- can be {{undefined}}. Provide ability to set callback for frame event {{show}}.
+
+	h3. Events
+
+	h4. Frame events
+
+	# {{ready}} -- fire when frame loaded. For frame with type {{"image"}}, this event fire when image is loaded.
+	# {{beforeshow}} -- fire for frame before show (before animation begin).
+	# {{show}} -- frame showing.
+	# {{hide}} -- frame hidden.
