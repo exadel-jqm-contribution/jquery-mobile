@@ -57,6 +57,7 @@
 	bottom: 0px;
 	left: 0px;
 	position: absolute;
+	z-index: 5; /* check z-index for .ui-left-arrow and .ui-right-arrow */
 	width: 100%;
 }
 .ui-carousel-title-inside {
@@ -67,12 +68,11 @@
 }
 .ui-left-arrow, .ui-right-arrow {
 	opacity: 0;
-
 	width: 50%;
 	height: 100%;
 	display: inline-block;
 	position: absolute;
-	z-index: 3;
+	z-index: 3; /* check z-index for .ui-carousel-title */
 }
 .ui-left-arrow {
 	left:0px;
@@ -84,4 +84,8 @@
 .ui-carousel {
 	overflow: hidden;
 	position:relative;
+}
+
+@media (max-width: 1024px) {
+  .ui-left-arrow, .ui-right-arrow { display: none; }
 }
