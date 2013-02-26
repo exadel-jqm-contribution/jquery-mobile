@@ -392,7 +392,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_animation: function( direction, duration, $active, $next, done_cb ) {
-			console.log( "legasy animation" );
 			// move next frame to specific side for animation
 			$next.css( "left", ( 100 * direction ) + '%' );
 			$active.animate( {

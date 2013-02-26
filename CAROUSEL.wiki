@@ -91,6 +91,7 @@ h2. Options
 	* {{indicators: null}} -- container for indicators. Can by {{string}} as jQuery selector or jQuery object as DOM element.
 	* {{indicatorsListClass: "ui-carousel-indicators"}} -- class for indicators container.
 	* {{animationDuration: 250}} -- speed of sliding animation in milliseconds.
+	* {{useLegasyAnimation: false}} -- If false widget try init browser build in support for css3 animation;
 	* {{showIndicator: true}} -- show or hide indicators. If false, they will not render.
 	* {{showTitle: true}} -- same for title.
 	* {{createIndicator: null}} -- function for render indicator. Will be describe later.
@@ -210,15 +211,15 @@ h2. API
 
 	h3. Build in public methods
 
-	# {{next}} -- move to next frame;
-	# {{previous}} -- move to previous frame;
-	# {{slide}} -- accept two parameters:
+	* {{next}} -- move to next frame;
+	* {{previous}} -- move to previous frame;
+	* {{slide}} -- accept two parameters:
 	** {{type}} -- {{"next"}} or {{"prev"}} for navigation.
 		Else, {{slide}} method determine relative position for {{next}} object and current active frame;
 	** {{next}} -- jQuery object of next frame for showing.
-	# {{to}} -- can by using for jump to frame with specific {{index}} (as parameter);
-	# {{getFrame}} -- return jQuery-object of frame with specific {{index}} (as parameter);
-	# {{add}} -- create new frame. Return jQuery-object of created element or
+	* {{to}} -- can by using for jump to frame with specific {{index}} (as parameter);
+	* {{getFrame}} -- return jQuery-object of frame with specific {{index}} (as parameter);
+	* {{add}} -- create new frame. Return jQuery-object of created element or
 		Carousel object in case Array of items in the first argument. Accepted parameters:
 	** {{type}} -- define type of frame ({{"index"}} or {{"html"}}).
 		Can by array of [PlainObjects|http://api.jquery.com/Types#PlainObject]
@@ -227,12 +228,14 @@ h2. API
 	** {{content}} -- define content for frame. If {{type == "image"}} then this parameter use as {{imageUrl}}, otherwise as HTML-code.;
 	** {{onReady}} -- can be {{undefined}}. Provide ability to set callback for frame event {{ready}};
 	** {{onShow}} -- can be {{undefined}}. Provide ability to set callback for frame event {{show}}.
-	# {{length}} -- return frames count;
-	# {{eachItem}} -- as jQuery.each for every frame;
-	# {{remove}} -- remove one frame (and indicator) by {{index}} in first parameter or frame defined in second parameter;
-	# {{clear}} -- remove all items from carousel;
-	# {{refresh}} -- method can by used for forced update from DOM or from first parameter, which must be array of objects.
-		If array of objects sets, then carousel run {{clear}}-method and build new carousel.
+	* {{length}} -- return frames count;
+	* {{eachItem}} -- as jQuery.each for every frame;
+	* {{remove}} -- remove one frame (and indicator) by {{index}} in first parameter or frame defined in second parameter;
+	* {{clear}} -- remove all items from carousel;
+	* {{refresh}} -- method can by used for forced update from DOM or from first parameter, which must be array of objects.
+		If array of objects sets, then carousel run {{clear}}-method and build new carousel;
+	* {{unBindEvents}} -- unbind touch events and cursors. Widget controllable only by API and Indicators;
+	* {{bindEvents}} -- rebind touch events and cursors.
 
 	h3. Events
 
