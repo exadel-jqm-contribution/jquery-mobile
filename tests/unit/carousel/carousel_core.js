@@ -260,4 +260,26 @@
 		c.carousel( "refresh", fixture );
 	});
 
-})( jQuery );
+	asyncTest( "check html-type items", function(){
+		expect( 3 );
+
+		$( "#test_events" ).on( "click", function(){
+			ok( true, "event created before init carousel still exists" );
+		});
+
+		var c = $( "#carousel" ).carousel();
+
+		$( "#test_events" ).click();
+		var $frame = c.carousel( "getFrame", 1 );
+		equal( $(".ui-carousel-title", $frame).text(), $frame.data( "title" ), "check frame title before change" );
+
+		$frame.data("title", "1");
+		c.carousel( "refresh" );
+		setTimeout( function() {
+			equal( $(".ui-carousel-title", $frame).text(), $frame.data( "title" ), "check frame title after change" );
+			start();
+		}, 160);
+
+	});
+
+}( jQuery ));

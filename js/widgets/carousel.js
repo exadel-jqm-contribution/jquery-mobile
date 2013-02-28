@@ -270,12 +270,19 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_load_html: function( $el, title ) {
-			var content = $el.children().detach(),
-				item;
+			var content, item;
+
+			if ( $(".ui-carousel-box", $el).length !== 0 ){
+				// update only for title.
+				this._wraperBox( $el, title );
+				$el.trigger( "ready" );
+				return;
+			}
+			content = $el.children().detach();
 			$el.html( "" );
 			item = this._wraperBox( $el, title );
 			item.append(content);
-			//item.trigger( "create" );
+
 			$el.trigger( "ready" );
 		},
 
@@ -380,10 +387,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				direction = type == "next" ? 1 : -1;
 
 			this._animation( direction, this.options.animationDuration, $active, $next, done.bind(this) );
-
-			var active = $active.get(0),
-				next = $next.get(0);
-
 
 			// prevent any sliding before main sliding is done
 			this._sliding = true;
