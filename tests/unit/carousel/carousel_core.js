@@ -41,28 +41,71 @@
 		c.carousel( "to", 3 );
 	});
 
-	asyncTest( "wait hide event for specific slide", function() {
-		expect( 1 );
-		var c = $( "#carousel" ).carousel();
-		var frame = c.carousel('getFrame', 0);
-		c.carousel( "to", 0);
-		frame.on( "hide", function(event) {
-			ok(true, "fire HIDE event");
+	asyncTest( "go through the list and check events", function() {
+		expect( 8 );
+		var i = 0,
+			c = $( "#carousel" ).carousel(),
+			show = 0, hide = 0, beforenext = 0, beforeshow = 0, slidingstart = 0, slidingdone = 0;
+		c.carousel( "eachItem", function(index, el){
+			$(el).on( "show", function() { show++; });
+			$(el).on( "hide", function() { hide++; });
+		});
+
+		c.on( "beforeshow", function(){	beforeshow++; });
+		c.on( "beforenext", function(){	beforenext++; });
+		c.on( "slidingstart", function(){ slidingstart++; });
+		c.on( "slidingdone", function(){ slidingdone++;	});
+
+		c.carousel( "getFrame", c.carousel("length") - 1 ).on( "hide", function(){
+			ok( true, "last frame hide" );
+			clearInterval( interval );
+		});
+		c.carousel( "getFrame", 0 ).on("show", function() {
+			var length = c.carousel( "length" );
+			equal( show, length, "show count must be == count of items" );
+			equal( hide, length, "hide count must be == count of items" );
+			equal( beforeshow, beforenext, "beforeshow == beforenext" );
+			equal( beforeshow, slidingstart, "beforeshow == slidingstart" );
+			notEqual( slidingdone, slidingstart, "Because we stops test with SHOW event -- slidingdone != slidingstart" );
+			equal( slidingdone, slidingstart-1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
+			equal( show, beforeshow, "show == beforeshow" );
 			start();
 		});
-		c.carousel('to', 3);
+		var interval = setInterval( function() {
+			c.carousel( "next" );
+		}, c.carousel( "option", "animationDuration" ) + 20);
 	});
 
-	asyncTest( "test beforeshow event", function() {
-		expect( 1 );
-		var c = $( "#carousel" ).carousel();
-		var frame = c.carousel('getFrame', 1);
-		c.carousel( "to", 0);
-		frame.on( "beforeshow", function(event) {
-			ok(true, "fire beforeshow event");
+	asyncTest( "go through the list in reverse order and check events", function() {
+		expect( 7 );
+		var i = 0,
+			c = $( "#carousel" ).carousel(),
+			show = 0, hide = 0, beforeprev = 0, beforeshow = 0, slidingstart = 0, slidingdone = 0;
+		c.carousel( "eachItem", function(index, el){
+			$(el).on( "show", function() { show++; });
+			$(el).on( "hide", function() { hide++; });
+		});
+
+		c.on( "beforeshow", function(){	beforeshow++; });
+		c.on( "beforeprev", function(){	beforeprev++; });
+		c.on( "slidingstart", function(){ slidingstart++; });
+		c.on( "slidingdone", function(){ slidingdone++;	});
+
+		c.carousel( "getFrame", 0 ).on("show", function() {
+			clearInterval( interval );
+			var length = c.carousel( "length" );
+			equal( show, length, "show count must be == count of items" );
+			equal( hide, length, "hide count must be == count of items" );
+			equal( beforeshow, beforeprev, "beforeshow == beforenext" );
+			equal( beforeshow, slidingstart, "beforeshow == slidingstart" );
+			notEqual( slidingdone, slidingstart, "Because we stops test with SHOW event -- slidingdone != slidingstart" );
+			equal( slidingdone, slidingstart-1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
+			equal( show, beforeshow, "show == beforeshow" );
 			start();
 		});
-		c.carousel('to', 1);
+		var interval = setInterval( function() {
+			c.carousel( "previous" );
+		}, c.carousel( "option", "animationDuration" ) + 20);
 	});
 
 	test( "test owned indicators", function() {

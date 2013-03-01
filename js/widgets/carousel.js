@@ -248,6 +248,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			if ( $("img", target).length > 0 ) {
 				img = $("img:first", target);
 				if ( img.attr("src") == url ) {
+					parent.trigger( "ready", { item: parent });
 					return;
 				}
 			}
