@@ -47,8 +47,8 @@
 			c = $( "#carousel" ).carousel(),
 			show = 0, hide = 0, beforenext = 0, beforeshow = 0, slidingstart = 0, slidingdone = 0;
 		c.carousel( "eachItem", function(index, el){
-			$(el).on( "show", function() { show++; });
-			$(el).on( "hide", function() { hide++; });
+			$(el).on( "show", function(){ show++; });
+			$(el).on( "hide", function(){ hide++; });
 		});
 
 		c.on( "beforeshow", function(){	beforeshow++; });
@@ -99,7 +99,7 @@
 			equal( beforeshow, beforeprev, "beforeshow == beforenext" );
 			equal( beforeshow, slidingstart, "beforeshow == slidingstart" );
 			notEqual( slidingdone, slidingstart, "Because we stops test with SHOW event -- slidingdone != slidingstart" );
-			equal( slidingdone, slidingstart-1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
+			equal( slidingdone, slidingstart - 1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
 			equal( show, beforeshow, "show == beforeshow" );
 			start();
 		});
@@ -314,15 +314,14 @@
 
 		$( "#test_events" ).click();
 		var $frame = c.carousel( "getFrame", 1 );
-		equal( $(".ui-carousel-title", $frame).text(), $frame.data( "title" ), "check frame title before change" );
+		equal( $(".ui-carousel-title", $frame).text(), $frame.data("title"), "check frame title before change" );
 
-		$frame.data("title", "1");
+		$frame.data( "title", "1" );
 		c.carousel( "refresh" );
 		setTimeout( function() {
-			equal( $(".ui-carousel-title", $frame).text(), $frame.data( "title" ), "check frame title after change" );
+			equal( $(".ui-carousel-title", $frame).text(), $frame.data("title"), "check frame title after change" );
 			start();
 		}, 160);
-
 	});
 
 }( jQuery ));
