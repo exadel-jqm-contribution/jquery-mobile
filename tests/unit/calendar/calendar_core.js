@@ -74,4 +74,10 @@
 		equal( c.calendar("getCurrentDate").toStr(), d1.toStr(), "check: 'after six months' " + d1.toStr());
 	});
 
+	test( "formats support date", function() {
+		var c = $("#calendar").calendar();
+
+
+	});
+
 }( jQuery ));

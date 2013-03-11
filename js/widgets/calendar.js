@@ -135,6 +135,16 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return result;
 	},
 
+	_format: function( format, date ) {
+
+	},
+
+	getDateString: function(format) {
+		format = format || this.options.dateFormat;
+
+
+	}
+
 	_createContorols: function() {
 		this.controls = $("<fieldset></fieldset>").addClass("ui-calendar-controls");
 		this.controls.data({
@@ -190,7 +200,6 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		_table.addClass( "ui-calendar" );
 		head.addClass( "ui-calendar-header" );
 		body.addClass( "ui-calendar-body" );
-
 	},
 
 	refresh: function() {
