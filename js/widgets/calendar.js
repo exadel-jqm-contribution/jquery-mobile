@@ -1,8 +1,8 @@
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-//>>description: Creates carousel from list of images or html-blocks.
-//>>label: Carousel
+//>>description: Creates calendar from list of images or html-blocks.
+//>>label: calendar
 //>>group: Widgets
-//>>css.structure: ../css/structure/jquery.mobile.carousel.css
+//>>css.structure: ../css/structure/jquery.mobile.calendar.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
 define( ["jquery", "../jquery.mobile.widget" ], function ( jQuery ) {
@@ -10,8 +10,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( jQuery ) {
 
 (function( $, undefined ){
 
-$.widget( "mobile.carousel", $.mobile.widget, {
+$.widget( "mobile.calendar", $.mobile.widget, {
 	options:{
+		dateFormat: null,
 		startDate: "today",
 		minDate: false,
 		maxDate: false,
@@ -51,6 +52,11 @@ $.widget( "mobile.carousel", $.mobile.widget, {
 		if ( this.regional[region] != undefined ) {
 			this.texts = this.regional[region];
 			this.options.regional = region;
+			if ( this.options.dateFormat !== null ) {
+				this.texts.dateFormat = this.options.dateFormat;
+			} else {
+				this.options.dateFormat = this.texts.dateFormat;
+			}
 		}
 		return this;
 	},
@@ -69,8 +75,30 @@ $.widget( "mobile.carousel", $.mobile.widget, {
 		this.refresh();
 	},
 
+	_setOption: function(key, value) {
+		if ( key == "dateFormat" ) {
+			this.texts.dateFormat = this.options.dateFormat = value;
+		} else {
+			if ( this.options.hasOwnProperty(key) ) {
+				this.options[key] = value;
+			}
+		}
+	},
+
 	getCurrentDate: function(){
 		return this.current_date;
+	},
+
+	getWeekDayName: function(){
+		return this.texts.dayNames[this.current_date.getDay()];
+	},
+
+	getMonthName: function(){
+		return this.texts.monthNames[this.current_date.getMonth()];
+	},
+
+	setCurrentDate: function( date ){
+		this.current_date = this._createDate( date );
 	},
 
 	_createDate: function( d ) {
@@ -82,16 +110,16 @@ $.widget( "mobile.carousel", $.mobile.widget, {
 					result = new Date();
 					break;
 				case "tomorrow":
-					result = new Date( today.getFullYear(), today.getUTCMonth(), today.getDate() + 1 );
+					result = new Date( today.getFullYear(), today.getMonth(), today.getDate() + 1 );
 					break;
 				case "next month":
-					result = new Date( today.getFullYear(), today.getUTCMonth() + 1, 1);
+					result = new Date( today.getFullYear(), today.getMonth() + 1, 1);
 					break;
 				case "next year":
-					result = new Date( today.getFullYear() + 1, today.getUTCMonth(), today.getDate() );
+					result = new Date( today.getFullYear() + 1, today.getMonth(), today.getDate() );
 					break;
 				case "after six months":
-					result = new Date( today.getFullYear(), today.getUTCMonth() + 6, today.getDate() );
+					result = new Date( today.getFullYear(), today.getMonth() + 6, today.getDate() );
 					break;
 				default:
 					try {
@@ -108,7 +136,6 @@ $.widget( "mobile.carousel", $.mobile.widget, {
 	},
 
 	_createContorols: function() {
-
 		this.controls = $("<fieldset></fieldset>").addClass("ui-calendar-controls");
 		this.controls.data({
 			role: "controlgroup",
@@ -171,8 +198,8 @@ $.widget( "mobile.carousel", $.mobile.widget, {
 	}
 });
     $( document ).bind( "pageshow", function( e ) {
-		$( document ).trigger( "ui-carouselbeforecreate" );
-		return $( ":jqmData(role='carousel')", e.target ).carousel();
+		$( document ).trigger( "ui-calendarbeforecreate" );
+		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
 
