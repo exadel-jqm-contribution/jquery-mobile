@@ -14,7 +14,7 @@ define([
 	"./jquery.mobile.navigation",
 	"./widgets/loader",
 	"./jquery.mobile.vmouse",
-	"depend!./jquery.hashchange[jquery]" ], function( $ ) {
+	"depend!./jquery.hashchange[jquery]" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, window, undefined ) {
 	var	$html = $( "html" ),
@@ -68,7 +68,7 @@ define([
 				var $this = $( this );
 
 				// unless the data url is already set set it to the pathname
-				if ( !$this.jqmData( "url" ) ) {
+				if ( !$this[ 0 ].getAttribute( "data-" + $.mobile.ns + "url" ) ) {
 					$this.attr( "data-" + $.mobile.ns + "url", $this.attr( "id" ) || location.pathname + location.search );
 				}
 			});

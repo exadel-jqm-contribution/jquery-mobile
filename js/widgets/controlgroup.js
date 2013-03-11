@@ -8,11 +8,11 @@
 define( [ "jquery",
 	"../jquery.mobile.buttonMarkup",
 	"./addFirstLastClasses",
-	"../jquery.mobile.widget" ], function( $ ) {
+	"../jquery.mobile.widget" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
-	$.widget( "mobile.controlgroup", $.mobile.widget, {
+	$.widget( "mobile.controlgroup", $.mobile.widget, $.extend( {
 		options: {
 			shadow: false,
 			corners: true,
@@ -24,30 +24,28 @@ define( [ "jquery",
 
 		_create: function() {
 			var $el = this.element,
-				ui = {
-					inner: $( "<div class='ui-controlgroup-controls'></div>" ),
-					legend: $( "<div role='heading' class='ui-controlgroup-label'></div>" )
-				},
+				inner = $( "<div class='ui-controlgroup-controls'></div>" ),
 				grouplegend = $el.children( "legend" ),
-				self = this;
+				o = this.options;
 
 			// Apply the proto
-			$el.wrapInner( ui.inner );
+			$el.wrapInner( inner );
 			if ( grouplegend.length ) {
-				ui.legend.append( grouplegend ).insertBefore( $el.children( 0 ) );
+				$( "<div role='heading' class='ui-controlgroup-label'></div>" ).append( grouplegend ).insertBefore( $el.children( 0 ) );
 			}
-			$el.addClass( "ui-corner-all ui-controlgroup" );
+			$el.addClass( "ui-controlgroup" );
 
 			$.extend( this, {
 				_initialRefresh: true
 			});
 
-			$.each( this.options, function( key, value ) {
-				// Cause initial options to be applied by their handler by temporarily setting the option to undefined
-				// - the handler then sets it to the initial value
-				self.options[ key ] = undefined;
-				self._setOption( key, value, true );
-			});
+			// This duplicates the code from the various option setters below for
+			// better performance. It must be kept in sync with those setters.
+			$el
+				.addClass( "ui-controlgroup-" + o.type )
+				.toggleClass( "ui-corner-all", o.corners )
+				.toggleClass( "ui-shadow", o.shadow )
+				.toggleClass( "ui-mini", o.mini );
 		},
 
 		_init: function() {
@@ -97,22 +95,16 @@ define( [ "jquery",
 			this._addFirstLastClasses( els, this.options.excludeInvisible ? this._getVisibles( els, create ) : els, create );
 			this._initialRefresh = false;
 		}
-	});
-
-	$.widget( "mobile.controlgroup", $.mobile.controlgroup, $.mobile.behaviors.addFirstLastClasses );
+	}, $.mobile.behaviors.addFirstLastClasses ) );
 
 	// TODO: Implement a mechanism to allow widgets to become enhanced in the
 	// correct order when their correct enhancement depends on other widgets in
 	// the page being correctly enhanced already.
 	//
-	// For now, we wait until dom-ready to attach the controlgroup's enhancement
-	// hook, because by that time, all the other widgets' enhancement hooks should
-	// already be in place, ensuring that all widgets that need to be grouped will
-	// already have been enhanced by the time the controlgroup is created.
-	$( function() {
-		$.mobile.document.bind( "pagecreate create", function( e )  {
-			$.mobile.controlgroup.prototype.enhanceWithin( e.target, true );
-		});
+	// Dom ready was insufficient for preventing timing issues, use the page init
+	// event to run this widget after all else. Widget registry incoming.
+	$.mobile.document.bind( "pageinit create", function( e )  {
+		$.mobile.controlgroup.prototype.enhanceWithin( e.target, true );
 	});
 })(jQuery);
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

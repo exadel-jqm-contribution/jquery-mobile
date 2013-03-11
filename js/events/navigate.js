@@ -4,11 +4,27 @@
 //>>group: Events
 
 // TODO break out pushstate support test so we don't depend on the whole thing
-define([ "jquery", "./../jquery.mobile.ns", "./../jquery.mobile.support" ], function( $ ) {
+define([
+	"jquery",
+	"depend!../jquery.hashchange[jquery]",
+	"./../jquery.mobile.ns",
+	"./../jquery.mobile.support" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 
 (function( $, undefined ) {
-	var $win = $.mobile.window, self, history;
+	var $win = $.mobile.window, self, history,
+		dummyFnToInitNavigate = function() {
+		};
+
+	$.event.special.beforenavigate = {
+		setup: function() {
+			$win.on( "navigate", dummyFnToInitNavigate );
+		},
+
+		teardown: function() {
+			$win.off( "navigate", dummyFnToInitNavigate );
+		}
+	};
 
 	$.event.special.navigate = self = {
 		bound: false,
@@ -37,6 +53,7 @@ define([ "jquery", "./../jquery.mobile.ns", "./../jquery.mobile.support" ], func
 				state = event.originalEvent.state || {},
 				href = location.href;
 
+			beforeNavigate.originalEvent = event;
 			$win.trigger( beforeNavigate );
 
 			if( beforeNavigate.isDefaultPrevented() ){
@@ -66,6 +83,7 @@ define([ "jquery", "./../jquery.mobile.ns", "./../jquery.mobile.support" ], func
 			var newEvent = new $.Event( "navigate" ),
 				beforeNavigate = new $.Event( "beforenavigate" );
 
+			beforeNavigate.originalEvent = event;
 			$win.trigger( beforeNavigate );
 
 			if( beforeNavigate.isDefaultPrevented() ){

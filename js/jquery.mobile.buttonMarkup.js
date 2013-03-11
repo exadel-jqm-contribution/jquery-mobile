@@ -5,7 +5,7 @@
 //>>css.structure: ../css/structure/jquery.mobile.button.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-define( [ "jquery", "./jquery.mobile.core", "./jquery.mobile.vmouse" ], function( $ ) {
+define( [ "jquery", "./jquery.mobile.core", "./jquery.mobile.vmouse" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
@@ -52,7 +52,11 @@ $.fn.buttonMarkup = function( options ) {
 			buttonElements;
 
 		for ( key in o ) {
-			e.setAttribute( nsKey + key, o[ key ] );
+			if ( o[ key ] === undefined || o[ key ] === null ) {
+				el.removeAttr( nsKey + key );
+			} else {
+				e.setAttribute( nsKey + key, o[ key ] );
+			}
 		}
 
 		if ( getAttrFixed( e, nsKey + "rel" ) === "popup" && el.attr( "href" ) ) {
@@ -122,10 +126,6 @@ $.fn.buttonMarkup = function( options ) {
 			if ( o.iconpos === "notext" && !el.attr( "title" ) ) {
 				el.attr( "title", el.getEncodedText() );
 			}
-		}
-
-		if ( o.iconpos && o.iconpos === "notext" && !el.attr( "title" ) ) {
-			el.attr( "title", el.getEncodedText() );
 		}
 
 		if ( buttonElements ) {

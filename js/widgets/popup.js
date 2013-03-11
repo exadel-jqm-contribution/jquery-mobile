@@ -21,7 +21,7 @@ define( [
 	"../navigation/navigator",
 	"../navigation/method",
 	"../jquery.mobile.navigation",
-	"depend!../jquery.hashchange[jquery]" ], function( $ ) {
+	"depend!../jquery.hashchange[jquery]" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
@@ -130,6 +130,7 @@ define( [
 						// effectively rapid-open the popup while leaving the screen intact
 						this._ui.container.removeClass( "ui-popup-hidden" );
 						this.reposition( { positionTo: "window" } );
+						this._ignoreResizeEvents();
 					}
 
 					this._resizeScreen();
@@ -142,8 +143,17 @@ define( [
 			}
 		},
 
+		_ignoreResizeEvents: function() {
+			var self = this;
+
+			if ( this._ignoreResizeTo ) {
+				clearTimeout( this._ignoreResizeTo );
+			}
+			this._ignoreResizeTo = setTimeout( function() { self._ignoreResizeTo = 0; }, 1000 );
+		},
+
 		_handleWindowResize: function( e ) {
-			if ( this._isOpen ) {
+			if ( this._isOpen && this._ignoreResizeTo === 0 ) {
 				if ( ( this._expectResizeEvent() || this._orientationchangeInProgress ) &&
 					!this._ui.container.hasClass( "ui-popup-hidden" ) ) {
 					// effectively rapid-close the popup while leaving the screen intact
@@ -155,7 +165,7 @@ define( [
 		},
 
 		_handleWindowOrientationchange: function( e ) {
-			if ( !this._orientationchangeInProgress && this._isOpen ) {
+			if ( !this._orientationchangeInProgress && this._isOpen && this._ignoreResizeTo === 0 ) {
 				this._expectResizeEvent();
 				this._orientationchangeInProgress = true;
 			}
@@ -183,12 +193,9 @@ define( [
 				} else if ( ui.focusElement[ 0 ] === ui.container[ 0 ] ) {
 					ui.focusElement = $tgt;
 				}
-			} else if ( ui.focusElement && ui.focusElement[ 0 ] !== ui.container[ 0 ] ) {
-				ui.container.blur();
-				ui.focusElement.focus();
 			}
 
-			this._expectResizeEvent();
+			this._ignoreResizeEvents();
 		},
 
 		_create: function() {
@@ -212,7 +219,7 @@ define( [
 
 			// define the container for navigation event bindings
 			// TODO this would be nice at the the mobile widget level
-			this.options.container = this.options.container || $.mobile.pageContainer;
+			this.options.container = this.options.container || $.mobile.pageContainer || thisPage;
 
 			// Apply the proto
 			thisPage.append( ui.screen );
@@ -241,6 +248,7 @@ define( [
 				_isOpen: false,
 				_tolerance: null,
 				_resizeData: null,
+				_ignoreResizeTo: 0,
 				_orientationchangeInProgress: false
 			});
 
@@ -401,25 +409,35 @@ define( [
 			}
 		},
 
-		// Try and center the overlay over the given coordinates
-		_placementCoords: function( desired ) {
-			// rectangle within which the popup must fit
-			var
+		_clampPopupWidth: function( infoOnly ) {
+			var menuSize,
 				winCoords = windowCoords(),
+				// rectangle within which the popup must fit
 				rc = {
 					x: this._tolerance.l,
 					y: winCoords.y + this._tolerance.t,
 					cx: winCoords.cx - this._tolerance.l - this._tolerance.r,
 					cy: winCoords.cy - this._tolerance.t - this._tolerance.b
 				},
-				menuSize, ret;
+				ret;
 
-			// Clamp the width of the menu before grabbing its size
-			this._ui.container.css( "max-width", rc.cx );
+			if ( !infoOnly ) {
+				// Clamp the width of the menu before grabbing its size
+				this._ui.container.css( "max-width", rc.cx );
+			}
+
 			menuSize = {
 				cx: this._ui.container.outerWidth( true ),
 				cy: this._ui.container.outerHeight( true )
 			};
+
+			return { rc: rc, menuSize: menuSize };
+		},
+
+		_calculateFinalLocation: function( desired, clampInfo ) {
+			var ret,
+				rc = clampInfo.rc,
+				menuSize = clampInfo.menuSize;
 
 			// Center the menu over the desired coordinates, while not going outside
 			// the window tolerances. This will center wrt. the window if the popup is too large.
@@ -441,6 +459,11 @@ define( [
 			ret.y -= Math.min( ret.y, Math.max( 0, ret.y + menuSize.cy - docHeight ) );
 
 			return { left: ret.x, top: ret.y };
+		},
+
+		// Try and center the overlay over the given coordinates
+		_placementCoords: function( desired ) {
+			return this._calculateFinalLocation( desired, this._clampPopupWidth() );
 		},
 
 		_createPrereqs: function( screenPrereq, containerPrereq, whenDone ) {
@@ -572,7 +595,7 @@ define( [
 			this._isOpen = true;
 			this._resizeScreen();
 			this._ui.container.attr( "tabindex", "0" ).focus();
-			this._expectResizeEvent();
+			this._ignoreResizeEvents();
 			this._trigger( "afteropen" );
 		},
 
@@ -799,7 +822,7 @@ define( [
 			urlHistory = $.mobile.urlHistory;
 			hashkey = $.mobile.dialogHashKey;
 			activePage = $.mobile.activePage;
-			currentIsDialog = activePage.is( ".ui-dialog" );
+			currentIsDialog = activePage.hasClass( "ui-dialog" );
 			this._myUrl = url = urlHistory.getActive().url;
 			hasHash = ( url.indexOf( hashkey ) > -1 ) && !currentIsDialog && ( urlHistory.activeIndex > 0 );
 
@@ -823,7 +846,7 @@ define( [
 			}
 
 			// swallow the the initial navigation event, and bind for the next
-			$(window).one( "beforenavigate", function( e ) {
+			$.mobile.window.one( "beforenavigate", function( e ) {
 				e.preventDefault();
 				self._open( options );
 				self._bindContainerClose();

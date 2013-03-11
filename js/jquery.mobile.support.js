@@ -2,7 +2,7 @@
 //>>description: Assorted tests to qualify browsers by detecting features
 //>>label: Support Tests
 //>>group: Core
-define( [  "jquery", "./jquery.mobile.core", "./jquery.mobile.media", "./jquery.mobile.support.touch", "./jquery.mobile.support.orientation" ], function( $ ) {
+define( [  "jquery", "./jquery.mobile.core", "./jquery.mobile.media", "./jquery.mobile.support.touch", "./jquery.mobile.support.orientation" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
@@ -193,6 +193,8 @@ $.extend( $.support, {
 	// https://developers.google.com/chrome/mobile/docs/user-agent#chrome_for_ios_user-agent
 	pushState: "pushState" in history &&
 		"replaceState" in history &&
+		// When running inside a FF iframe, calling replaceState causes an error
+		!( window.navigator.userAgent.indexOf( "Firefox" ) >= 0 && window.top !== window ) &&
 		( window.navigator.userAgent.search(/CriOS/) === -1 ),
 
 	mediaquery: $.mobile.media( "only all" ),

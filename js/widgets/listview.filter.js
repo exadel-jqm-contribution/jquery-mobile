@@ -4,7 +4,7 @@
 //>>group: Widgets
 
 
-define( [ "jquery", "./listview", "./forms/textinput" ], function( $ ) {
+define( [ "jquery", "./listview", "./forms/textinput" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
@@ -20,11 +20,10 @@ var defaultFilterCallback = function( text, searchValue, item ) {
 $.mobile.listview.prototype.options.filterCallback = defaultFilterCallback;
 
 $.mobile.document.delegate( "ul, ol", "listviewcreate", function() {
-
 	var list = $( this ),
 		listview = list.data( "mobile-listview" );
 
-	if ( !listview.options.filter ) {
+	if ( !listview || !listview.options.filter ) {
 		return;
 	}
 

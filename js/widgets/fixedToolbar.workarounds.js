@@ -3,7 +3,7 @@
 //>>label: Toolbars: Fixed: Workarounds
 //>>group: Widgets
 //>>css.structure: ../css/structure/jquery.mobile.fixedToolbar.css
-define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jquery.mobile.navigation", "./page", "./page.sections", "../jquery.mobile.zoom", "./fixedToolbar" ], function( $ ) {
+define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jquery.mobile.navigation", "./page", "./page.sections", "../jquery.mobile.zoom", "./fixedToolbar" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 	$.widget( "mobile.fixedtoolbar", $.mobile.fixedtoolbar, {
@@ -31,8 +31,8 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 					return;
 				}
 				//check os version if it dosent match one with workarounds return
-				if( os === "ios" && wkversion && wkversion > 533 && wkversion < 536 ) {
-					//iOS 5 run all workarounds for iOS 5
+				if( os === "ios" ) {
+					//iOS  workarounds
 					self._bindScrollWorkaround();
 				} else if( os === "android" && wkversion && wkversion < 534 ) {
 					//Android 2.3 run all Android 2.3 workaround
@@ -46,7 +46,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 			//Utility class for checking header and footer positions relative to viewport
 			_viewportOffset: function() {
 				var $el = this.element,
-					header = $el.is( ".ui-header" ),
+					header = $el.hasClass( "ui-header" ),
 					offset = Math.abs($el.offset().top - $.mobile.window.scrollTop());
 				if( !header ) {
 					offset = Math.round(offset - $.mobile.window.height() + $el.outerHeight())-60;
