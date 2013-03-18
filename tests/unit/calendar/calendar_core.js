@@ -268,4 +268,43 @@
 			"Lun. 9 Apr 01 - D d M y", "Unknown name at position 7");
 	});
 
+	test("iso8601Week", function() {
+		expect( 12 );
+		var date = new Date(2000, 12 - 1, 31),
+			c = $("#calendar").calendar();
+		equal(c.calendar( "iso8601Week", date), 52, "ISO 8601 week " + date);
+		date = new Date(2001, 1 - 1, 1);
+		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
+		date = new Date(2001, 1 - 1, 7);
+		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
+		date = new Date(2001, 1 - 1, 8);
+		equal(c.calendar( "iso8601Week", date), 2, "ISO 8601 week " + date);
+		date = new Date(2003, 12 - 1, 28);
+		equal(c.calendar( "iso8601Week", date), 52, "ISO 8601 week " + date);
+		date = new Date(2003, 12 - 1, 29);
+		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
+		date = new Date(2004, 1 - 1, 4);
+		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
+		date = new Date(2004, 1 - 1, 5);
+		equal(c.calendar( "iso8601Week", date), 2, "ISO 8601 week " + date);
+		date = new Date(2009, 12 - 1, 28);
+		equal(c.calendar( "iso8601Week", date), 53, "ISO 8601 week " + date);
+		date = new Date(2010, 1 - 1, 3);
+		equal(c.calendar( "iso8601Week", date), 53, "ISO 8601 week " + date);
+		date = new Date(2010, 1 - 1, 4);
+		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
+		date = new Date(2010, 1 - 1, 10);
+		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
+	});
+
+	test("noWeekends", function() {
+		expect( 31 );
+		var i, date, c = $("#calendar").calendar();
+		for (i = 1; i <= 31; i++) {
+			date = new Date(2001, 1 - 1, i);
+			deepEqual(c.calendar( "noWeekends" , date), [(i + 1) % 7 >= 2, ""],
+				"No weekends " + date);
+		}
+	});
+
 }( jQuery ));
