@@ -23,7 +23,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		changeYear: true,
 		regional: "_",
 		theme: "c",
-		mini_controls: true
+		mini_controls: true,
+		shortYearCutoff: "+10", // Short year values < this are in the current century,
+			// > this are in the previous century,
+			// string value starting with "+" for current year + value
 	},
 	current_date: null,
 	texts: null,
@@ -101,8 +104,8 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return this.texts.monthNames[this.current_date.getMonth()];
 	},
 
-	setCurrentDate: function( date ){
-		this.current_date = this._createDate( date );
+	setCurrentDate: function( date, format ){
+		this.current_date = this._createDate( date, format );
 		return this;
 	},
 
@@ -180,7 +183,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 		var iFormat, dim, extra,
 			iValue = 0,
-			shortYearCutoffTemp = (settings ? settings.shortYearCutoff : null) || this.texts.shortYearCutoff,
+			shortYearCutoffTemp = (settings ? settings.shortYearCutoff : null) || this.options.shortYearCutoff,
 			shortYearCutoff = (typeof shortYearCutoffTemp !== "string" ? shortYearCutoffTemp :
 				new Date().getFullYear() % 100 + parseInt(shortYearCutoffTemp, 10)),
 			dayNamesShort = (settings ? settings.dayNamesShort : null) || this.texts.dayNamesShort,
