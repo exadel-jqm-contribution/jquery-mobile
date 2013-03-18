@@ -75,8 +75,34 @@
 	});
 
 	test( "formats support date", function() {
-		var c = $("#calendar").calendar();
+		var c = $("#calendar").calendar(),
+			d = c.calendar( "option", "startDate", "today" )
+				 .calendar( "option", "dateFormat", "d/m/y" )
+				 .calendar( "getDateString" ),
+			current_local = $.mobile.calendar.prototype.default_regional;
 
+		equal( d, today.getDate() + "/" + (today.getMonth() + 1) + "/" + (today.getYear() - 100), "check d/m/y -- " + d );
+
+		d = c.calendar( "setCurrentDate", "next month" ).calendar( "getDateString" );
+		equal( d, "1/" + (today.getMonth() + 2) + "/" + (today.getYear() - 100), "check d/m/y with next month -- " + d )
+
+		d = c.calendar( "setCurrentDate", "today" ).calendar( "option", "dateFormat", "yy-m-d" ).calendar( "getDateString" );
+		equal( d, today.toStr(), "check yy-m-d with next month -- " + d );
+
+		d = c.calendar( "setCurrentDate", "2013-12-01", "yy-mm-dd" ).calendar( "option", "dateFormat", "y-m-d" ).calendar( "getDateString" );
+		equal( d, "13-12-1", "check parse date \"2013-12-01\" and return y-m-d -- " + d );
+
+		throws( function(){
+			d = c.calendar( "setCurrentDate", "2013-2-01", "yy-m-dd" ).calendar( "option", "dateFormat", "y-mm-d" ).calendar( "getDateString" );
+			equal( d, "13-02-1", "check parse date \"2013-2-01\" and return y-mm-d -- " + d );
+		}, "", "error");
+
+		// try {
+		// 	c.calendar("setCurrentDate", "d2013-2-01", "yy-m-dd" );
+		// }
+		// catch ( e ) {
+		// 	console.log(e);
+		// }
 
 	});
 
