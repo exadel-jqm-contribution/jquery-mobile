@@ -13,7 +13,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( jQuery ) {
 $.widget( "mobile.calendar", $.mobile.widget, {
 	options:{
 		dateFormat: null,
-		startDate: "today",
+		startDate: null,
 		minDate: false,
 		maxDate: false,
 		activeMonth: false,
@@ -73,7 +73,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 		this.setRegional( this.options.regional );
 
-		this.current_date = this._createDate( this.options.startDate );
+		this.current_date = this._determineDate( this.options.startDate, new Date());
 
 		this.refresh();
 	},
@@ -84,7 +84,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 				this.texts.dateFormat = this.options.dateFormat = value;
 				break;
 			case "startDate":
-				this.current_date = this._createDate(value);
+				this.current_date = this._determineDate(value, new Date());
 			default:
 				if ( this.options.hasOwnProperty(key) ) {
 					this.options[key] = value;
@@ -93,7 +93,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 	},
 
 	getCurrentDate: function(){
-		return this.current_date;
+		return this._daylightSavingAdjust(this.current_date);
 	},
 
 	getWeekDayName: function(){
@@ -105,38 +105,69 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 	},
 
 	setCurrentDate: function( date, format ){
-		this.current_date = this._createDate( date, format );
+		this.current_date = this._determineDate( date, new Date(), format );
 		return this;
 	},
 
-	_createDate: function( d, format ) {
-		var result = null,
-			today = new Date();
-		format = format || this.options.dateFormat;
-		if ( typeof d === "string" ) {
-			switch ( d ) {
-				case "today":
-					result = new Date();
-					break;
-				case "tomorrow":
-					result = new Date( today.getFullYear(), today.getMonth(), today.getDate() + 1 );
-					break;
-				case "next month":
-					result = new Date( today.getFullYear(), today.getMonth() + 1, 1);
-					break;
-				case "next year":
-					result = new Date( today.getFullYear() + 1, today.getMonth(), today.getDate() );
-					break;
-				case "after six months":
-					result = new Date( today.getFullYear(), today.getMonth() + 6, today.getDate() );
-					break;
-				default:
-					result = this.parseDate( format, d );
-			}
-		} else if ( typeof d === "object" ) {
-			result = d;
+	/* A date may be specified as an exact value or a relative one. */
+	_determineDate: function(date, defaultDate, format) {
+		var offsetNumeric = function(offset) {
+				var date = new Date();
+				date.setDate(date.getDate() + offset);
+				return date;
+			},
+			that = this,
+			offsetString = function(offset) {
+				try {
+					return that.parseDate(format || that.options.dateFormat, offset);
+				}
+				catch (e) {
+					// Ignore
+				}
+
+				var date = (offset.toLowerCase().match(/^c/) ?
+					that.getCurrentDate() : null) || new Date(),
+					year = date.getFullYear(),
+					month = date.getMonth(),
+					day = date.getDate(),
+					pattern = /([+\-]?[0-9]+)\s*(d|D|w|W|m|M|y|Y)?/g,
+					matches = pattern.exec(offset);
+
+				while (matches) {
+					switch (matches[2] || "d") {
+						case "d" : case "D" :
+							day += parseInt(matches[1],10); break;
+						case "w" : case "W" :
+							day += parseInt(matches[1],10) * 7; break;
+						case "m" : case "M" :
+							month += parseInt(matches[1],10);
+							day = Math.min(day, that._getDaysInMonth(year, month));
+							break;
+						case "y": case "Y" :
+							year += parseInt(matches[1],10);
+							day = Math.min(day, that._getDaysInMonth(year, month));
+							break;
+					}
+					matches = pattern.exec(offset);
+				}
+				return new Date(year, month, day);
+			},
+			newDate = (date == null || date === "" ? defaultDate :
+				(typeof date === "string" ? offsetString(date) :
+					(typeof date === "number" ? (isNaN(date) ? defaultDate : offsetNumeric(date)) :
+						new Date(date.getTime())
+					)
+				)
+			);
+
+		newDate = (newDate && newDate.toString() === "Invalid Date" ? defaultDate : newDate);
+		if (newDate) {
+			newDate.setHours(0);
+			newDate.setMinutes(0);
+			newDate.setSeconds(0);
+			newDate.setMilliseconds(0);
 		}
-		return result;
+		return this._daylightSavingAdjust(newDate);
 	},
 
 	/* Handle switch to/from daylight saving.
@@ -153,10 +184,12 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		date.setHours(date.getHours() > 12 ? date.getHours() + 2 : 0);
 		return date;
 	},
+
 	/* Find the number of days in a given month. */
 	_getDaysInMonth: function(year, month) {
 		return 32 - this._daylightSavingAdjust(new Date(year, month, 32)).getDate();
 	},
+
 	/* inspired by jQueryUI.datepicker
 	 * Parse a string value into a date object.
 	 * See formatDate below for the possible formats.

@@ -58,25 +58,25 @@
 
 	test( "set date", function(){
 		var c = $("#calendar").calendar({
-			startDate: "today"
+			//startDate: "today"
 		}), d1;
 
 		equal( c.calendar("getCurrentDate").toStr(), today.toStr(), "check: 'today'" );
 
 		d1 = new Date( today.getFullYear(), today.getMonth(), today.getDate() + 1 );
-		c.calendar( "setCurrentDate", "tomorrow" );
+		c.calendar( "setCurrentDate", "+1d" );
 		equal( c.calendar("getCurrentDate").toStr(), d1.toStr(), "check: 'tommorow' " + d1.toStr());
 
-		d1 = new Date( today.getFullYear(), today.getMonth() + 1, 1 );
-		c.calendar( "setCurrentDate", "next month" );
+		d1 = new Date( today.getFullYear(), today.getMonth() + 1, today.getDate() );
+		c.calendar( "setCurrentDate", "+1m" );
 		equal( c.calendar("getCurrentDate").toStr(), d1.toStr(), "check: 'next month' " + d1.toStr());
 
 		d1 = new Date( today.getFullYear() + 1, today.getMonth(), today.getDate() );
-		c.calendar( "setCurrentDate", "next year" );
+		c.calendar( "setCurrentDate", "+1y" );
 		equal( c.calendar("getCurrentDate").toStr(), d1.toStr(), "check: 'next year' " + d1.toStr());
 
 		d1 = new Date( today.getFullYear(), today.getMonth() + 6, today.getDate() );
-		c.calendar( "setCurrentDate", "after six months" );
+		c.calendar( "setCurrentDate", "+6m" );
 		equal( c.calendar("getCurrentDate").toStr(), d1.toStr(), "check: 'after six months' " + d1.toStr());
 	});
 
@@ -89,8 +89,8 @@
 
 		equal( d, today.getDate() + "/" + (today.getMonth() + 1) + "/" + (today.getYear() - 100), "check d/m/y -- " + d );
 
-		d = c.calendar( "setCurrentDate", "next month" ).calendar( "getDateString" );
-		equal( d, "1/" + (today.getMonth() + 2) + "/" + (today.getYear() - 100), "check d/m/y with next month -- " + d );
+		d = c.calendar( "setCurrentDate", "+1m" ).calendar( "getDateString" );
+		equal( d, today.getDate() + "/" + (today.getMonth() + 2) + "/" + (today.getYear() - 100), "check d/m/y with next month -- " + d );
 
 		d = c.calendar( "setCurrentDate", "today" ).calendar( "option", "dateFormat", "yy-m-d" ).calendar( "getDateString" );
 		equal( d, today.toStr(), "check yy-m-d with next month -- " + d );
@@ -166,7 +166,7 @@
 			new Date(2011, 11 - 1, 22), "Parse date yy M d with zh-CN");
 	});
 
-	test("formatDate", function() {
+	test( "formatDate", function() {
 		expect( 16 );
 
 		var gmtDate, fr, settings,
@@ -214,7 +214,7 @@
 			"Format date 'jour' d 'de' MM (''DD''), yy with settings");
 	});
 
-	test("parseDateErrors", function() {
+	test( "parseDateErrors", function() {
 		expect( 17 );
 		var c = $("#calendar").calendar(),
 			fr, settings;
@@ -268,7 +268,7 @@
 			"Lun. 9 Apr 01 - D d M y", "Unknown name at position 7");
 	});
 
-	test("iso8601Week", function() {
+	test( "iso8601Week", function() {
 		expect( 12 );
 		var date = new Date(2000, 12 - 1, 31),
 			c = $("#calendar").calendar();
@@ -297,7 +297,7 @@
 		equal(c.calendar( "iso8601Week", date), 1, "ISO 8601 week " + date);
 	});
 
-	test("noWeekends", function() {
+	test( "noWeekends", function() {
 		expect( 31 );
 		var i, date, c = $("#calendar").calendar();
 		for (i = 1; i <= 31; i++) {
@@ -306,5 +306,7 @@
 				"No weekends " + date);
 		}
 	});
+
+
 
 }( jQuery ));
