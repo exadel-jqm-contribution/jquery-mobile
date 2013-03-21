@@ -105,7 +105,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 	_change: function( event ) {
 		var target = null,
-			current = this.getCurrentDate();
+			current = this.getCurrentDate(),
+			year = current.getFullYear(),
+			month = current.getMonth(),
+			day;
 
 		target = $( event.target ).data( "calendarHandler" ) ? $( event.target ) :
 			$( event.target ).parents("[data-calendar-handler]") || $( event.target ).child("[data-calendar-handler]");
@@ -118,11 +121,13 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 				this.refresh();
 				break;
 			case "prev":
-				this.setCurrentDate( new Date(current.getFullYear(), current.getMonth() - 1, current.getDate()) );
+				day = Math.min(current.getDate(), this._getDaysInMonth(year, month - 1));
+				this.setCurrentDate( new Date(year, month - 1, day) );
 				this.refresh();
 				break;
 			case "next":
-				this.setCurrentDate( new Date(current.getFullYear(), current.getMonth() + 1, current.getDate()) );
+				day = Math.min(current.getDate(), this._getDaysInMonth(year, month + 1));
+				this.setCurrentDate( new Date(year, month + 1, day) );
 				this.refresh();
 				break;
 			case "selectMonth":
