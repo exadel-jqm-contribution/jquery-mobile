@@ -12,7 +12,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( jQuery ) {
 
 $.widget( "mobile.calendar", $.mobile.widget, {
 	options:{
-		dateFormat: null,
+		dateFormat: "mm/dd/yy",
 		startDate: null,
 		minDate: null,
 		maxDate: null,
@@ -22,6 +22,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		changeYear: true,
 		regional: "_",
 		theme: "c",
+		numberOfMonths: 1,
 		mini_controls: true,
 		beforeShowDay: null,		// Function that takes a date and returns an array with
 			// [0] = true if selectable, false if not, [1] = custom CSS class name(s) or "",
@@ -36,6 +37,8 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 	texts: null,
 	regional: [],
 	inline_mode: false,
+	drawFromMonth: 0,
+	drawFromYear: 2012,
 	input: null,
 
 	default_regional: { // Default regional settings
@@ -95,6 +98,8 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		this.options.maxDate = this._determineDate( this.options.maxDate, new Date(today.getFullYear() + 10, 1, 1) );
 
 		this.current_date = this._determineDate( this.options.startDate, new Date());
+		this.drawFromYear = this.current_date.getFullYear();
+		this.drawFromMonth = this.current_date.getMonth();
 
 		this.element.on( "click change", this._change.bind(this) );
 
@@ -108,204 +113,267 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			current = this.getCurrentDate(),
 			year = current.getFullYear(),
 			month = current.getMonth(),
-			day;
+			tmp;
 
 		target = $( event.target ).data( "calendarHandler" ) ? $( event.target ) :
-			$( event.target ).parents("[data-calendar-handler]") || $( event.target ).child("[data-calendar-handler]");
+			$( event.target ).parents("[data-calendar-handler]:first");
 
-		console.log( target.data() );
+		console.log( target.data("calendarHandler") );
 
 		switch ( target.data("calendarHandler") ) {
 			case "selectDay":
-				this.setCurrentDate( new Date(target.data("year"), target.data("month"), target.text()) );
+			//debugger;
+				this.setCurrentDate( new Date(target.data("year"), target.data("month"), target.data("date")) );
 				this.refresh();
 				break;
 			case "prev":
-				day = Math.min(current.getDate(), this._getDaysInMonth(year, month - 1));
-				this.setCurrentDate( new Date(year, month - 1, day) );
+				tmp = ((this.drawFromMonth - 1) % 12);
+				this.drawFromMonth = tmp < 0 ? 11 : tmp;
+				if ( tmp < 0 ) {
+					this.drawFromYear--;
+				}
 				this.refresh();
 				break;
 			case "next":
-				day = Math.min(current.getDate(), this._getDaysInMonth(year, month + 1));
-				this.setCurrentDate( new Date(year, month + 1, day) );
+				tmp = (this.drawFromMonth + 1);
+				this.drawFromMonth = tmp % 12;
+				if ( tmp > 11 ) {
+					this.drawFromYear++;
+				}
 				this.refresh();
 				break;
 			case "selectMonth":
 				if ( event.type == "change" ) {
-					this.setCurrentDate( new Date(current.getFullYear(), target.val(), current.getDate()) );
+					this.drawFromMonth = target.val();
 					this.refresh();
-					break;
 				}
+				break;
 			case "selectYear":
 				if ( event.type == "change" ) {
-					this.setCurrentDate( new Date(target.val(), current.getMonth(), current.getDate()) );
+					this.drawFromMonth = 1;
+					this.drawFromYear = target.val();
 					this.refresh();
-					break;
 				}
+				break;
 		}
 	},
 
-	_createContorols: function() {
-		this.controls = $("<fieldset></fieldset>").addClass("ui-calendar-controls");
-		this.controls.attr({
-			"data-role": "controlgroup",
-			"data-type": "horizontal",
-			"data-mini": this.options.mini_controls
-		});
+	_createTable: function( currentDate ) {
+		var result = $( "<div />" ).addClass( "ui-calendar-body" ),
+			table, controls, controls_center, week_row, tbody, btn_prev, btn_next, month_select, year_select,
+			isCurrent, citem, dRow, dow, daySettings, otherMonth, unselectable, drawYear, drawMonth,
+			leadDays, curRows, printDate,
+			html_body = "",	tdtr = "",
+			btn_prev_exists = false,
+			showWeek = this.options.showWeek,
+			table_columns = showWeek ? 8 : 7,
+			beforeShowDay = this.options.beforeShowDay,
+			selectOtherMonths = this.options.selectOtherMonths,
+			showOtherMonths = this.options.showOtherMonths,
+			temp = new Date(),
+			today = this._daylightSavingAdjust( new Date(temp.getFullYear(), temp.getMonth(), temp.getDate()) ),
+			minDate = this.options.minDate,
+			maxDate = this.options.maxDate,
+			days = this.texts.dayNamesMin,
+			fromMonth = this.drawFromMonth;
 
-		this.prev_btn = $( "<a></a>" ).attr({
+		// we need only one previous button
+		btn_prev = $( "<a></a>" ).attr({
 			"data-role": "button",
 			"data-calendar-handler": "prev",
 			"data-icon": "arrow-l",
 			"data-iconpos": "notext",
 			"data-theme": this.options.theme,
 			"data-inline": true
-		}).addClass( "calendar-prev" ).attr( "href", "#" ).text(this.texts.prevText);
+		}).addClass( "ui-calendar-prev" ).attr( "href", "#" ).text( this.texts.prevText );
 
-		this.next_btn = $( "<a></a>" ).attr({
-			"data-role": "button",
-			"data-icon": "arrow-r",
-			"data-calendar-handler": "next",
-			"data-iconpos": "notext",
-			"data-theme": this.options.theme,
-			"data-inline": true
-		}).addClass( "calendar-next" ).attr("href", "#").text(this.texts.nextText);
-
-		if ( this.options.changeMonth ) {
-			var current_month = this.current_date.getMonth(),
-				months = $.map(this.texts.monthNames, function(m, i) {
-					return '<option value="' + i + '"' + (i == current_month ? " selected" : "") + '>' + m + '</option>';
-				}).join("\n");
-			this.month_select = $( "<select></select>" ).attr({"data-calendar-handler": "selectMonth"}).addClass( "calendar-months" ).append( $(months) );
+		if ( this.options.changeMonth && this.options.numberOfMonths == 1 ) {
+			var current_month = fromMonth,
+			months = $.map( this.texts.monthNames, function(m, i) {
+				return '<option value="' + i + '"' + (i == current_month ? " selected" : "") + '>' + m + '</option>';
+			}).join("\n");
+			month_select = $( "<select name=\"month\"> </select>" );
+			month_select.attr({"data-calendar-handler": "selectMonth", "data-inline": true, "data-mini": true}).addClass( "ui-calendar-months" );
+			month_select.append( months );
 		} else {
-			this.month_select = $( "<a href=\"#\" data-role=\"button\" class=\"ui-disabled\"> </a>" ).text( this.getMonthName() );
+			month_select = []
+			for ( var i = 0; i < this.options.numberOfMonths; i++ ) {
+				month_select.push( "<a href=\"#\" data-role=\"button\" class=\"ui-calendar-month\" data-mini=\"true\"> " + this.texts.monthNames[(fromMonth + i) % 12] + " </a>" )
+			}
 		}
 
-		if ( this.options.changeYear ) {
+		if ( this.options.changeYear && this.options.numberOfMonths == 1 ) {
 			var years = (function(from, to){
 				var i = from, res = [];
 				for (i = from ; i <= to; i++) {
 					res.push(i);
 				}
 				return res;
-			}(this.options.minDate.getFullYear(), this.options.maxDate.getFullYear()));
-			var current_year = this.current_date.getFullYear();
-			this.year_select = $("<select></select>").attr({"data-calendar-handler": "selectYear"}).addClass( "calendar-years" ).append(
-				$($.map( years, function(m, i) {
+			}(Math.min(this.options.minDate.getFullYear(), this.drawFromYear) , Math.max(this.options.maxDate.getFullYear(), this.drawFromYear) ));
+			var current_year = this.drawFromYear;
+			year_select = $("<select name=\"year\"> </select>")
+			year_select.attr({"data-calendar-handler": "selectYear", "data-inline": true, "data-mini": true}).addClass( "ui-calendar-years" );
+			year_select.append(
+				$.map( years, function(m, i) {
 					return '<option value="' + m + '"' + (m == current_year ? " selected" : "") + '>' + m + '</option>';
-				}).join( "\n" ))
+				}).join( "\n" )
 			);
 		} else {
-			this.year_select = $( "<a href=\"#\" data-role=\"button\" class=\"ui-disabled\"> </a>" ).text( this.getCurrentDate().getFullYear() );
-		}
+			year_select = [];
+			var _y = this.drawFromYear,
+				_m = this.drawFromMonth;
 
-		// append all to controls
-		this.prev_btn.appendTo( this.controls );
-
-		this.month_select.appendTo( this.controls );
-
-
-		this.year_select.appendTo( this.controls );
-
-		this.next_btn.appendTo( this.controls );
-
-		return this.controls;
-	},
-
-	_createTable: function( date ) {
-		var table = $( "<table class=\"ui-calendar-table\"><thead><tr class=\"ui-calendar-head\"></tr></thead><tbody></tbody></table>" ),
-			week_row = $( ".ui-calendar-head", table ),
-			tbody = $( "tbody", table ),
-			dRow, dow, daySettings, otherMonth, unselectable,
-			showWeek = this.options.showWeek,
-			beforeShowDay = this.options.beforeShowDay,
-			selectOtherMonths = this.options.selectOtherMonths,
-			showOtherMonths = this.options.showOtherMonths,
-			currentDate = this.getCurrentDate(),
-			tempDate = new Date(),
-			today = this._daylightSavingAdjust(
-				new Date(tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate())), // clear time
-			minDate = this.options.minDate,
-			maxDate = this.options.maxDate,
-			drawYear = date.getFullYear(),
-			drawMonth = date.getMonth(),
-			leadDays = (this._getFirstDayOfMonth(drawYear, drawMonth) - this.texts.firstDay + 7) % 7,
-			curRows = Math.ceil( (leadDays + this._getDaysInMonth(drawYear, drawMonth)) / 7 ),
-			days = this.texts.dayNamesMin,
-			printDate = this._daylightSavingAdjust(new Date(drawYear, drawMonth, 1 - leadDays));
-
-		if ( showWeek ) {
-			week_row.append( "<td class=\"ui-calendar-day-name calendar-week-number-name\">" + this.options.weekHeader + "</td>" );
-		}
-		week_row.append(function(d, firstDay){
-			var i, day, result = "";
-			for (i = 0; i < 7; i++) {
-				day = (i + firstDay) % 7;
-				result += "<td class=\"ui-calendar-day-name\">" + d[day] + "</td>";
+			for ( var i = 0; i < this.options.numberOfMonths; i++ ) {
+				year_select.push( "<a href=\"#\" data-role=\"button\" class=\"ui-calendar-year\" data-mini=\"true\">" + (new Date( _y, _m + i, 1)).getFullYear() + "</a>" );
 			}
-			return result;
-		}(days, this.texts.firstDay));
-
-		var html_body = "",
-			tdtr = "";
-
-		for ( dRow = 0; dRow < curRows; dRow++ ) { // rows
-			html_body += "<tr>";
-
-			tdtr = ( !showWeek ? "" : "<td class=\"calendar-week-number\">" + this.iso8601Week(printDate) + "</td>" );
-			for ( dow = 0; dow < 7; dow++ ) { // days
-				daySettings = (beforeShowDay ?
-					beforeShowDay.apply((this.input ? this.input[0] : null), [printDate]) : [true, ""]);
-				otherMonth = (printDate.getMonth() !== drawMonth);
-				unselectable = (otherMonth && !selectOtherMonths) || !daySettings[0] ||
-					(minDate && printDate < minDate) || (maxDate && printDate > maxDate);
-				tdtr += "<td class='" +
-					((dow + this.texts.firstDay + 6) % 7 >= 5 ? " calendar-week-end" : "") + // highlight weekends
-					(otherMonth ? " calendar-other-month ui-calendar-day-off" : " ui-calendar-day") + // highlight days from other months
-
-					// ((printDate.getTime() === selectedDate.getTime() && drawMonth === this.selectedMonth && this._keyEvent) || // user pressed key
-					// (defaultDate.getTime() === printDate.getTime() && defaultDate.getTime() === selectedDate.getTime()) ?
-					// // or defaultDate is current printedDate and defaultDate is selectedDate
-					// " " + this._dayOverClass : "") + // highlight selected day
-					(unselectable ? " calendar-state-disabled": "") +  // highlight unselectable days
-
-					(otherMonth && !showOtherMonths ? "" : " " + daySettings[1] + // highlight custom dates
-
-					(printDate.getTime() === currentDate.getTime() ? " calendar-selected-date" : "") + // highlight selected day
-
-					(printDate.getTime() === today.getTime() ? " calendar-today" : "")) + "'" + // highlight today (if different)
-
-					((!otherMonth || showOtherMonths) && daySettings[2] ? " title='" + daySettings[2].replace(/'/g, "&#39;") + "'" : "") + // cell title
-
-					(unselectable ? "" : " data-calendar-handler='selectDay' data-event='click' data-month='" + printDate.getMonth() +
-						"' data-year='" + printDate.getFullYear() + "'") + ">" + // actions
-					(otherMonth && !showOtherMonths ? "&#xa0;" : // display for other months
-					(unselectable ? "<span class='calendar-state-default'>" + printDate.getDate() + "</span>" : "<a class='calendar-state-default" +
-					(printDate.getTime() === today.getTime() ? " calendar-state-highlight" : "") +
-					(printDate.getTime() === currentDate.getTime() ? " calendar-state-active" : "") + // highlight selected day
-					(otherMonth ? " calendar-priority-secondary" : "") + // distinguish dates from other months
-					"' href='#'>" + printDate.getDate() + "</a>")) + "</td>"; // display selectable date
-				printDate.setDate(printDate.getDate() + 1);
-				printDate = this._daylightSavingAdjust(printDate);
-			}
-			html_body += tdtr + "</tr>";
 		}
-		tbody.append( html_body );
-		return table;
+
+		// main loop for list of calendars
+		for ( citem = 0; citem < this.options.numberOfMonths; citem++ ) {
+			table = $( "<div class=\"ui-calendar-table " + (this.options.numberOfMonths == 1 ? "ui-calendar-one" : "") + "\"><table cols=\"" + table_columns + "\">" +
+				"<thead>\n" +
+					"<tr class=\"ui-calendar-controls\"></tr>\n" +
+					"<tr class=\"ui-calendar-head\"></tr>\n" +
+				"</thead>\n" +
+				"<tbody> </tbody></table></div>" );
+			week_row = $( ".ui-calendar-head", table );
+			tbody = $( "tbody", table );
+			controls = $( ".ui-calendar-controls", table );
+
+			drawMonth = ( fromMonth + citem ) % 12;
+			drawYear = this.drawFromYear;
+
+			if ( fromMonth + citem > 12 ) {
+				drawYear++;
+			}
+
+			//debugger;
+			leadDays = ( this._getFirstDayOfMonth(drawYear, drawMonth) - this.texts.firstDay + 7 ) % 7;
+			curRows = Math.ceil( (leadDays + this._getDaysInMonth(drawYear, drawMonth)) / 7 );
+			printDate = this._daylightSavingAdjust( new Date(drawYear, drawMonth, 1 - leadDays) );
+
+
+			console.log(printDate);
+
+
+			if ( showWeek ) {
+				week_row.append( "<td class=\"ui-calendar-day-name calendar-week-number-name\">" + this.options.weekHeader + "</td>" );
+			}
+
+			week_row.append(function(d, firstDay){
+				var i, day, result = "";
+				for (i = 0; i < 7; i++) {
+					day = (i + firstDay) % 7;
+					result += "<td class=\"ui-calendar-day-name\">" + d[day] + "</td>";
+				}
+				return result;
+			}(days, this.texts.firstDay));
+
+			btn_next = $( "<a></a>" ).attr({
+				"data-role": "button",
+				"data-icon": "arrow-r",
+				"data-calendar-handler": "next",
+				"data-iconpos": "notext",
+				"data-theme": this.options.theme,
+				"data-inline": true
+			}).addClass( "ui-calendar-next ui-calendar-next-" + citem ).attr("href", "#").text(this.texts.nextText);
+
+			if ( !btn_prev_exists ) {
+				controls.append( $("<td class=\"ui-calendar-controls ui-calendar-controls-prev\"></td>").append( btn_prev ) );
+				btn_prev_exists = true;
+			}
+
+			controls_center = $("<td class=\"ui-calendar-controls ui-calendar-controls-selects\"></td>").attr({
+				colspan: citem == 0 ? table_columns - 2: table_columns - 1
+			});
+			controls_center.append( ($.isArray(month_select) ?  month_select[citem] : month_select) );
+			controls_center.append( ($.isArray(year_select) ? year_select[citem] : year_select) );
+
+			controls.append( controls_center );
+			controls.append( $("<td class=\"ui-calendar-controls ui-calendar-controls-next\"></td>").append( btn_next ) );
+
+			html_body = "";
+			for ( dRow = 0; dRow < curRows; dRow++ ) { // rows
+				html_body += "<tr>";
+
+				tdtr = ( !showWeek ? "" : "<td class=\"calendar-week-number\">" + this.iso8601Week(printDate) + "</td>" );
+				for ( dow = 0; dow < 7; dow++ ) { // days
+					isCurrent = printDate.getFullYear() == this.current_date.getFullYear() && printDate.getMonth() == this.current_date.getMonth() && printDate.getDate() == this.current_date.getDate();
+					daySettings = (beforeShowDay ?
+						beforeShowDay.apply((this.input ? this.input[0] : null), [printDate]) : [true, ""]);
+					otherMonth = (printDate.getMonth() !== drawMonth);
+					unselectable = (otherMonth && !selectOtherMonths) || !daySettings[0] ||
+						(minDate && printDate < minDate) || (maxDate && printDate > maxDate);
+					tdtr += "<td class='" +
+						((dow + this.texts.firstDay + 6) % 7 >= 5 ? " ui-calendar-week-end" : "") + // highlight weekends
+						(otherMonth ? " ui-calendar-other-month ui-ui-calendar-day-off" : " ui-calendar-day") + // highlight days from other months
+
+						// ((printDate.getTime() === selectedDate.getTime() && drawMonth === this.selectedMonth && this._keyEvent) || // user pressed key
+						// (defaultDate.getTime() === printDate.getTime() && defaultDate.getTime() === selectedDate.getTime()) ?
+						// // or defaultDate is current printedDate and defaultDate is selectedDate
+						// " " + this._dayOverClass : "") + // highlight selected day
+						(unselectable ? " ui-calendar-state-disabled": "") +  // highlight unselectable days
+
+						(otherMonth && !showOtherMonths ? "" : " " + daySettings[1] + // highlight custom dates
+
+						(printDate.getTime() === currentDate.getTime() && isCurrent ? " ui-calendar-active" : "") + // highlight selected day
+
+						(printDate.getTime() === today.getTime() ? " ui-calendar-today" : "")) + "'" + // highlight today (if different)
+
+						((!otherMonth || showOtherMonths) && daySettings[2] ? " title='" + daySettings[2].replace(/'/g, "&#39;") + "'" : "") + // cell title
+						(!unselectable ? " data-calendar-handler='selectDay' "+
+								"data-event='click' "+
+								"data-month='" + printDate.getMonth() + "' "+
+								"data-year='" + printDate.getFullYear() + "' "+
+								"data-date='" + printDate.getDate() + "'" : ""
+						) + "> " +
+						(otherMonth && !showOtherMonths ? "&#xa0;" : // display for other months
+							(unselectable ? "<span class='calendar-state-default'>" + printDate.getDate() + "</span>" : "<a "+
+								"class='ui-calendar-state-default" +
+							(printDate.getTime() === today.getTime() ? " ui-calendar-state-highlight" : "") +
+							(printDate.getTime() === currentDate.getTime() && isCurrent  ? " ui-calendar-state-active" : "") + // highlight selected day
+							(otherMonth ? " ui-calendar-priority-secondary" : "") + // distinguish dates from other months
+							"' href='#'>" + printDate.getDate() + "</a>")
+						) + "</td>"; // display selectable date
+					printDate.setDate(printDate.getDate() + 1);
+					printDate = this._daylightSavingAdjust(printDate);
+				}
+				html_body += tdtr + "</tr>";
+			}
+			tbody.append( html_body );
+
+			table.appendTo(result);
+		}
+
+		return result;
 	},
 
 	_refresh_inline: function() {
-
 		this.element.html( "" );
-		var controls = $("<div />").addClass( "ui-calendar-controls" ).append( this._createContorols() ),
-			table = $("<div />").addClass( "ui-calendar-body" ).append( this._createTable( this.getCurrentDate() ) );
-		controls.appendTo( this.element );
-		table.appendTo( this.element );
+
+		var // controls = $("<div />").addClass( "ui-calendar-controls" ).append( this._createContorols() ),
+			tables, i, j, cdate = this.getCurrentDate();
+
+		// controls.appendTo( this.element );
+		$("<div />")
+			.addClass( "ui-calendar-body" )
+			.append( this._createTable( cdate ) )
+			.appendTo( this.element );
+
 		this.element.trigger( "create" );
 	},
 
 	_refresh_embedded: function() {
+		var // controls = $("<div />").addClass( "ui-calendar-controls" ).append( this._createContorols() ),
+			tables, i, j, cdate = this.getCurrentDate();
 
+		// controls.appendTo( this.element );
+		$("<div />")
+			.addClass( "ui-calendar-body" )
+			.append( this._createTable( cdate ) )
+			.appendTo( this.element );
+
+		this.element.trigger( "create" );
 	},
 
 	_setOption: function(key, value) {
@@ -772,6 +840,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
