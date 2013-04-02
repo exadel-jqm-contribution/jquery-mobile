@@ -10,8 +10,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( jQuery ) {
 
 (function( $, undefined ){
 
-(function( $, undefined ){
-
 $.widget( "mobile.calendar", $.mobile.widget, {
 	options:{
 		dateFormat: "mm/dd/yy",
@@ -99,7 +97,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		} else {
 			// this.input = $( "<input type=\"text\" />" );
 			// this.container = this.element;
-			this.element.on( "click change", this._change.bind(this) );
+			this.element.on( "click tap change", this._change.bind(this) );
 		}
 
 
@@ -177,18 +175,12 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 	_create_embedded: function() {
 		var id = "ui-calendar-obj-" + this._UID();
-		this.element.unwrap();
 
 		this.input = this.element;
-		this.input.removeAttr( "class" );
-		this.input.addClass( "ui-calendar" );
-		this.container = $("<div />").addClass( "ui-calendar ui-calendar-embedded" );
-		//debugger;
-		this.container.attr("data-role", "fieldcontain");
-		this.input.wrap(this.container);
+
 		this.container = this.input.parent();
 		this.c_button = $("<a href=\"#\">Calendar</a>");
-		this.c_button.attr({
+		this.c_button.addClass( "ui-calendar-popup-btn" ).attr({
 			"data-role": "button",
 			"data-icon": "grid",
 			"data-iconpos": "notext",
@@ -196,11 +188,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			"data-inline": true,
 			"data-rel": this.options.popupType,
 			"data-position-to": "window",
-			// "data-transition": "fade",
 			"data-calendar-handler": "popup",
 			"href": "#" + id
 		});
-		// debugger;
+
 		this.c_button.appendTo( this.container );
 
 		this.calendar_container = $( "<div />" ).addClass( "ui-calendar-embedded-box" );
@@ -221,11 +212,16 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		}, function(event, ui){
 			event.data.self.refresh();
 		});
+		if ( this.options.popupType == "popup" ) {
+			this.calendar_container.appendTo( this.container );
+		} else {
+			this.calendar_container.wrap( $("<div />") );
+			this.calendar_container.prependTo( $(".ui-page") );
+		}
+		//this.calendar_container.hide();
 
-		this.calendar_container.appendTo( this.container );
-
-		this.container.on( "click change", this._change.bind(this) );
-		this.calendar_container.on( "click change", this._change.bind(this) );
+		this.container.on( "click tap change", this._change.bind(this) );
+		this.calendar_container.on( "click tap change", this._change.bind(this) );
 	},
 
 	_createTable: function( currentDate ) {
@@ -451,8 +447,9 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			this.calendar_container.append( closeBtn );
 		}
 
-		this.calendar_container.trigger( "create" );
+
 		this.container.trigger( "create" );
+		this.calendar_container.parent().trigger( "create" );
 	},
 
 	_setOption: function(key, value) {
@@ -924,6 +921,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
