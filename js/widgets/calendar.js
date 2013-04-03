@@ -19,6 +19,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		activeMonth: false,
 		activeDays: false,
 		changeMonth: true,
+		inputName: "mobilecalendar",
 		changeYear: true,
 		regional: "_",
 		theme: "c",
@@ -95,8 +96,9 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		if ( !this.inline_mode ) {
 			this._create_embedded();
 		} else {
-			// this.input = $( "<input type=\"text\" />" );
-			// this.container = this.element;
+			this.input = $( "<input type=\"hidden\" name=\"" + this.options.inputName + "\"/>" );
+			this.input.appendTo( this.element );
+			this.container = this.element;
 			this.element.on( "click tap change", this._change.bind(this) );
 		}
 
@@ -116,6 +118,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return this.uuid;// + "-" + ( ++this.cuid );
 	},
 	_change: function( event ) {
+		if ( event.type != "click" && event.type != "change" && event.type != "tap" ) {
+			return;
+		}
+
 		var target = null,
 			current = this.getCurrentDate(),
 			year = current.getFullYear(),
@@ -124,16 +130,15 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 		target = $( event.target ).data( "calendarHandler" ) ? $( event.target ) :
 			$( event.target ).parents("[data-calendar-handler]:first");
-
-		console.log( target.data("calendarHandler") );
-
+		console.log( event );
 		switch ( target.data("calendarHandler") ) {
 			case "selectDay":
 				this.setCurrentDate( new Date(target.data("year"), target.data("month"), target.data("date")) );
+				console.log( this.current_date.getTime() );
 				if ( !this.inline_mode ) {
 					this.popup_for_embedded.call(this.calendar_container, "close" );
 				} else {
-					this.refresh();
+					this.refresh(true);
 				}
 				break;
 			case "prev":
@@ -142,7 +147,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 				if ( tmp < 0 ) {
 					this.drawFromYear--;
 				}
-				this.refresh();
+				this.refresh(tmp < 0);
 				break;
 			case "next":
 				tmp = (this.drawFromMonth + 1);
@@ -150,27 +155,29 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 				if ( tmp > 11 ) {
 					this.drawFromYear++;
 				}
-				this.refresh();
+				this.refresh(tmp > 11);
 				break;
 			case "selectMonth":
 				if ( event.type == "change" ) {
 					this.drawFromMonth = target.val();
-					this.refresh();
+					this.refresh(true);
 				}
 				break;
 			case "selectYear":
 				if ( event.type == "change" ) {
 					this.drawFromMonth = 1;
 					this.drawFromYear = target.val();
-					this.refresh();
+					this.refresh(true);
 				}
 				break;
 			case "popup":
+				this.popup_for_embedded.call(this.calendar_container, "open" );
 				break;
 			case "closepopup":
 				this.popup_for_embedded.call(this.calendar_container, "close" );
 				break;
 		}
+		event.preventDefault();
 	},
 
 	_create_embedded: function() {
@@ -191,6 +198,8 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			"data-calendar-handler": "popup",
 			"href": "#" + id
 		});
+
+		this.input.data( "calendarHandler", "popup" );
 
 		this.c_button.appendTo( this.container );
 
@@ -370,7 +379,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 					otherMonth = (printDate.getMonth() !== drawMonth);
 					unselectable = (otherMonth && !selectOtherMonths) || !daySettings[0] ||
 						(minDate && printDate < minDate) || (maxDate && printDate > maxDate);
-					tdtr += "<td class='" +
+					tdtr += "<td class='ui-calendar-time-" + printDate.getTime() +
 						((dow + this.texts.firstDay + 6) % 7 >= 5 ? " ui-calendar-week-end" : "") + // highlight weekends
 						(otherMonth ? " ui-calendar-other-month ui-ui-calendar-day-off" : " ui-calendar-day") + // highlight days from other months
 
@@ -388,7 +397,6 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 						((!otherMonth || showOtherMonths) && daySettings[2] ? " title='" + daySettings[2].replace(/'/g, "&#39;") + "'" : "") + // cell title
 						(!unselectable ? " data-calendar-handler='selectDay' "+
-								"data-event='click' "+
 								"data-month='" + printDate.getMonth() + "' "+
 								"data-year='" + printDate.getFullYear() + "' "+
 								"data-date='" + printDate.getDate() + "'" : ""
@@ -414,17 +422,27 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return result;
 	},
 
-	_refresh_inline: function() {
-		this.element.html( "" );
+	_updateTable: function( currentDate ) {
+		var body = this.element.find( ".ui-calendar-body" );
+		currentDate.setHours(0);
+		currentDate.setMinutes(0);
+		currentDate.setSeconds(0);
+		body.find( ".ui-calendar-day.ui-calendar-active" ).removeClass( "ui-calendar-active" );
+		//debugger;
+		body.find( ".ui-calendar-day.ui-calendar-time-" + currentDate.getTime() ).addClass( "ui-calendar-active" );
+	},
 
+	_refresh_inline: function(update_only) {
 		var cdate = this.getCurrentDate();
+		if ( update_only ) {
+			this._updateTable( cdate );
+		} else {
+			this.element.find( ".ui-calendar-body" ).remove();
 
-		$("<div />")
-			.addClass( "ui-calendar-body" )
-			.append( this._createTable( cdate ) )
-			.appendTo( this.element );
+			this._createTable( cdate ).appendTo( this.element );
 
-		this.element.trigger( "create" );
+			this.element.trigger( "create" );
+		}
 	},
 
 	_refresh_embedded: function() {
@@ -467,7 +485,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 	},
 
 	getCurrentDate: function(){
-		return this._daylightSavingAdjust(this.current_date);
+		return this._daylightSavingAdjust( this.current_date );
 	},
 
 	getWeekDayName: function(){
@@ -921,6 +939,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
