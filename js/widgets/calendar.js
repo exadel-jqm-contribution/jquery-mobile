@@ -109,6 +109,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		this.options.maxDate = this._determineDate( this.options.maxDate, new Date(today.getFullYear() + 10, 1, 1) );
 
 		this.current_date  = this._determineDate( this.options.startDate, new Date());
+
+		this.options.minDate.setTime( Math.min(this.options.minDate.getTime(), this.current_date.getTime()) );
+		this.options.maxDate.setTime( Math.max(this.options.maxDate.getTime(), this.current_date.getTime()) );
+
 		this.drawFromYear  = this.current_date.getFullYear();
 		this.drawFromMonth = this.current_date.getMonth();
 		this._updateInput();
@@ -354,18 +358,18 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			}).addClass( "ui-calendar-next ui-calendar-next-" + citem ).attr("href", "#").text(this.texts.nextText);
 
 			if ( !btn_prev_exists ) {
-				controls.append( $("<td class=\"ui-calendar-controls ui-calendar-controls-prev\"></td>").append( btn_prev ) );
+				controls.append( $("<td class=\"ui-calendar-control ui-calendar-controls-prev\"></td>").append( btn_prev ) );
 				btn_prev_exists = true;
 			}
 
-			controls_center = $("<td class=\"ui-calendar-controls ui-calendar-controls-selects\"></td>").attr({
+			controls_center = $("<td class=\"ui-calendar-control ui-calendar-controls-selects\"></td>").attr({
 				colspan: citem == 0 ? table_columns - 2: table_columns - 1
 			});
 			controls_center.append( ($.isArray(month_select) ?  month_select[citem] : month_select) );
 			controls_center.append( ($.isArray(year_select) ? year_select[citem] : year_select) );
 
 			controls.append( controls_center );
-			controls.append( $("<td class=\"ui-calendar-controls ui-calendar-controls-next\"></td>").append( btn_next ) );
+			controls.append( $("<td class=\"ui-calendar-control ui-calendar-controls-next\"></td>").append( btn_next ) );
 
 			html_body = "";
 			for ( dRow = 0; dRow < curRows; dRow++ ) { // rows
@@ -400,10 +404,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 								"data-month='" + printDate.getMonth() + "' "+
 								"data-year='" + printDate.getFullYear() + "' "+
 								"data-date='" + printDate.getDate() + "'" : ""
-						) + "> " +
-						(otherMonth && !showOtherMonths ? "&#xa0;" : // display for other months
+						) + ">" +
+						(otherMonth && !showOtherMonths ? "&nbsp;" : // display for other months
 							(unselectable ? "<span class='calendar-state-default'>" + printDate.getDate() + "</span>" : "<a "+
-								"class='ui-calendar-state-default" +
+								"class='ui-calendar-state-default ui-link" +
 							(printDate.getTime() === today.getTime() ? " ui-calendar-state-highlight" : "") +
 							(printDate.getTime() === currentDate.getTime() && isCurrent  ? " ui-calendar-state-active" : "") + // highlight selected day
 							(otherMonth ? " ui-calendar-priority-secondary" : "") + // distinguish dates from other months
@@ -427,6 +431,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		currentDate.setHours(0);
 		currentDate.setMinutes(0);
 		currentDate.setSeconds(0);
+		currentDate.setMilliseconds(0);
 		body.find( ".ui-calendar-day.ui-calendar-active" ).removeClass( "ui-calendar-active" );
 		//debugger;
 		body.find( ".ui-calendar-day.ui-calendar-time-" + currentDate.getTime() ).addClass( "ui-calendar-active" );
@@ -471,12 +476,16 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 	},
 
 	_setOption: function(key, value) {
+		var temp;
 		switch( key ) {
 			case "dateFormat":
 				this.texts.dateFormat = this.options.dateFormat = value;
 				break;
 			case "startDate":
-				this.current_date = this._determineDate(value, new Date());
+				temp = this._determineDate( value, new Date() );
+				temp.setTime( Math.max( temp.getTime(), this.options.minDate.getTime()) );
+				temp.setTime( Math.min( temp.getTime(), this.options.maxDate.getTime()) );
+				this.current_date = temp;
 			default:
 				if ( this.options.hasOwnProperty(key) ) {
 					this.options[key] = value;
@@ -497,7 +506,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 	},
 
 	setCurrentDate: function( date, format ){
-		this.current_date = this._determineDate( date, new Date(), format );
+		this.options.startDate = this.current_date = this._determineDate( date, new Date(), format || this.options.dateFormat);
 		this._updateInput();
 		return this;
 	},

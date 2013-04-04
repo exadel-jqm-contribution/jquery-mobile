@@ -2,7 +2,7 @@
  * mobile calendar unit tests
  */
 (function($){
-	module( "jquery.mobile.calendar.js" );
+	module( "CORE jquery.mobile.calendar.js" );
 
 	Date.prototype.toStr = function() { // don't overload toString
 		return this.getFullYear() + "-" + (this.getMonth() + 1) + "-" + this.getDate();
@@ -31,7 +31,25 @@
 			showMonthAfterYear: false,
 			yearSuffix: ''
 		};
+	test( "initialization options", function() {
+		var min = new Date( "2013-01-01" ),
+			max = new Date( "2013-02-12" ),
+			start = new Date( "2013-10-01"),
+			change_start = new Date( "2014-05-12" ),
+			c = $("#calendar").calendar({
+				minDate: min,
+				maxDate: max,
+				startDate: start
+			});
 
+		equal( c.calendar( "option", "maxDate" ).toStr(), start.toStr(),
+			"maxDate option must change from '" + max.toStr() + "' to '" + start.toStr() + "'" );
+
+		c.calendar( "option", "startDate", change_start );
+		equal( c.calendar( "getCurrentDate" ).toStr(), start.toStr(),
+			"Current Date can't excess maxDate" );
+
+	});
 
 	test( "add localization and set with initialization", function() {
 		$.mobile.calendar.prototype.regional["ru"] = localization;
@@ -82,8 +100,7 @@
 
 	test( "formats support date -- parse Date", function() {
 		var c = $("#calendar").calendar(),
-			d = c.calendar( "option", "startDate", "today" )
-				 .calendar( "option", "dateFormat", "d/m/y" )
+			d = c.calendar( "option", "dateFormat", "d/m/y" )
 				 .calendar( "getDateString" ),
 			current_local = $.mobile.calendar.prototype.default_regional;
 
@@ -306,7 +323,5 @@
 				"No weekends " + date);
 		}
 	});
-
-
 
 }( jQuery ));
