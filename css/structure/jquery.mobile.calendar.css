@@ -1,0 +1,186 @@
+.ui-calendar {
+	margin: 0 auto;
+    /*width: 90%;*/
+}
+
+.ui-calendar-head {
+	font-size: 0.7em;
+}
+
+.ui-calendar-body {
+	vertical-align: center;
+	overflow: overlay;
+}
+
+.ui-calendar-table {
+	float: left;
+}
+
+.ui-calendar-controls-selects .ui-select {
+	display: inline-block;
+}
+
+
+.ui-calendar-month, .ui-calendar-year, .ui-calendar-months, .ui-calendar-years {
+	display: inline-block;
+}
+
+.ui-calendar-day, .ui-calendar-day-off {
+	width: 2.2em;
+	height: 2.2em;
+	text-align: center;
+}
+
+.ui-calendar-day:hover {
+
+	background-color: #ccc;
+}
+
+.ui-calendar-day:active {
+	background-color: #ccc;
+	color: red;
+}
+
+.ui-calendar-day-off {
+	color: #ccc;
+}
+
+.ui-calendar-active {
+	background-color: #ddd;
+}
+
+.ui-calendar-embedded-box {
+	/*position: absolute;*/
+}
+
+.ui-calendar-popup-btn {
+	float: right;
+	margin-top: -1.9em;
+	position: relative;
+}
+
+@media (min-width:300px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-0 {
+		display: inline-block;
+	}
+}
+
+@media (min-width:600px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-1 {
+		display: inline-block;
+	}
+}
+
+@media (min-width:900px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-2 {
+		display: inline-block;
+	}
+}
+@media (min-width:1200px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-3 {
+		display: inline-block;
+	}
+}
+@media (min-width:1500px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-4 {
+		display: inline-block;
+	}
+}
+
+@media (min-width:1800px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-5 {
+		display: inline-block;
+	}
+}
+
+@media (min-width:2100px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-6 {
+		display: inline-block;
+	}
+}
+
+@media (min-width:2200px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-7 {
+		display: inline-block;
+	}
+}
+@media (min-width:2500px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-8 {
+		display: inline-block;
+	}
+}
+@media (min-width:2800px){
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-next-9 {
+		display: inline-block;
+	}
+}
+@media (max-width: 3100px) {
+	.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+	.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+	.ui-calendar-next-8, .ui-calendar-next-9 {
+		display: none;
+	}
+	.ui-calendar-one .ui-calendar-next-0 {
+		display: inline-block;
+	}
+}
+
+.ui-panel .ui-calendar-0 {
+	display: inline-block;
+}
+
+.ui-panel .ui-calendar-next-1, .ui-panel .ui-calendar-next-2, .ui-panel .ui-calendar-next-3,
+.ui-panel .ui-calendar-next-4, .ui-panel .ui-calendar-next-5, .ui-panel .ui-calendar-next-6, .ui-panel .ui-calendar-next-7,
+.ui-panel .ui-calendar-next-8, .ui-panel .ui-calendar-next-9{
+	display: none;
+}
