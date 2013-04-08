@@ -4,16 +4,25 @@
 (function($){
 	module( "RENDER jquery.mobile.calendar.js" );
 
-	var today = new Date();
+	var today = new Date(),
+		default_date_format = "yy-m-d",
+		today_str;
 	today.setHours(0);
 	today.setMinutes(0);
 	today.setSeconds(0);
 	today.setMilliseconds(0);
+	today_str = today.getFullYear() + "-" + (today.getMonth()+1) + "-" + today.getDate();
 
-	test( "render", function() {
-		var c = $( "#calendar" ).calendar(),
+	test( "render inline", function() {
+		var c = $( "#calendar" ).calendar({
+				inputName: "testname",
+				dateFormat: default_date_format
+			}),
 			body = c.find( ".ui-calendar-body table" );
 
+		equal( c.find("input[type=\"hidden\"]").length, 1, "we have one hidden input for forms");
+		equal( c.find("input[type=\"hidden\"]").attr("name"), "testname", "hidden input has name 'testname'");
+		equal( c.find("input[type=\"hidden\"]").val(), today_str, "hidden input has current date as value - " + today_str);
 		ok( body.attr("cols"), "table predefine count of columns" );
 		equal( body.attr("cols"), 7, "table predefine 7 columns" );
 		ok( body.find("thead tr.ui-calendar-controls").length,
@@ -26,8 +35,22 @@
 			"first control is prev button by class ui-calendar-controls-prev" );
 		ok( body.find("thead tr.ui-calendar-controls td.ui-calendar-control:last").hasClass("ui-calendar-controls-next"),
 			"last control is prev button by class ui-calendar-controls-next" );
+		equal( body.find("thead tr.ui-calendar-controls td.ui-calendar-controls-selects select").length, 2,
+			"must be 2 selects for months and years" );
+	});
 
+	test( "different themes", function() {
+		var c = $( "#calendar" ).calendar({
+				theme: "a",
+				buttonsTheme: "b",
+				monthsTheme: "c",
+				yearsTheme: "d"
+			}),
+			body = c.find( ".ui-calendar-body table" );
 
+		equal( body.find("thead td.ui-calendar-control a:first").attr("data-theme"), "b", "Buttons must have theme b" );
+		equal( body.find("thead td.ui-calendar-controls-selects select:first").attr("data-theme"), "c", "Month select must have theme c" );
+		equal( body.find("thead td.ui-calendar-controls-selects select:eq(1)").attr("data-theme"), "d", "Year select must have theme c" );
 	});
 
 	test( "other month days", function(){

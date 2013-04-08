@@ -23,6 +23,9 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		changeYear: true,
 		regional: "_",
 		theme: "c",
+		monthsTheme: false,
+		yearsTheme: false,
+		buttonsTheme: false,
 		numberOfMonths: 1,
 		popupType: "popup", // "popup" || "panel"
 		popupAttr: {},
@@ -195,7 +198,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			"data-role": "button",
 			"data-icon": "grid",
 			"data-iconpos": "notext",
-			"data-theme": this.options.theme,
+			"data-theme": this.options.buttonsTheme || this.options.theme,
 			"data-inline": true,
 			"data-rel": this.options.popupType,
 			"data-position-to": "window",
@@ -262,7 +265,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			"data-calendar-handler": "prev",
 			"data-icon": "arrow-l",
 			"data-iconpos": "notext",
-			"data-theme": this.options.theme,
+			"data-theme": this.options.buttonsTheme || this.options.theme,
 			"data-inline": true
 		}).addClass( "ui-calendar-prev" ).attr( "href", "#" ).text( this.texts.prevText );
 
@@ -272,7 +275,12 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 				return '<option value="' + i + '"' + (i == current_month ? " selected" : "") + '>' + m + '</option>';
 			}).join("\n");
 			month_select = $( "<select name=\"month\"> </select>" );
-			month_select.attr({"data-calendar-handler": "selectMonth", "data-inline": true, "data-mini": true}).addClass( "ui-calendar-months" );
+			month_select.attr({
+				"data-calendar-handler": "selectMonth",
+				"data-inline": true,
+				"data-mini": true,
+				"data-theme": this.options.monthsTheme || this.options.theme
+			}).addClass( "ui-calendar-months" );
 			month_select.append( months );
 		} else {
 			month_select = []
@@ -294,7 +302,8 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			year_select.attr({
 				"data-calendar-handler": "selectYear",
 				"data-inline": true,
-				"data-mini": true
+				"data-mini": true,
+				"data-theme": this.options.yearsTheme || this.options.theme
 			}).addClass( "ui-calendar-years" );
 			year_select.append(
 				$.map( years, function(m, i) {
@@ -353,7 +362,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 				"data-icon": "arrow-r",
 				"data-calendar-handler": "next",
 				"data-iconpos": "notext",
-				"data-theme": this.options.theme,
+				"data-theme": this.options.buttonsTheme || this.options.theme,
 				"data-inline": true
 			}).addClass( "ui-calendar-next ui-calendar-next-" + citem ).attr("href", "#").text(this.texts.nextText);
 
@@ -461,7 +470,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			closeBtn.attr({
 				"data-rel": "close",
 				"data-role": "button",
-				"data-theme": this.options.theme,
+				"data-theme": this.options.buttonsTheme || this.options.theme,
 				"data-icon": "delete",
 				"data-inline": true,
 				"data-calendar-handler": "closepopup"
@@ -948,8 +957,6 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
-
-
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
