@@ -189,7 +189,6 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 	_create_embedded: function() {
 		var id = "ui-calendar-obj-" + this._UID();
-
 		this.input = this.element;
 
 		this.container = this.input.parent();

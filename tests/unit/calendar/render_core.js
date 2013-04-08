@@ -39,6 +39,54 @@
 			"must be 2 selects for months and years" );
 	});
 
+	test( "render with text input -- popup", function() {
+		var c = $( "#inline_calendar" ).calendar({
+				popupType: "popup",
+				dateFormat: default_date_format
+			}),
+			body = $(".ui-page .ui-calendar-embedded-box");
+
+		equal( c.val(), today_str, "hidden input has current date as value - " + today_str);
+		ok( body.find("table").attr("cols"), "table predefine count of columns" );
+		equal( body.find("table").attr("cols"), 7, "table predefine 7 columns" );
+		ok( body.find("thead tr.ui-calendar-controls").length,
+			"has row with controls" );
+		equal( body.find("thead tr.ui-calendar-controls td").length, 3,
+			"has row with 3 groups controls" );
+		ok( body.find("thead tr.ui-calendar-controls td").hasClass("ui-calendar-control"),
+			"controls has class ui-calendar-control" );
+		ok( body.find("thead tr.ui-calendar-controls td.ui-calendar-control:first").hasClass("ui-calendar-controls-prev"),
+			"first control is prev button by class ui-calendar-controls-prev" );
+		ok( body.find("thead tr.ui-calendar-controls td.ui-calendar-control:last").hasClass("ui-calendar-controls-next"),
+			"last control is prev button by class ui-calendar-controls-next" );
+		equal( body.find("thead tr.ui-calendar-controls td.ui-calendar-controls-selects select").length, 2,
+			"must be 2 selects for months and years" );
+	});
+
+	test( "render with text input -- panel", function() {
+		var c = $( "#inline_calendar" ).calendar({
+				popupType: "panel",
+				dateFormat: default_date_format
+			}),
+			body = $(".ui-page .ui-calendar-embedded-box");
+
+		equal( c.val(), today_str, "hidden input has current date as value - " + today_str);
+		ok( body.find("table").attr("cols"), "table predefine count of columns" );
+		equal( body.find("table").attr("cols"), 7, "table predefine 7 columns" );
+		ok( body.find("thead tr.ui-calendar-controls").length,
+			"has row with controls" );
+		equal( body.find("thead tr.ui-calendar-controls td").length, 3,
+			"has row with 3 groups controls" );
+		ok( body.find("thead tr.ui-calendar-controls td").hasClass("ui-calendar-control"),
+			"controls has class ui-calendar-control" );
+		ok( body.find("thead tr.ui-calendar-controls td.ui-calendar-control:first").hasClass("ui-calendar-controls-prev"),
+			"first control is prev button by class ui-calendar-controls-prev" );
+		ok( body.find("thead tr.ui-calendar-controls td.ui-calendar-control:last").hasClass("ui-calendar-controls-next"),
+			"last control is prev button by class ui-calendar-controls-next" );
+		equal( body.find("thead tr.ui-calendar-controls td.ui-calendar-controls-selects select").length, 2,
+			"must be 2 selects for months and years" );
+	});
+
 	test( "different themes", function() {
 		var c = $( "#calendar" ).calendar({
 				theme: "a",
@@ -124,7 +172,5 @@
 
 		ok( el.hasClass("ui-link"), "has a tag with class ui-link" );
 		equal( el.text(), today.getDate(), "has a tag with current date number" );
-
-
 	});
 }( jQuery ));
