@@ -103,8 +103,10 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			this.input.appendTo( this.element );
 			this.container = this.element;
 			this.element.on( "click tap change", this._change.bind(this) );
-		}
 
+		}
+		this.element.on( "orientationchange", this._refresh_table.bind(this) );
+		$(window).resize( this._refresh_table.bind(this) );
 
 		var today = new Date();
 
@@ -136,8 +138,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			tmp;
 
 		target = $( event.target ).data( "calendarHandler" ) ? $( event.target ) :
-			$( event.target ).parents("[data-calendar-handler]:first");
-		console.log( event );
+					$( event.target ).parents("[data-calendar-handler]:first");
 		switch ( target.data("calendarHandler") ) {
 			case "selectDay":
 				this.setCurrentDate( new Date(target.data("year"), target.data("month"), target.data("date")) );
@@ -222,11 +223,20 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 
 		this.popup_for_embedded = this.calendar_container[this.options.popupType];
 
-		this.calendar_container.on( (this.options.popupType == "popup" ? "popupbeforeposition" : "panelbeforeopen"), {
+		this.calendar_container.on( this.options.popupType + "create", {
 			self: this
 		}, function(event, ui){
 			event.data.self.refresh();
 		});
+
+		if ( this.options.popupType == "popup" ) {
+			this.calendar_container.on( "popupbeforeposition", {
+				self: this
+			}, function(event){
+				event.data.self._refresh_table()
+			});
+		}
+
 		if ( this.options.popupType == "popup" ) {
 			this.calendar_container.appendTo( this.container );
 		} else {
@@ -451,10 +461,53 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			this._updateTable( cdate );
 		} else {
 			this.element.find( ".ui-calendar-body" ).remove();
-
-			this._createTable( cdate ).appendTo( this.element );
+			this.$tables = this._createTable( cdate );
+			this.$tables.appendTo( this.element );
 
 			this.element.trigger( "create" );
+			this._refresh_table_size();
+			this._refresh_table();
+		}
+	},
+
+	_refresh_table_size: function() {
+		var maxHeight = -1,
+			maxWidth = -1,
+			list = this.$tables.find(".ui-calendar-table");
+		list.each(function(index, el){
+			maxHeight = Math.max($(el).height(), maxHeight);
+			maxWidth = Math.max($(el).width(), maxWidth);
+		});
+		list.height(maxHeight + "px");
+		list.width(maxWidth + "px");
+	},
+
+	_refresh_table: function() {
+		if ( !this.$tables ) return;
+		var	first_y_offset = -1,
+			prev = null,
+			list = this.$tables.find(".ui-calendar-table");
+
+		prev = $( list.get(0) );
+		first_y_offset = prev.position().top;
+
+		list.find(".ui-calendar-controls-next a").hide();
+		list.each(function(index, el){
+			if ( $(el).position().top != first_y_offset  ) {
+				prev.find(".ui-calendar-controls-next a").css({
+					display: "inline-block"
+				});
+				prev = null; // as flag
+				return false;
+			} else {
+				prev = $(el);
+				prev.find(".ui-calendar-controls-next a").hide();
+			}
+		});
+		if ( prev ) {
+			prev.find(".ui-calendar-controls-next a").css({
+				display: "inline-block"
+			});
 		}
 	},
 
@@ -462,7 +515,8 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		var cdate = this.getCurrentDate();
 
 		this.calendar_container.html( "" );
-		this._createTable( cdate ).appendTo( this.calendar_container );
+		this.$tables = this._createTable( cdate );
+		this.$tables.appendTo( this.calendar_container );
 
 		if ( this.options.closeBtn ){
 			var closeBtn = $("<a href=\"#\">" + this.texts.closeText + "</a>");
@@ -478,9 +532,11 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 			this.calendar_container.append( closeBtn );
 		}
 
-
 		this.container.trigger( "create" );
 		this.calendar_container.parent().trigger( "create" );
+
+		this._refresh_table_size();
+		this._refresh_table();
 	},
 
 	_setOption: function(key, value) {
@@ -956,6 +1012,7 @@ $.widget( "mobile.calendar", $.mobile.widget, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
