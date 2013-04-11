@@ -1,0 +1,66 @@
+.ui-calendar {
+	margin: 0 auto;
+    /*width: 90%;*/
+}
+
+.ui-calendar-head {
+	font-size: 0.7em;
+}
+
+.ui-calendar-body {
+	vertical-align: center;
+	overflow: overlay;
+}
+
+.ui-calendar-table {
+	float: left;
+}
+
+.ui-calendar-controls-selects .ui-select {
+	display: inline-block;
+}
+
+
+.ui-calendar-month, .ui-calendar-year, .ui-calendar-months, .ui-calendar-years {
+	display: inline-block;
+}
+
+.ui-calendar-day, .ui-calendar-day-off {
+	width: 2.2em;
+	height: 2.2em;
+	text-align: center;
+}
+
+.ui-calendar-day:hover {
+
+	background-color: #ccc;
+}
+
+.ui-calendar-day:active {
+	background-color: #ccc;
+	color: red;
+}
+
+.ui-calendar-day-off {
+	color: #ccc;
+}
+
+.ui-calendar-active {
+	background-color: #ddd;
+}
+
+.ui-calendar-embedded-box {
+	/*position: absolute;*/
+}
+
+.ui-calendar-popup-btn {
+	float: right;
+	margin-top: -1.9em;
+	position: relative;
+}
+
+.ui-calendar-next-0, .ui-calendar-next-1, .ui-calendar-next-2, .ui-calendar-next-3,
+.ui-calendar-next-4, .ui-calendar-next-5, .ui-calendar-next-6, .ui-calendar-next-7,
+.ui-calendar-next-8, .ui-calendar-next-9, .ui-calendar-next-10, .ui-calendar-next-11 {
+	display: none;
+}
