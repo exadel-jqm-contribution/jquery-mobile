@@ -1,13 +1,3 @@
-//>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-//>>description: Creates calendar from list of images or html-blocks.
-//>>label: calendar
-//>>group: Widgets
-//>>css.structure: ../css/structure/jquery.mobile.calendar.css
-//>>css.theme: ../css/themes/default/jquery.mobile.theme.css
-
-define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
-//>>excludeEnd( "jqmBuildExclude" );
-
 (function( $, undefined ){
 
 $.widget( "mobile.calendar", $.mobile.textinput, {
@@ -126,6 +116,8 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_destroy: function() {
+
+		// debugger;
 		if ( this.inline_mode ) {
 			// we must replace block by input with current date
 			var input = $("<input />");
@@ -143,7 +135,16 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.c_button.data("calendarHandler", null);
 			this.c_button.remove();
 			this.input.data("calendarHandler", null);
+			// if ( this.options.popupType == "panel" ) {
+			// 	this.calendar_container.parent().remove();
+			// } else {
+			// 	this.calendar_container.remove();
+			// }
 		}
+	},
+
+	_UID: function() {
+		return this.uuid;// + "-" + ( ++this.cuid );
 	},
 
 	getUUID: function() {
@@ -159,14 +160,18 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			current = this.getCurrentDate(),
 			year = current.getFullYear(),
 			month = current.getMonth(),
+			cevent,
+			event_data = {},
 			tmp;
 
 		target = $( event.target ).data( "calendarHandler" ) ? $( event.target ) :
 					$( event.target ).parents("[data-calendar-handler]:first");
-
 		switch ( target.data("calendarHandler") ) {
 			case "selectDay":
-				this.setCurrentDate( new Date(target.data("year"), target.data("month"), target.data("date")) );
+				event_data = {
+					selectedDate: new Date(target.data("year"), target.data("month"), target.data("date"))
+				};
+				this.setCurrentDate( event_data.selectedDate );
 				if ( !this.inline_mode ) {
 					this.popup_for_embedded.call(this.calendar_container, "close" );
 				}
@@ -178,6 +183,10 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				if ( tmp < 0 ) {
 					this.drawFromYear--;
 				}
+				event_data = {
+					year: this.drawFromYear,
+					month: this.drawFromMonth
+				};
 				this.refresh(tmp < 0);
 				break;
 			case "next":
@@ -186,11 +195,19 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				if ( tmp > 11 ) {
 					this.drawFromYear++;
 				}
+				event_data = {
+					year: this.drawFromYear,
+					month: this.drawFromMonth
+				};
 				this.refresh(tmp > 11);
 				break;
 			case "selectMonth":
 				if ( event.type == "change" ) {
 					this.drawFromMonth = parseInt(target.val(), 10);
+					event_data = {
+						year: this.drawFromYear,
+						month: this.drawFromMonth
+					};
 					this.refresh(false);
 				}
 				break;
@@ -198,6 +215,10 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				if ( event.type == "change" ) {
 					this.drawFromMonth = 0;
 					this.drawFromYear = parseInt(target.val(), 10);
+					event_data = {
+						year: this.drawFromYear,
+						month: this.drawFromMonth
+					};
 					this.refresh(false);
 				}
 				break;
@@ -208,11 +229,20 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				this.popup_for_embedded.call(this.calendar_container, "close" );
 				break;
 		}
+
+		event_data = $.extend( {}, event_data, {
+			baseType: event.type
+		} );
+		cevent = $.Event(
+			"calendar" + target.data("calendarHandler").toLowerCase()
+		);
+
+		this.element.trigger( cevent, event_data );
 		event.preventDefault();
 	},
 
 	_create_embedded: function() {
-		var id = "ui-calendar-obj-" + this.uuid;
+		var id = "ui-calendar-obj-" + this._UID();
 		this.input = this.element;
 
 		if ( this.input.data().hasOwnProperty( "mobileTextinput" ) ) {
@@ -1063,9 +1093,3 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
-
-
-
-//>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-});
-//>>excludeEnd( "jqmBuildExclude" );
