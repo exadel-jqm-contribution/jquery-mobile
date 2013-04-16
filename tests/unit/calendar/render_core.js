@@ -69,7 +69,7 @@
 				dateFormat: default_date_format
 			}),
 			body = $(".ui-page .ui-calendar-embedded-box");
-
+		console.log( c.calendar("getUUID") );
 		equal( c.val(), today_str, "hidden input has current date as value - " + today_str);
 		ok( body.find("table").attr("cols"), "table predefine count of columns" );
 		equal( body.find("table").attr("cols"), 7, "table predefine 7 columns" );
@@ -85,9 +85,10 @@
 			"last control is prev button by class ui-calendar-controls-next" );
 		equal( body.find("thead tr.ui-calendar-controls td.ui-calendar-controls-selects select").length, 2,
 			"must be 2 selects for months and years" );
+		c.calendar( "destroy" );
 	});
 
-	asyncTest( "different themes", function() {
+	test( "different themes", function() {
 		var c = $( "#calendar" ).calendar({
 				theme: "a",
 				buttonsTheme: "b",
@@ -95,17 +96,11 @@
 				yearsTheme: "d"
 			}), body = null;
 		expect( 3 );
-		setTimeout(function(){
-			body = c.find( ".ui-calendar-body table" );
-			if ( body.find("thead td.ui-calendar-control a:first").attr("data-theme") != "b" ) {
-				var x = body.find("thead td.ui-calendar-control a:first");
-				debugger;
-			}
-			equal( body.find("thead td.ui-calendar-control a:first").attr("data-theme"), "b", "Buttons must have theme b" );
-			equal( body.find("thead td.ui-calendar-controls-selects select:first").attr("data-theme"), "c", "Month select must have theme c" );
-			equal( body.find("thead td.ui-calendar-controls-selects select:eq(1)").attr("data-theme"), "d", "Year select must have theme c" );
-			start();
-		}, 400);
+		body = c.find( ".ui-calendar-body table" );
+
+		equal( body.find("thead td.ui-calendar-control a:first").attr("data-theme"), "b", "Buttons must have theme b" );
+		equal( body.find("thead td.ui-calendar-controls-selects select:first").attr("data-theme"), "c", "Month select must have theme c" );
+		equal( body.find("thead td.ui-calendar-controls-selects select:eq(1)").attr("data-theme"), "d", "Year select must have theme c" );
 	});
 
 	test( "other month days", function(){
@@ -124,7 +119,7 @@
 		ok( el.hasClass("ui-calendar-state-disabled"), "has class ui-calendar-state-disabled" );
 		ok( !el.hasClass("ui-calendar-day"), "has not class ui-calendar-day" );
 		ok( !el.hasClass("ui-calendar-active"), "has not class ui-calendar-active" );
-		equal( el.text(), "1", "has text with showOtherMonths == TRUE");
+		equal( el.text(), "1", "has text with showOtherMonths == TRUE" );
 		ok( el.find("span.calendar-state-default").length, "has span with .calendar-state-default showOtherMonths == TRUE");
 
 		t = (new Date("2013-05-04 0:00")).getTime();

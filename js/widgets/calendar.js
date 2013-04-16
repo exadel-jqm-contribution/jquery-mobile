@@ -81,6 +81,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_create: function() {
+
 		this.element.addClass( "ui-calendar" );
 		var node_type = this.element.get(0).nodeName.toLowerCase();
 
@@ -139,20 +140,14 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.element.after(input.wrap("<div />"));
 			input.parent().trigger( "create" );
 		} else {
-
 			this.c_button.data("calendarHandler", null);
 			this.c_button.remove();
 			this.input.data("calendarHandler", null);
-			if ( this.options.popupType == "panel" ) {
-				this.calendar_container.parent().remove();
-			} else {
-				this.calendar_container.remove();
-			}
 		}
 	},
 
-	_UID: function() {
-		return this.uuid;// + "-" + ( ++this.cuid );
+	getUUID: function() {
+		return this.uuid;
 	},
 
 	_change: function( event ) {
@@ -168,6 +163,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 
 		target = $( event.target ).data( "calendarHandler" ) ? $( event.target ) :
 					$( event.target ).parents("[data-calendar-handler]:first");
+
 		switch ( target.data("calendarHandler") ) {
 			case "selectDay":
 				this.setCurrentDate( new Date(target.data("year"), target.data("month"), target.data("date")) );
@@ -194,14 +190,14 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				break;
 			case "selectMonth":
 				if ( event.type == "change" ) {
-					this.drawFromMonth = target.val();
+					this.drawFromMonth = parseInt(target.val(), 10);
 					this.refresh(false);
 				}
 				break;
 			case "selectYear":
 				if ( event.type == "change" ) {
-					this.drawFromMonth = 1;
-					this.drawFromYear = target.val();
+					this.drawFromMonth = 0;
+					this.drawFromYear = parseInt(target.val(), 10);
 					this.refresh(false);
 				}
 				break;
@@ -216,7 +212,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_create_embedded: function() {
-		var id = "ui-calendar-obj-" + this._UID();
+		var id = "ui-calendar-obj-" + this.uuid;
 		this.input = this.element;
 
 		if ( this.input.data().hasOwnProperty( "mobileTextinput" ) ) {
@@ -389,7 +385,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			if ( fromMonth + citem > 12 ) {
 				drawYear++;
 			}
-
 
 			leadDays = ( this._getFirstDayOfMonth(drawYear, drawMonth) - this.texts.firstDay + 7 ) % 7;
 			curRows = Math.ceil( (leadDays + this._getDaysInMonth(drawYear, drawMonth)) / 7 );
@@ -588,18 +583,23 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		var temp;
 		switch( key ) {
 			case "dateFormat":
-				this.texts.dateFormat = this.options.dateFormat = value;
+				this.texts.dateFormat = this.options.dateFormat = this.getStandartFormat( value );
 				break;
 			case "startDate":
 				temp = this._determineDate( value, new Date() );
 				temp.setTime( Math.max( temp.getTime(), this.options.minDate.getTime()) );
 				temp.setTime( Math.min( temp.getTime(), this.options.maxDate.getTime()) );
 				this.current_date = temp;
+			case "regional":
+				this.setRegional( value );
+				break;
 			default:
 				if ( this.options.hasOwnProperty(key) ) {
 					this.options[key] = value;
 				}
 		}
+		this._updateInput();
+		this.refresh();
 	},
 
 	getCurrentDate: function(){
@@ -1063,6 +1063,8 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
