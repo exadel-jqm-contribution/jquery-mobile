@@ -111,8 +111,8 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 
 		var today = new Date();
 
-		this.options.minDate = this._determineDate( this.options.minDate, new Date(today.getFullYear() - 10, 1, 1) );
-		this.options.maxDate = this._determineDate( this.options.maxDate, new Date(today.getFullYear() + 10, 1, 1) );
+		this.options.minDate = this._determineDate( this.options.minDate, new Date(today.getFullYear() - 10, 12, 31) );
+		this.options.maxDate = this._determineDate( this.options.maxDate, new Date(today.getFullYear() + 10, 12, 31) );
 
 		this.current_date  = this._determineDate( this.options.startDate, new Date());
 
