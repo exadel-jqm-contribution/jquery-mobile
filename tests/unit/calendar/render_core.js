@@ -87,18 +87,25 @@
 			"must be 2 selects for months and years" );
 	});
 
-	test( "different themes", function() {
+	asyncTest( "different themes", function() {
 		var c = $( "#calendar" ).calendar({
 				theme: "a",
 				buttonsTheme: "b",
 				monthsTheme: "c",
 				yearsTheme: "d"
-			}),
+			}), body = null;
+		expect( 3 );
+		setTimeout(function(){
 			body = c.find( ".ui-calendar-body table" );
-
-		equal( body.find("thead td.ui-calendar-control a:first").attr("data-theme"), "b", "Buttons must have theme b" );
-		equal( body.find("thead td.ui-calendar-controls-selects select:first").attr("data-theme"), "c", "Month select must have theme c" );
-		equal( body.find("thead td.ui-calendar-controls-selects select:eq(1)").attr("data-theme"), "d", "Year select must have theme c" );
+			if ( body.find("thead td.ui-calendar-control a:first").attr("data-theme") != "b" ) {
+				var x = body.find("thead td.ui-calendar-control a:first");
+				debugger;
+			}
+			equal( body.find("thead td.ui-calendar-control a:first").attr("data-theme"), "b", "Buttons must have theme b" );
+			equal( body.find("thead td.ui-calendar-controls-selects select:first").attr("data-theme"), "c", "Month select must have theme c" );
+			equal( body.find("thead td.ui-calendar-controls-selects select:eq(1)").attr("data-theme"), "d", "Year select must have theme c" );
+			start();
+		}, 400);
 	});
 
 	test( "other month days", function(){
