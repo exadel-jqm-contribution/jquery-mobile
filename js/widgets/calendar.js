@@ -1,3 +1,13 @@
+//>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
+//>>description: Creates calendar from list of images or html-blocks.
+//>>label: calendar
+//>>group: Widgets
+//>>css.structure: ../css/structure/jquery.mobile.calendar.css
+//>>css.theme: ../css/themes/default/jquery.mobile.theme.css
+
+define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
+//>>excludeEnd( "jqmBuildExclude" );
+
 (function( $, undefined ){
 
 $.widget( "mobile.calendar", $.mobile.textinput, {
@@ -1093,3 +1103,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
+//>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
+});
+//>>excludeEnd( "jqmBuildExclude" );
