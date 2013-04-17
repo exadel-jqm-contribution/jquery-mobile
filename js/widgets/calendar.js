@@ -8,6 +8,7 @@
 define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
+
 (function( $, undefined ){
 
 $.widget( "mobile.calendar", $.mobile.textinput, {
@@ -126,8 +127,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_destroy: function() {
-
-		// debugger;
 		if ( this.inline_mode ) {
 			// we must replace block by input with current date
 			var input = $("<input />");
@@ -145,11 +144,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.c_button.data("calendarHandler", null);
 			this.c_button.remove();
 			this.input.data("calendarHandler", null);
-			// if ( this.options.popupType == "panel" ) {
-			// 	this.calendar_container.parent().remove();
-			// } else {
-			// 	this.calendar_container.remove();
-			// }
 		}
 	},
 
@@ -240,14 +234,16 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				break;
 		}
 
-		event_data = $.extend( {}, event_data, {
-			baseType: event.type
-		} );
-		cevent = $.Event(
-			"calendar" + target.data("calendarHandler").toLowerCase()
-		);
+		if ( target.data("calendarHandler") ){
+			event_data = $.extend( {}, event_data, {
+				baseType: event.type
+			} );
+			cevent = $.Event(
+				"calendar" + target.data("calendarHandler").toLowerCase()
+			);
 
-		this.element.trigger( cevent, event_data );
+			this.element.trigger( cevent, event_data );
+		}
 		event.preventDefault();
 	},
 
@@ -571,18 +567,15 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		list.find(".ui-calendar-controls-next a").hide();
 		list.each(function(index, el){
 			if ( $(el).position().top != first_y_offset  ) {
-				prev.find(".ui-calendar-controls-next a").css({
-					display: "inline-block"
-				});
-				prev = null; // as flag
 				return false;
 			} else {
 				prev = $(el);
 				prev.find(".ui-calendar-controls-next a").hide();
 			}
 		});
-		if ( prev ) {
-			prev.find(".ui-calendar-controls-next a").css({
+		var btn = prev.find(".ui-calendar-controls-next a");
+		if ( btn.css("display") != "inline-block" ) {
+			btn.css({
 				display: "inline-block"
 			});
 		}
@@ -1103,6 +1096,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
