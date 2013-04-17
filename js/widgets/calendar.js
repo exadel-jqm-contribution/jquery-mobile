@@ -147,10 +147,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		}
 	},
 
-	_UID: function() {
-		return this.uuid;// + "-" + ( ++this.cuid );
-	},
-
 	getUUID: function() {
 		return this.uuid;
 	},
@@ -248,7 +244,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_create_embedded: function() {
-		var id = "ui-calendar-obj-" + this._UID();
+		var id = "ui-calendar-obj-" + this.uuid;
 		this.input = this.element;
 
 		if ( this.input.data().hasOwnProperty( "mobileTextinput" ) ) {
@@ -1096,6 +1092,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
