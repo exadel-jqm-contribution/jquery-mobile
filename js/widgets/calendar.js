@@ -8,7 +8,6 @@
 define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
-
 (function( $, undefined ){
 
 $.widget( "mobile.calendar", $.mobile.textinput, {
@@ -82,7 +81,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_create: function() {
-
 		this.element.addClass( "ui-calendar" );
 		var node_type = this.element.get(0).nodeName.toLowerCase();
 
@@ -124,6 +122,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		this.drawFromMonth = this.current_date.getMonth();
 		this._updateInput();
 		this.refresh();
+		return this;
 	},
 
 	_destroy: function() {
@@ -145,10 +144,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.c_button.remove();
 			this.input.data("calendarHandler", null);
 		}
-	},
-
-	_UID: function() {
-		return this.uuid;// + "-" + ( ++this.cuid );
 	},
 
 	getUUID: function() {
@@ -182,28 +177,33 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				this.refresh(true);
 				break;
 			case "prev":
-				tmp = ((this.drawFromMonth - 1) % 12);
-				this.drawFromMonth = tmp < 0 ? 11 : tmp;
+				tmp = (this.drawFromMonth - 1);
+
 				if ( tmp < 0 ) {
 					this.drawFromYear--;
+					this.drawFromMonth = 11;
+				} else {
+					this.drawFromMonth = tmp % 12;
 				}
 				event_data = {
 					year: this.drawFromYear,
 					month: this.drawFromMonth
 				};
-				this.refresh(tmp < 0);
+				this.refresh(false);
 				break;
 			case "next":
 				tmp = (this.drawFromMonth + 1);
-				this.drawFromMonth = tmp % 12;
-				if ( tmp > 11 ) {
+				if ( tmp >= 12 ) {
 					this.drawFromYear++;
+					this.drawFromMonth = 0;
+				} else {
+					this.drawFromMonth = tmp % 12;
 				}
 				event_data = {
 					year: this.drawFromYear,
 					month: this.drawFromMonth
 				};
-				this.refresh(tmp > 11);
+				this.refresh(false);
 				break;
 			case "selectMonth":
 				if ( event.type == "change" ) {
@@ -248,15 +248,10 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_create_embedded: function() {
-		var id = "ui-calendar-obj-" + this._UID();
+		var id = "ui-calendar-obj-" + this.uuid;
 		this.input = this.element;
 
-		if ( this.input.data().hasOwnProperty( "mobileTextinput" ) ) {
-			this.container = this.input.parent();
-		} else {
-			//this.input.trigger( "create" );
-			this.container = this.input.parent();
-		}
+		this.container = this.input.parent();
 
 		this.c_button = $( "<a href=\"#\">Calendar</a>" );
 		this.c_button.addClass( "ui-calendar-popup-btn" ).attr({
@@ -298,21 +293,12 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			});
 		}
 
-		if ( this.options.popupType == "panel" ) {
-			this.calendar_container.on( "panelopen", {
-				self: this
-			}, function(event){
-				event.data.self._refresh_table_size();
-				event.data.self._refresh_table();
-			});
-		}
-
 		if ( this.options.popupType == "popup" ) {
 			t = this.calendar_container.wrap( $("<div />") );
 			t.parent().insertAfter( this.container );
 		} else {
 			t = this.element.parents(".ui-page");
-			this.calendar_container.prependTo( t );
+			this.calendar_container.wrap( $("<div />") ).parent().prependTo( t );
 		}
 
 		this.container.on( "click tap change", this._change.bind(this) );
@@ -320,8 +306,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_createTable: function( currentDate ) {
-		var result = $( "<div />" ).addClass( "ui-calendar-body" ),
-			table, controls, controls_center, week_row, tbody, btn_prev, btn_next, month_select, year_select,
+		var table, controls, controls_center, week_row, btn_prev, btn_next, month_select, year_select,
 			i, isCurrent, citem, dRow, dow, daySettings, otherMonth, unselectable, drawYear, drawMonth,
 			leadDays, curRows, printDate,
 			html_body = "",	tdtr = "",
@@ -336,31 +321,36 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			minDate = this.options.minDate,
 			maxDate = this.options.maxDate,
 			days = this.texts.dayNamesMin,
-			fromMonth = this.drawFromMonth;
+			fromMonth = this.drawFromMonth,
+			monthUseSelect = this.options.changeMonth && this.options.numberOfMonths == 1,
+			yearUseSelect = this.options.changeYear && this.options.numberOfMonths == 1;
 
 		// we need only one previous button
-		btn_prev = $( "<a></a>" ).attr({
-			"data-role": "button",
-			"data-calendar-handler": "prev",
-			"data-icon": "arrow-l",
-			"data-iconpos": "notext",
-			"data-theme": this.options.buttonsTheme || this.options.theme,
-			"data-inline": true
-		}).addClass( "ui-calendar-prev" ).attr( "href", "#" ).text( this.texts.prevText );
+		btn_prev = ["<a",
+			"data-role=\"button\"",
+			"data-calendar-handler=\"prev\"",
+			"data-icon=\"arrow-l\"",
+			"data-iconpos=\"notext\"",
+			"data-theme=\"" + (this.options.buttonsTheme || this.options.theme) + "\"",
+			"data-inline=\"true\"",
+			"class=\"ui-calendar-prev\" href=\"#\">" + this.texts.prevText + "</a>",
+		].join(" ");
 
-		if ( this.options.changeMonth && this.options.numberOfMonths == 1 ) {
+		if ( monthUseSelect ) {
 			var current_month = fromMonth,
 			months = $.map( this.texts.monthNames, function(m, i) {
 				return '<option value="' + i + '"' + (i == current_month ? " selected" : "") + '>' + m + '</option>';
-			}).join("\n");
-			month_select = $( "<select name=\"month\"> </select>" );
-			month_select.attr({
-				"data-calendar-handler": "selectMonth",
-				"data-inline": true,
-				"data-mini": true,
-				"data-theme": this.options.monthsTheme || this.options.theme
-			}).addClass( "ui-calendar-months" );
-			month_select.append( months );
+			});
+
+			month_select = [
+			"<select name=\"month\" class=\"ui-calendar-months\"",
+				"data-calendar-handler=\"selectMonth\"",
+				"data-inline=\"true\"",
+				"data-mini=\"true\"",
+				"data-theme=\"" + (this.options.monthsTheme || this.options.theme) + "\">"
+			];
+			month_select = month_select.concat( months, ["</select>"] );
+
 		} else {
 			month_select = []
 			for ( i = 0; i < this.options.numberOfMonths; i++ ) {
@@ -370,27 +360,25 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			}
 		}
 
-		if ( this.options.changeYear && this.options.numberOfMonths == 1 ) {
-			var years = (function(from, to){
-				var i = from, res = [];
-				for (i = from ; i <= to; i++) {
-					res.push(i);
-				}
-				return res;
-			}(Math.min(this.options.minDate.getFullYear(), this.drawFromYear) , Math.max(this.options.maxDate.getFullYear(), this.drawFromYear) ));
-			var current_year = this.drawFromYear;
-			year_select = $("<select name=\"year\"> </select>")
-			year_select.attr({
-				"data-calendar-handler": "selectYear",
-				"data-inline": true,
-				"data-mini": true,
-				"data-theme": this.options.yearsTheme || this.options.theme
-			}).addClass( "ui-calendar-years" );
-			year_select.append(
-				$.map( years, function(m, i) {
-					return '<option value="' + m + '"' + (m == current_year ? " selected" : "") + '>' + m + '</option>';
-				}).join( "\n" )
-			);
+		if ( yearUseSelect ) {
+			var current_year = this.drawFromYear,
+				years = (function(from, to){
+					var res = [];
+					for (; from <= to; from++) {
+						res.push( '<option value="' + from + '"' + (from == current_year ? " selected" : "") + '>' + from + '</option>' );
+					}
+					return res;
+				}( Math.min(this.options.minDate.getFullYear(), this.drawFromYear) , Math.max(this.options.maxDate.getFullYear(), this.drawFromYear) ));
+
+			year_select = [
+			"<select name=\"year\" class=\"ui-calendar-years\"",
+				"data-calendar-handler=\"selectYear\"",
+				"data-inline=\"true\"",
+				"data-mini=\"true\"",
+				"data-theme=\"" + (this.options.yearsTheme || this.options.theme) + "\""
+			];
+
+			year_select = year_select.concat( years, ["</select>"] );
 		} else {
 			year_select = [];
 			var _y = this.drawFromYear,
@@ -405,15 +393,16 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 
 		// main loop for list of calendars
 		for ( citem = 0; citem < this.options.numberOfMonths; citem++ ) {
-			table = $( "<div class=\"ui-calendar-table " + (this.options.numberOfMonths == 1 ? "ui-calendar-one" : "") + "\"><table cols=\"" + table_columns + "\">" +
-				"<thead>\n" +
-					"<tr class=\"ui-calendar-controls\"></tr>\n" +
-					"<tr class=\"ui-calendar-head\"></tr>\n" +
-				"</thead>\n" +
-				"<tbody> </tbody></table></div>" );
-			week_row = $( ".ui-calendar-head", table );
-			tbody = $( "tbody", table );
-			controls = $( ".ui-calendar-controls", table );
+			table = ["<div class=\"ui-calendar-table " + (this.options.numberOfMonths == 1 ? "ui-calendar-one" : "") + "\">",
+				"<table cols=\"" + table_columns + "\">",
+				"<thead>",
+					"<tr class=\"ui-calendar-controls\">{{controls}}</tr>",
+					"<tr class=\"ui-calendar-head\">{{head}}</tr>",
+				"</thead>",
+				"<tbody>{{tbody}}</tbody></table></div>"].join( "" );
+			week_row = [];
+			controls = [];
+			controls_center = [];
 
 			drawMonth = ( fromMonth + citem ) % 12;
 			drawYear = this.drawFromYear;
@@ -427,10 +416,10 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			printDate = this._daylightSavingAdjust( new Date(drawYear, drawMonth, 1 - leadDays) );
 
 			if ( showWeek ) {
-				week_row.append( "<td class=\"ui-calendar-day-name calendar-week-number-name\">" + this.options.weekHeader + "</td>" );
+				week_row.push("<td class=\"ui-calendar-day-name calendar-week-number-name\">" + this.options.weekHeader);
 			}
 
-			week_row.append(function(d, firstDay){
+			week_row.push(function(d, firstDay){
 				var i, day, result = "";
 				for (i = 0; i < 7; i++) {
 					day = (i + firstDay) % 7;
@@ -439,29 +428,38 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				return result;
 			}(days, this.texts.firstDay));
 
-			btn_next = $( "<a></a>" ).attr({
-				"data-role": "button",
-				"data-icon": "arrow-r",
-				"data-calendar-handler": "next",
-				"data-iconpos": "notext",
-				"data-theme": this.options.buttonsTheme || this.options.theme,
-				"data-inline": true
-			}).addClass( "ui-calendar-next" ).attr("href", "#").text(this.texts.nextText);
+			btn_next = ["<a href='#' class='ui-calendar-next'",
+				"data-role=\"button\"",
+				"data-icon=\"arrow-r\"",
+				"data-calendar-handler=\"next\"",
+				"data-iconpos=\"notext\"",
+				"data-theme=\"" + (this.options.buttonsTheme || this.options.theme) + "\"",
+				"data-inline=\"true\"",
+				">" + this.texts.nextText + "</a>"].join( " " );
 
 			if ( !btn_prev_exists ) {
-				controls.append( $("<td class=\"ui-calendar-control ui-calendar-controls-prev\"></td>").append( btn_prev ) );
+				controls.push( "<td class=\"ui-calendar-control ui-calendar-controls-prev\">" + btn_prev + "</td>" );
 				btn_prev_exists = true;
 			}
 
-			controls_center = $("<td class=\"ui-calendar-control ui-calendar-controls-selects\"><div data-role=\"controlgroup\" data-type=\"horizontal\" data-mini=\"true\"></td>").attr({
-				colspan: citem == 0 ? table_columns - 2: table_columns - 1
-			});
-			controls_center.find("div").append( ($.isArray(month_select) ?  month_select[citem] : month_select) );
-			controls_center.find("div").append( ($.isArray(year_select) ? year_select[citem] : year_select) );
+			controls_center = [
+				"<td class=\"ui-calendar-control ui-calendar-controls-selects\" ",
+					"colspan='" + (citem == 0 ? table_columns - 2: table_columns - 1) + "'>",
+					"<div data-role=\"controlgroup\" data-type=\"horizontal\" data-mini=\"true\">"
+			];
+			if ( monthUseSelect ) {
+				controls_center.push( month_select.join(" ") );
+			} else {
+				controls_center.push( month_select[citem] );
+			}
 
-			controls.append( controls_center );
-			controls.append( $("<td class=\"ui-calendar-control ui-calendar-controls-next\"></td>").append( btn_next ) );
+			if ( yearUseSelect ) {
+				controls_center.push( year_select.join(" ") );
+			} else {
+				controls_center.push( year_select[citem] );
+			}
 
+			controls = controls.concat( controls_center, ["<td class=\"ui-calendar-control ui-calendar-controls-next\">", btn_next, "</td>"] );
 			html_body = "";
 			for ( dRow = 0; dRow < curRows; dRow++ ) { // rows
 				html_body += "<tr>";
@@ -478,10 +476,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 						((dow + this.texts.firstDay + 6) % 7 >= 5 ? " ui-calendar-week-end" : "") + // highlight weekends
 						(otherMonth ? " ui-calendar-other-month ui-ui-calendar-day-off" : " ui-calendar-day") + // highlight days from other months
 
-						// ((printDate.getTime() === selectedDate.getTime() && drawMonth === this.selectedMonth && this._keyEvent) || // user pressed key
-						// (defaultDate.getTime() === printDate.getTime() && defaultDate.getTime() === selectedDate.getTime()) ?
-						// // or defaultDate is current printedDate and defaultDate is selectedDate
-						// " " + this._dayOverClass : "") + // highlight selected day
 						(unselectable ? " ui-calendar-state-disabled": "") +  // highlight unselectable days
 
 						(otherMonth && !showOtherMonths ? "" : " " + daySettings[1] + // highlight custom dates
@@ -509,12 +503,12 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				}
 				html_body += tdtr + "</tr>";
 			}
-			tbody.append( html_body );
 
-			table.appendTo(result);
+			table = table.replace( "{{controls}}", controls.join("") );
+			table = table.replace( "{{head}}", week_row.join("") );
+			table = table.replace( "{{tbody}}", html_body );
 		}
-
-		return result;
+		return $("<div class=\"ui-calendar-body\">" + table + "</div>");
 	},
 
 	_updateTable: function( currentDate ) {
@@ -547,6 +541,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		var maxHeight = -1,
 			maxWidth = -1,
 			list = this.$tables.find(".ui-calendar-table");
+
 		list.each(function(index, el){
 			maxHeight = Math.max($(el).height(), maxHeight);
 			maxWidth = Math.max($(el).width(), maxWidth);
@@ -604,7 +599,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				this.calendar_container.append( closeBtn );
 			}
 
-		//	this.container.trigger( "create" );
 			this.calendar_container.parent().trigger( "create" );
 			this.$tables.trigger( "create" );
 			this._refresh_table_size();
