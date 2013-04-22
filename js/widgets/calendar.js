@@ -8,6 +8,7 @@
 define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
+
 (function( $, undefined ){
 
 $.widget( "mobile.calendar", $.mobile.textinput, {
@@ -383,7 +384,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				"data-calendar-handler=\"selectYear\"",
 				"data-inline=\"true\"",
 				"data-mini=\"true\"",
-				"data-theme=\"" + (this.options.yearsTheme || this.options.theme) + "\""
+				"data-theme=\"" + (this.options.yearsTheme || this.options.theme) + "\">"
 			];
 
 			year_select = year_select.concat( years, ["</select>"] );
@@ -1100,7 +1101,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
-
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
