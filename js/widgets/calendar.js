@@ -289,7 +289,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.calendar_container.on( "popupbeforeposition", {
 				self: this
 			}, function(event){
-				event.data.self._refresh_table()
+				event.data.self._refresh_table();
 			});
 		}
 
@@ -309,7 +309,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		var table, controls, controls_center, week_row, btn_prev, btn_next, month_select, year_select,
 			i, isCurrent, citem, dRow, dow, daySettings, otherMonth, unselectable, drawYear, drawMonth,
 			leadDays, curRows, printDate,
-			html_body = "",	tdtr = "",
+			html_body = "",	tdtr = "", result = "",
 			btn_prev_exists = false,
 			showWeek = this.options.showWeek,
 			table_columns = showWeek ? 8 : 7,
@@ -507,8 +507,9 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			table = table.replace( "{{controls}}", controls.join("") );
 			table = table.replace( "{{head}}", week_row.join("") );
 			table = table.replace( "{{tbody}}", html_body );
+			result += table;
 		}
-		return $("<div class=\"ui-calendar-body\">" + table + "</div>");
+		return $("<div class=\"ui-calendar-body\">" + result + "</div>");
 	},
 
 	_updateTable: function( currentDate ) {
@@ -543,6 +544,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			list = this.$tables.find(".ui-calendar-table");
 
 		list.each(function(index, el){
+			$(el).width( "auto" );
 			maxHeight = Math.max($(el).height(), maxHeight);
 			maxWidth = Math.max($(el).width(), maxWidth);
 		});
