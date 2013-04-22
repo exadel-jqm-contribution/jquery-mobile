@@ -291,6 +291,14 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			}, function(event){
 				event.data.self._refresh_table();
 			});
+		} else {
+			this.calendar_container.on( "panelopen", {
+				self: this
+			}, function(event){
+				setTimeout(function(){
+					event.data.self._refresh_table_size();
+				}, 100);
+			});
 		}
 
 		if ( this.options.popupType == "popup" ) {
