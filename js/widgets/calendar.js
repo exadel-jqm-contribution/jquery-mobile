@@ -98,7 +98,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.input = $( "<input type=\"hidden\" name=\"" + this.options.inputName + "\"/>" );
 			this.input.appendTo( this.element );
 			this.container = this.element;
-			this.element.on( "click tap change", this._change.bind(this) );
+			this.element.on( "click tap change", this._action.bind(this) );
 		} else {
 			if ( !this.element.data().hasOwnProperty( "mobileTextinput" ) ) {
 				this._super();
@@ -122,7 +122,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		this.drawFromMonth = this.current_date.getMonth();
 		this._updateInput();
 		this.refresh();
-		return this;
 	},
 
 	_destroy: function() {
@@ -146,11 +145,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		}
 	},
 
-	getUUID: function() {
-		return this.uuid;
-	},
-
-	_change: function( event ) {
+	_action: function( event ) {
 		if ( event.type != "click" && event.type != "change" && event.type != "tap" ) {
 			return;
 		}
@@ -309,8 +304,8 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 			this.calendar_container.wrap( $("<div />") ).parent().prependTo( t );
 		}
 
-		this.container.on( "click tap change", this._change.bind(this) );
-		this.calendar_container.on( "click tap change", this._change.bind(this) );
+		this.container.on( "click tap change", this._action.bind(this) );
+		this.calendar_container.on( "click tap change", this._action.bind(this) );
 	},
 
 	_createTable: function( currentDate ) {
