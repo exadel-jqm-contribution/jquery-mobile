@@ -8,9 +8,7 @@
 define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
-
 (function( $, undefined ){
-
 $.widget( "mobile.calendar", $.mobile.textinput, {
 	options:{
 		dateFormat: "mm/dd/yy",
@@ -238,7 +236,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 
 			this.element.trigger( cevent, event_data );
 		}
-		event.preventDefault();
 	},
 
 	_create_embedded: function() {
@@ -523,8 +520,8 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		currentDate.setMilliseconds(0);
 
 		elements = this.$tables.find( ".ui-calendar-day" );
-		elements.next( ".ui-calendar-active" ).removeClass( "ui-calendar-active" );
-		elements.next( ".ui-calendar-time-" + currentDate.getTime() ).addClass( "ui-calendar-active" );
+		elements.filter( ".ui-calendar-active" ).removeClass( "ui-calendar-active" );
+		elements.filter( ".ui-calendar-time-" + currentDate.getTime() ).addClass( "ui-calendar-active" );
 	},
 
 	_refresh_inline: function(update_only) {
@@ -1096,7 +1093,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
-
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
