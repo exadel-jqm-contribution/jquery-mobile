@@ -1069,6 +1069,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	 * @return  number - the number of the week within the year that contains this date
 	 */
 	iso8601Week: function(date) {
+		date = date || this.current_date;
 		var time,
 			checkDate = new Date(date.getTime());
 
