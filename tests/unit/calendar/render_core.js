@@ -51,7 +51,6 @@
 		equal( body.find("table").attr("cols"), 7, "table predefine 7 columns" );
 		ok( body.find("thead tr.ui-calendar-controls").length,
 			"has row with controls" );
-		debugger;
 		equal( body.find("thead tr.ui-calendar-controls td").length, 3,
 			"has row with 3 groups controls" );
 		ok( body.find("thead tr.ui-calendar-controls td").hasClass("ui-calendar-control"),
@@ -162,9 +161,7 @@
 		ok( el.hasClass("ui-calendar-day"), "has class ui-calendar-day" );
 		ok( el.hasClass("ui-calendar-active"), "has class ui-calendar-active" );
 		ok( el.hasClass("ui-calendar-today"), "has class ui-calendar-today" );
-		equal( el.data("year"), today.getFullYear(), "has Year in tag data" );
-		equal( el.data("month"), today.getMonth(), "has Month in range [0..11] in tag data" );
-		equal( el.data("date"), today.getDate(), "has Date in tag data" );
+		equal( el.data("time"), today.getTime(), "has timestamp in tag data" );
 
 		el = el.find("a");
 		ok( el.length, "has a tag as body");

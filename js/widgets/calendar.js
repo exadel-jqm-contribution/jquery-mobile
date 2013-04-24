@@ -163,7 +163,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		switch ( target.data("calendarHandler") ) {
 			case "selectDay":
 				event_data = {
-					selectedDate: new Date(target.data("year"), target.data("month"), target.data("date"))
+					selectedDate: new Date( parseInt(target.data("time"), 10) )
 				};
 				this.setCurrentDate( event_data.selectedDate );
 				if ( !this.inline_mode ) {
@@ -488,10 +488,10 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 						(printDate.getTime() === today.getTime() ? " ui-calendar-today" : "")) + "'" + // highlight today (if different)
 
 						((!otherMonth || showOtherMonths) && daySettings[2] ? " title='" + daySettings[2].replace(/'/g, "&#39;") + "'" : "") + // cell title
-						(!unselectable ? " data-calendar-handler='selectDay' "+
-								"data-month='" + printDate.getMonth() + "' "+
-								"data-year='" + printDate.getFullYear() + "' "+
-								"data-date='" + printDate.getDate() + "'" : ""
+						(unselectable ? "" : [
+								" data-calendar-handler='selectDay'",
+								" data-time='", printDate.getTime(), "' "
+								].join("")
 						) + ">" +
 						(otherMonth && !showOtherMonths ? "&nbsp;" : // display for other months
 							(unselectable ? "<span class='calendar-state-default'>" + printDate.getDate() + "</span>" : "<a "+
@@ -516,14 +516,15 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 	},
 
 	_updateTable: function( currentDate ) {
-		var body = this.$tables;
+		var elements;
 		currentDate.setHours(0);
 		currentDate.setMinutes(0);
 		currentDate.setSeconds(0);
 		currentDate.setMilliseconds(0);
-		body.find( ".ui-calendar-day.ui-calendar-active" ).removeClass( "ui-calendar-active" );
 
-		body.find( ".ui-calendar-day.ui-calendar-time-" + currentDate.getTime() ).addClass( "ui-calendar-active" );
+		elements = this.$tables.find( ".ui-calendar-day" );
+		elements.next( ".ui-calendar-active" ).removeClass( "ui-calendar-active" );
+		elements.next( ".ui-calendar-time-" + currentDate.getTime() ).addClass( "ui-calendar-active" );
 	},
 
 	_refresh_inline: function(update_only) {
@@ -1095,6 +1096,7 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 		return $( ":jqmData(role='calendar')", e.target ).calendar();
 	});
 }(jQuery));
+
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
