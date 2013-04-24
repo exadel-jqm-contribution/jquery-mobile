@@ -51,6 +51,7 @@
 		equal( body.find("table").attr("cols"), 7, "table predefine 7 columns" );
 		ok( body.find("thead tr.ui-calendar-controls").length,
 			"has row with controls" );
+		debugger;
 		equal( body.find("thead tr.ui-calendar-controls td").length, 3,
 			"has row with 3 groups controls" );
 		ok( body.find("thead tr.ui-calendar-controls td").hasClass("ui-calendar-control"),
@@ -69,7 +70,6 @@
 				dateFormat: default_date_format
 			}),
 			body = $(".ui-page .ui-calendar-embedded-box");
-		console.log( c.calendar("getUUID") );
 		equal( c.val(), today_str, "hidden input has current date as value - " + today_str);
 		ok( body.find("table").attr("cols"), "table predefine count of columns" );
 		equal( body.find("table").attr("cols"), 7, "table predefine 7 columns" );

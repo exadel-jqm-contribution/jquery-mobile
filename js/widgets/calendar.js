@@ -173,7 +173,6 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 				break;
 			case "prev":
 				tmp = (this.drawFromMonth - 1);
-
 				if ( tmp < 0 ) {
 					this.drawFromYear--;
 					this.drawFromMonth = 11;
@@ -248,24 +247,25 @@ $.widget( "mobile.calendar", $.mobile.textinput, {
 
 		this.container = this.input.parent();
 
-		this.c_button = $( "<a href=\"#\">Calendar</a>" );
-		this.c_button.addClass( "ui-calendar-popup-btn" ).attr({
-			"data-role": "button",
-			"data-icon": "grid",
-			"data-iconpos": "notext",
-			"data-theme": this.options.buttonsTheme || this.options.theme,
-			"data-inline": true,
-			"data-rel": this.options.popupType,
-			"data-position-to": "window",
-			"data-calendar-handler": "popup",
-			"href": "#" + id
-		});
+		var str_c_button = ["<span><a href=\"#\" class=\"ui-calendar-popup-btn\"",
+			"data-role=\"button\"",
+			"data-icon=\"grid\"",
+			"data-iconpos=\"notext\"",
+			"data-theme=\"" + (this.options.buttonsTheme || this.options.theme) + "\"",
+			"data-inline=\"true\"",
+			"data-rel=\"" + this.options.popupType + "\"",
+			"data-position-to=\"window\"",
+			"data-calendar-handler=\"popup\"",
+			"href=\"#" + id + "\"",
+			">Calendar</a></span>"
+		].join(" ");
 
+		this.c_button = $( str_c_button );
 		this.input.data( "calendarHandler", "popup" );
 
-		var t = this.c_button.wrap("<span />");
-		t.parent().appendTo( this.container );
-		t.parent().trigger( "create" );
+
+		this.c_button.appendTo( this.container );
+		this.c_button.trigger( "create" );
 
 		this.calendar_container = $( "<div />" ).addClass( "ui-calendar-embedded-box" );
 		this.calendar_container.attr({
