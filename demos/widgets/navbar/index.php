@@ -11,6 +11,16 @@
 	<script src="../../../js/jquery.js"></script>
 	<script src="../../_assets/js/"></script>
 	<script src="../../../js/"></script>
+	<style>
+		.nav-glyphish-example .ui-btn { padding-top: 40px !important; }
+		.nav-glyphish-example .ui-btn:after { width: 30px!important; height: 30px!important; margin-left: -15px !important; box-shadow: none!important; -moz-box-shadow: none!important; -webkit-box-shadow: none!important; -webkit-border-radius: 0 !important; border-radius: 0 !important; }
+		#chat:after { background:  url(../../_assets/img/glyphish-icons/09-chat2.png) 50% 50% no-repeat; background-size: 24px 22px; }
+		#email:after { background:  url(../../_assets/img/glyphish-icons/18-envelope.png) 50% 50% no-repeat; background-size: 24px 16px;  }
+		#login:after { background:  url(../../_assets/img/glyphish-icons/30-key.png) 50% 50% no-repeat;  background-size: 12px 26px; }
+		#beer:after { background:  url(../../_assets/img/glyphish-icons/88-beermug.png) 50% 50% no-repeat;  background-size: 22px 27px; }
+		#coffee:after { background:  url(../../_assets/img/glyphish-icons/100-coffee.png) 50% 50% no-repeat;  background-size: 20px 24px; }
+		#skull:after { background:  url(../../_assets/img/glyphish-icons/21-skull.png) 50% 50% no-repeat;  background-size: 22px 24px; }
+	</style>
 </head>
 <body>
 <div data-role="page" class="jqm-demos" data-quicklinks="true">
@@ -121,7 +131,7 @@
 			<p>If you want to add a navbar to the top of the page, you can still have a page title and buttons. Just add the navbar container inside the header block, right after the title and buttons in the source order.</p>
 
 			<div data-demo-html="true">
-				<div data-role="header">
+				<div data-role="header" style="overflow:hidden;">
 					<h1>I'm a header</h1>
 					<a href="#" data-icon="gear" class="ui-btn-right">Options</a>
 					<div data-role="navbar">
@@ -139,7 +149,8 @@
 			<p>If you want to add a navbar to the bottom of the page so it acts more like a tab bar, simply wrap the navbar in a container with a <code>data-role="footer"</code></p>
 
 			<div data-demo-html="true">
-				<div data-role="footer">
+				<div data-role="footer" style="overflow:hidden;">
+					<h4 style="text-align:center;">I'm the footer</h4>
 					<div data-role="navbar">
 						<ul>
 							<li><a href="#">One</a></li>
@@ -147,13 +158,12 @@
 							<li><a href="#">Three</a></li>
 						</ul>
 					</div><!-- /navbar -->
-					<p style="text-align:center;">I'm the footer</p>
 				</div><!-- /footer -->
 			</div><!--/demo-html -->
 
 			<h2>Persistent</h2>
 
-			The <a href="footer-persist-a.php">persistent navbar</a> variation is designed to work more like a tab bar that stays fixed as you navigate across pages. To set an item to the active state upon initialization of the navbar, add <code>class="ui-btn-active"</code> to the corresponding anchor in your markup. Additionally add a class of <code>ui-state-persist</code> to make the framework restore the active state each time the page is shown while it exists in the DOM.
+			<p>The <a href="../fixed-toolbars/footer-persist-a.php">persistent navbar</a> variation is designed to work more like a tab bar that stays fixed as you navigate across pages. To set an item to the active state upon initialization of the navbar, add <code>class="ui-btn-active"</code> to the corresponding anchor in your markup. Additionally add a class of <code>ui-state-persist</code> to make the framework restore the active state each time the page is shown while it exists in the DOM.</p>
 
 			<h2>Icons</h2>
 
@@ -220,18 +230,7 @@
 
 			<p>You can add any of the popular icon libraries like <a href="http://glyphish.com/">Glyphish</a> to achieve the iOS style tab that has large icons stacked on top of text labels. All that is required is a bit of custom styles to link to the icons and position them in the navbar. Here is an example using Glyphish icons and custom styles (view page source for styles) in our navbar:</p>
 
-			<style>
-				.nav-glyphish-example .ui-btn .ui-btn-inner { padding-top: 40px !important; }
-				.nav-glyphish-example .ui-btn .ui-icon { width: 30px!important; height: 30px!important; margin-left: -15px !important; box-shadow: none!important; -moz-box-shadow: none!important; -webkit-box-shadow: none!important; -webkit-border-radius: 0 !important; border-radius: 0 !important; }
-				#chat .ui-icon { background:  url(../../_assets/img/glyphish-icons/09-chat2.png) 50% 50% no-repeat; background-size: 24px 22px; }
-				#email .ui-icon { background:  url(../../_assets/img/glyphish-icons/18-envelope.png) 50% 50% no-repeat; background-size: 24px 16px;  }
-				#login .ui-icon { background:  url(../../_assets/img/glyphish-icons/30-key.png) 50% 50% no-repeat;  background-size: 12px 26px; }
-				#beer .ui-icon { background:  url(../../_assets/img/glyphish-icons/88-beermug.png) 50% 50% no-repeat;  background-size: 22px 27px; }
-				#coffee .ui-icon { background:  url(../../_assets/img/glyphish-icons/100-coffee.png) 50% 50% no-repeat;  background-size: 20px 24px; }
-				#skull .ui-icon { background:  url(../../_assets/img/glyphish-icons/21-skull.png) 50% 50% no-repeat;  background-size: 22px 24px; }
-			</style>
-
-			<div data-demo-html="true">
+			<div data-demo-html="true" data-demo-css="true">
 			<div data-role="footer" class="nav-glyphish-example">
 				<div data-role="navbar" class="nav-glyphish-example" data-grid="d">
 				<ul>
@@ -268,8 +267,8 @@
 			</div><!--/demo-html -->
 
 			<div data-demo-html="true">
-			<div class="ui-body-d ui-body">
-				<h3>Swatch "d"</h3>
+			<div class="ui-body-b ui-body">
+				<h3>Swatch "b"</h3>
 				<div data-role="navbar">
 					<ul>
 						<li><a href="#" data-icon="grid">A</a></li>

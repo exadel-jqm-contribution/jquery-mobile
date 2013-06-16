@@ -14,12 +14,12 @@ function( jQuery ) {
 
 var ieHack = ( $.mobile.browser.oldIE && $.mobile.browser.oldIE <= 8 ),
 	uiTemplate = $(
-		'<div class="arrow-guide"></div>' +
-		'<div class="arrow-container' + ( ieHack ? ' ie' : '' ) + '">' +
-			'<div class="arrow">' +
-				'<div class="arrow-background"></div>' +
-			'</div>' +
-		'</div>'
+		"<div class='arrow-guide'></div>" +
+		"<div class='arrow-container" + ( ieHack ? " ie" : "" ) + "'>" +
+			"<div class='arrow'>" +
+				"<div class='arrow-background'></div>" +
+			"</div>" +
+		"</div>"
 	),
 	// Needed for transforming coordinates from screen to arrow background
 	txFactor = Math.sqrt( 2 ) / 2;
@@ -40,6 +40,11 @@ $.widget( "mobile.popup", $.mobile.popup, {
 		arrowSides: "t,b,l,r"
 	},
 
+	_create: function() {
+		this._super();
+		this._setArrow( this.options.arrow );
+	},
+
 	_unenhance: function() {
 		var ar = this._ui.arrow;
 
@@ -53,7 +58,7 @@ $.widget( "mobile.popup", $.mobile.popup, {
 	_updateArrow: function( direction ) {
 		var ar = this._ui.arrow,
 			oldTheme = ar.ct.jqmData( "oldTheme" ),
-			theme = "ui-body-" + ( this.options.theme || $.mobile.getInheritedTheme( this.element, "c" ) );
+			theme = "ui-body-" + ( this.options.theme || "a" );
 
 		// Remove old direction and theme
 		ar.ct.removeClass( "l t r b" );
@@ -139,7 +144,7 @@ $.widget( "mobile.popup", $.mobile.popup, {
 	_placementCoords: function( desired ) {
 		var state, best, params, bgOffset, elOffset, diff,
 			bgRef = {},
-			ar = this._ui.arrow ;
+			ar = this._ui.arrow;
 
 		if ( !this.options.arrow ) {
 			return this._super( desired );

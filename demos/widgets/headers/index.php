@@ -41,15 +41,13 @@
 
 			<h2>Fixed position</h2>
 
-			<p>The header can be set to fixed position by adding the <code>data-position="fixed"</code> to the header.</p>
+			<p>The header can be set to fixed position by adding the <code>data-position="fixed"</code> to the header. See <a href="../fixed-toolbars/">fixed toolbars</a>.</p>
 
-			<a href="bars-fixed.php" data-role="button" data-inline="true">Fixed toolbars</a>
-
+			
 			<h2>Fullscreen position</h2>
 
-			<p>The header can be set to fullscreen fixed position that overlays the toolbars over the content by adding the <code>data-fullscreen="true"</code> to a fixed header.</p>
+			<p>The header can be set to fullscreen fixed position that overlays the toolbars over the content by adding the <code>data-fullscreen="true"</code> to a fixed header. See <a href="../fixed-toolbars/bars-fullscreen.php">fullscreen toolbars</a>.</p>
 
-			<a href="bars-fullscreen.php" data-role="button" data-inline="true">Fullscreen toolbars</a>
 
 			<h2>Theme</h2>
 			<p>The <code>header</code> toolbar is themed with the "a" swatch by default (black in the default theme) but you can easily set the theme swatch color.</p>
@@ -68,9 +66,9 @@
 
 			<div data-demo-html="true">
 				<div data-role="header">
-					<a href="#" data-icon="home">Home</a>
+					<a href="#" data-icon="delete">Cancel</a>
 					<h1>My App</h1>
-					<a href="#" data-icon="bars">Menu</a>
+					<a href="#" data-icon="check">Save</a>
 				</div>
 			</div><!-- /demo-html -->
 

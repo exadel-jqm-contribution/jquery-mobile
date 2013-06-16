@@ -14,7 +14,7 @@
 
 <li data-section="Widgets" data-filtertext="dialogs modal popups"><a href="widgets/dialog/">Dialogs</a></li>
 
-<li data-section="Widgets" data-filtertext="fixed toolbars headers footers sections fullscreen"><a href="widgets/headers/bars-fixed.php">Fixed toolbars</a></li>
+<li data-section="Widgets" data-filtertext="fixed toolbars headers footers sections fullscreen"><a href="widgets/fixed-toolbars/">Fixed toolbars</a></li>
 
 <li data-section="Widgets" data-filtertext="flip toggle switch binary slider selects forms disabled"><a href="widgets/sliders/switch.php" data-ajax="false">Flip switch toggle</a></li>
 
@@ -36,7 +36,7 @@
 
 <li data-section="Widgets" data-filtertext="navbars navmenu toolbars links icons footer header"><a href="widgets/navbar/" data-ajax="false">Navbar</a></li>
 
-<li data-section="Widgets" data-filtertext="navbars persistent header footer links navmenu"><a href="widgets/navbar/footer-persist-a.php">Navbar, persistent</a></li>
+<li data-section="Widgets" data-filtertext="navbars persistent header footer links navmenu"><a href="widgets/fixed-toolbars/footer-persist-a.php">Navbar, persistent</a></li>
 
 <li data-section="Widgets" data-filtertext="pages single multipage templates ajax nav"><a href="widgets/pages/">Pages</a></li>
 
@@ -46,7 +46,9 @@
 
 <li data-section="Widgets" data-filtertext="radiobuttons checkboxradio inputs forms disabled grouped"><a href="widgets/radiobuttons/">Radio buttons</a></li>
 
-<li data-section="Widgets" data-filtertext="selectmenus custom native multiple optgroup disabled forms"><a href="widgets/selects/">Select</a></li>
+<li data-section="Widgets" data-filtertext="selectmenus native optgroup disabled forms"><a href="widgets/selects/">Select</a></li>
+
+<li data-section="Widgets" data-filtertext="selectmenus custom multiple optgroup disabled forms"><a href="widgets/selects/custom-selects.php">Select, custom</a></li>
 
 <li data-section="Widgets" data-filtertext="slider, single sliders range inputs forms disabled"><a href="widgets/sliders/" data-ajax="false">Slider, single</a></li>
 
