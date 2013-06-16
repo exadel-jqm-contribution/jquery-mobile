@@ -162,7 +162,7 @@ Titles can by disabled with initialization by setting option `showTitle: false`
 #### Animation of sliding
 
 For animation widget use jQuery implementation of sliding by changing css-value `left`.
-For showing item `left` == 0, otherwise `left` can by `100%` or `-100%`
+For showing item `left == 0`, otherwise `left` can by `100%` or `-100%`
 
 #### Dependent widget
 
@@ -214,18 +214,17 @@ Example. Create Carousel instance for specific element with special options:
 * `next` -- move to next frame;
 * `previous` -- move to previous frame;
 * `slide` -- accept two parameters:
-** `type` -- `"next"` or `"prev"` for navigation.
-	Else, `slide` method determine relative position for `next` object and current active frame;
-** `next` -- jQuery object of next frame for showing.
+	* `type` -- `"next"` or `"prev"` for navigation. Else, `slide` method determine relative position for `next` object and current active frame;
+	* `next` -- jQuery object of next frame for showing.
 * `to` -- can by using for jump to frame with specific `index` (as parameter);
 * `getFrame` -- return jQuery-object of frame with specific `index` (as parameter);
 * `add` -- create new frame. Return jQuery-object of created element or
 	Carousel object in case Array of items in the first argument. Accepted parameters:
-** `type` -- define type of frame (`"index"` or `"html"`). Can by array of [PlainObjects](http://api.jquery.com/Types#PlainObject)	for adding many frames, in this case other parameters will by ignore;
-** `title` -- title of frame;
-** `content` -- define content for frame. If `type == "image"` then this parameter use as `imageUrl`, otherwise as HTML-code.;
-** `onReady` -- can be `undefined`. Provide ability to set callback for frame event `ready`;
-** `onShow` -- can be `undefined`. Provide ability to set callback for frame event `show`.
+	* `type` -- define type of frame (`"index"` or `"html"`). Can by array of [PlainObjects](http://api.jquery.com/Types#PlainObject)	for adding many frames, in this case other parameters will by ignore;
+	* `title` -- title of frame;
+	* `content` -- define content for frame. If `type == "image"` then this parameter use as `imageUrl`, otherwise as HTML-code.;
+	* `onReady` -- can be `undefined`. Provide ability to set callback for frame event `ready`;
+	* `onShow` -- can be `undefined`. Provide ability to set callback for frame event `show`.
 * `length` -- return frames count;
 * `eachItem` -- as jQuery.each for every frame;
 * `remove` -- remove one frame (and indicator) by `index` in first parameter or frame defined in second parameter;
