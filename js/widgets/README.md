@@ -217,3 +217,7 @@ Styles for days:
 * `ui-calendar-day-off` -- td-cell of day by any reason disabled for selection day;
 * `ui-calendar-active` -- td-cell of current selected day;
 * `ui-calendar-today` -- td-cell of current day (today)
+
+Examples:
+
+http://jsbin.com/evubof/22
