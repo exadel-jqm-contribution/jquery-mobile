@@ -44,12 +44,12 @@ We have three different way setting options.
 
 #### JavaScript code and initializing options
 
-
+```html
     <body>
     	<div id="place" />
     </body>
-
-
+```
+```javascript
     /**
      * can start with page first init
      * $( document ).one( "pagebeforeshow", function(ev){
@@ -67,23 +67,25 @@ We have three different way setting options.
     /**
      * });
      **/
-
+```
 
 #### With HTML code in `options` data attribute
 
-
+```html
 	<input type="text" name="test" data-role="calendar" data-options='{ "popupType":"panel", "closeBtn": "true", "theme": "c", "startDate": "2013-05-06", "dateFormat": "yy-mm-dd", "changeYear": "true" }' />
-
-
+```
+```html
 	<div data-role="calendar" data-options='{ "popupType":"panel", "closeBtn": "true", "theme": "c", "startDate": "2013-05-06", "dateFormat": "yy-mm-dd", "changeYear": "true", "inputName": "calendar" }' />
-
+```
 
 #### With HTML code in data attributes named as widget parameters
 
+```html
 	<input type="text" name="test" data-role="calendar" data-popup-type="panel" data-close-btn="true" data-theme="c" data-start-date="2013-05-06" data-date-format="yy-mm-dd" data-change-year="true" />
-
-
+```
+```html
 	<div data-role="calendar" data-popup-type="panel" data-close-btn="true" data-theme="c" data-start-date="2013-05-06" data-date-format="yy-mm-dd" data-change-year="true" data-input-name="calendar" />
+```
 
 ### Available parameters
 
@@ -194,6 +196,7 @@ All callbacks for component events receive one additional parameter:
 
 Widget generate base box for calendar:
 
+```html
     <div class="ui-calendar-body">
         <div class="ui-calendar-table">
             <table cols="7">
@@ -204,7 +207,7 @@ Widget generate base box for calendar:
               	<tbody>
               		<tr>
               		....
-
+```
 
 * `ui-calendar-controls` -- contains control buttons, such as Previous Month, Next Month and dropdown select boxes for choose Month and Year.
 * `ui-calendar-head` -- contains weekday names.
