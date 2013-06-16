@@ -5,6 +5,10 @@
 //>>css.structure: ../css/structure/jquery.mobile.calendar.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
+// Author: Anton Artyukh
+//  deeperton@gmail.com,
+//	aartyukh@exadel.com
+
 define( ["jquery", "../jquery.mobile.widget", "widgets/forms/textinput" ], function ( jQuery ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
