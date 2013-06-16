@@ -1,3 +1,5 @@
+# Carousel Widget for jQueryMobile
+
 ## HTML structure
 
 ### Base structure
