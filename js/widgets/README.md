@@ -30,6 +30,7 @@ Default structure:
 	    </div>
 	</div>
 
+*Important note:* for block with carousel needs to set height.
 
 ### Items
 
