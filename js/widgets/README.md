@@ -71,7 +71,7 @@ JavaScript way we describe later.
 
 Example for `options`:
 
-	<div data-role="carousel" data-options='{"showIndicator": true, "dependent": true}'>
+	<div data-role="carousel" data-options='{"showIndicator": true}'>
 	    <div class="ui-carousel-items">
 	        {{PLACE FOR ITEMS}}
 	    </div>
@@ -79,7 +79,7 @@ Example for `options`:
 
 Example for data attributes:
 
-	<div data-role="carousel" data-show-indicator="true" data-dependent="true" data-show-title="true">
+	<div data-role="carousel" data-show-indicator="true" data-show-title="true">
 	    <div class="ui-carousel-items">
 	        {{PLACE FOR ITEMS}}
 	    </div>
@@ -99,7 +99,7 @@ Example for data attributes:
 * `titleIsText: true` -- if TRUE then widget use jQuery.text() for add title, else jQuery.html();
 * `createTitle: null` -- function for render title. Will be describe later.
 * `enabled: true` -- this option for switch off sliding. After launch widget show first frame.
-* `dependent: false` -- this option for switching off reaction on mouse or touch, but API continues to work.
+
 
 #### Indicators
 
@@ -167,11 +167,6 @@ Titles can by disabled with initialization by setting option `showTitle: false`
 For animation widget use jQuery implementation of sliding by changing css-value `left`.
 For showing item `left == 0`, otherwise `left` can by `100%` or `-100%`
 
-#### Dependent widget
-
-The `dependent` option provide ability for create widget that ignore touch and clicks,
-but can by controlled by using widget API.
-
 ## API
 
 ### Data role
@@ -208,7 +203,7 @@ Example. Create Carousel instance for specific element with special options:
 		// titleBuildIn: false, // we want draw owned title, so ...
 		createTitle: drawSpecialTitle,
 		enabled: true,
-		dependent: true // we will use another script for controlling widget.
+
 	});
 
 
