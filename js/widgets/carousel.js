@@ -61,12 +61,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 						var active = $active.get(0),
 							next = $next.get(0);
 						direction *= -100;
-						next.style.left = (-direction) + "%";
-
-						next.style[js_ts] = css_ts + " " + duration + "ms ease";
-						next.style[js_tf] = css_tf + "( " + direction + "% )";
-						active.style[js_ts] = css_ts + " " + duration + "ms ease";
-						active.style[js_tf] = css_tf + "( " + direction + "% )";
 						$( next ).one( event_name, {
 							next: next.id,
 							active: active.id,
@@ -82,6 +76,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 							active.style.left = direction + "%";
 							done_cb(e);
 						});
+
+						next.style.left = (-direction) + "%";
+
+						next.style[js_ts] = css_ts + " " + duration + "ms ease";
+						next.style[js_tf] = css_tf + "( " + direction + "% )";
+						active.style[js_ts] = css_ts + " " + duration + "ms ease";
+						active.style[js_tf] = css_tf + "( " + direction + "% )";
 					};
 				};
 
