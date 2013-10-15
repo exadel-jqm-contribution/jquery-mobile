@@ -146,7 +146,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var $el = $( el ),
 				params = data || $el.data(),
 				$item, $indicator,
-				el_id = this._UID(),
+				el_id = $el.attr("id") || this._UID(),
 				is_new_element = $el.data("_processed") === undefined;
 
 			if ( is_new_element ){
