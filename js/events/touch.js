@@ -7,9 +7,14 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 //>>excludeEnd("jqmBuildExclude");
 
 (function( $, window, undefined ) {
-	var $document = $( document );
+	var $document = $( document ),
+		supportTouch = $.mobile.support.touch,
+		scrollEvent = "touchmove scroll",
+		touchStartEvent = supportTouch ? "touchstart" : "mousedown",
+		touchStopEvent = supportTouch ? "touchend" : "mouseup",
+		touchMoveEvent = supportTouch ? "touchmove" : "mousemove";
 
-	// add new event shortcuts
+	// setup new event shortcuts
 	$.each( ( "touchstart touchmove touchend " +
 		"tap taphold " +
 		"swipe swipeleft swiperight " +
@@ -25,12 +30,6 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 		}
 	});
 
-	var supportTouch = $.mobile.support.touch,
-		scrollEvent = "touchmove scroll",
-		touchStartEvent = supportTouch ? "touchstart" : "mousedown",
-		touchStopEvent = supportTouch ? "touchend" : "mouseup",
-		touchMoveEvent = supportTouch ? "touchmove" : "mousemove";
-
 	function triggerCustomEvent( obj, eventType, event ) {
 		var originalType = event.type;
 		event.type = eventType;
@@ -42,7 +41,6 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 	$.event.special.scrollstart = {
 
 		enabled: true,
-
 		setup: function() {
 
 			var thisObject = this,
@@ -71,25 +69,28 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 					trigger( event, false );
 				}, 50 );
 			});
+		},
+		teardown: function() {
+			$( this ).unbind( scrollEvent );
 		}
 	};
 
 	// also handles taphold
 	$.event.special.tap = {
 		tapholdThreshold: 750,
-
+		emitTapOnTaphold: true,
 		setup: function() {
 			var thisObject = this,
-				$this = $( thisObject );
+				$this = $( thisObject ),
+				isTaphold = false;
 
 			$this.bind( "vmousedown", function( event ) {
-
+				isTaphold = false;
 				if ( event.which && event.which !== 1 ) {
 					return false;
 				}
 
 				var origTarget = event.target,
-					origEvent = event.originalEvent,
 					timer;
 
 				function clearTapTimer() {
@@ -109,8 +110,10 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 
 					// ONLY trigger a 'tap' event if the start target is
 					// the same as the stop target.
-					if ( origTarget === event.target ) {
+					if ( !isTaphold && origTarget === event.target ) {
 						triggerCustomEvent( thisObject, "tap", event );
+					} else if ( isTaphold ) {
+						event.stopPropagation();
 					}
 				}
 
@@ -119,9 +122,16 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 				$document.bind( "vmousecancel", clearTapHandlers );
 
 				timer = setTimeout( function() {
+					if( $.event.special.tap.emitTapOnTaphold ) {
+						isTaphold = true;
+					}
 					triggerCustomEvent( thisObject, "taphold", $.Event( "taphold", { target: origTarget } ) );
 				}, $.event.special.tap.tapholdThreshold );
 			});
+		},
+		teardown: function() {
+			$( this ).unbind( "vmousedown" ).unbind( "vclick" ).unbind( "vmouseup" );
+			$document.unbind( "vmousecancel" );
 		}
 	};
 
@@ -154,13 +164,14 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 					};
 		},
 
-		handleSwipe: function( start, stop ) {
+		handleSwipe: function( start, stop, thisObject, origTarget ) {
 			if ( stop.time - start.time < $.event.special.swipe.durationThreshold &&
 				Math.abs( start.coords[ 0 ] - stop.coords[ 0 ] ) > $.event.special.swipe.horizontalDistanceThreshold &&
 				Math.abs( start.coords[ 1 ] - stop.coords[ 1 ] ) < $.event.special.swipe.verticalDistanceThreshold ) {
+				var direction = start.coords[0] > stop.coords[ 0 ] ? "swipeleft" : "swiperight";
 
-				start.origin.trigger( "swipe" )
-					.trigger( start.coords[0] > stop.coords[ 0 ] ? "swipeleft" : "swiperight" );
+				triggerCustomEvent( thisObject, "swipe", $.Event( "swipe", { target: origTarget }) );
+				triggerCustomEvent( thisObject, direction,$.Event( direction, { target: origTarget } ) );
 			}
 		},
 
@@ -169,8 +180,9 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 				$this = $( thisObject );
 
 			$this.bind( touchStartEvent, function( event ) {
-				var start = $.event.special.swipe.start( event ),
-					stop;
+				var stop,
+					start = $.event.special.swipe.start( event ),
+					origTarget = event.target;
 
 				function moveHandler( event ) {
 					if ( !start ) {
@@ -190,11 +202,15 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 						$this.unbind( touchMoveEvent, moveHandler );
 
 						if ( start && stop ) {
-							$.event.special.swipe.handleSwipe( start, stop );
+							$.event.special.swipe.handleSwipe( start, stop, thisObject, origTarget );
 						}
 						start = stop = undefined;
-					});
+				});
 			});
+		},
+
+		teardown: function() {
+			$( this ).unbind( touchStartEvent ).unbind( touchMoveEvent ).unbind( touchStopEvent );
 		}
 	};
 	$.each({
@@ -207,6 +223,9 @@ define( [ "jquery", "../jquery.mobile.vmouse", "../jquery.mobile.support.touch" 
 		$.event.special[ event ] = {
 			setup: function() {
 				$( this ).bind( sourceEvent, $.noop );
+			},
+			teardown: function() {
+				$( this ).unbind( sourceEvent );
 			}
 		};
 	});
