@@ -259,7 +259,7 @@
 
 	asyncTest( "refresh carousel from JSON with Events" , function(){
 		expect( 7 );
-		var c = $("#carousel").carousel();
+		var c = $( "#carousel" ).carousel();
 
 		var fixture = [
 			{

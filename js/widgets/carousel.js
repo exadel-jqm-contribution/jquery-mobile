@@ -124,7 +124,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				return;
 			}
 			// check updates in DOM
-			$( "*[data-type]", this._list ).each( $.proxy( this._render_frame, this ) );
+			$( "*[data-type='image'], *[data-type='html']", this._list )
+				.each( $.proxy( this._render_frame, this ) );
 			return this;
 		},
 
