@@ -18,7 +18,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       indicators: null,
       indicatorsListClass: "ui-carousel-indicators",
       animationDuration: 250,
-      useLegasyAnimation: false,
+      useLegacyAnimation: false,
       showIndicator: true,
       showTitle: true,
       titleIsText: true,
@@ -78,7 +78,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       if ( this.options.createTitle === null ) {
         this.options.createTitle = this._create_title.bind(this);
       }
-      if ( !this.options.useLegasyAnimation ) {
+      if ( !this.options.useLegacyAnimation ) {
         this._animation_meta = this._mainAnimationEnd;
 
         var is_webview_and_iOS7 = navigator.userAgent.match(/(iPad|iPhone);.*CPU.*OS 7_\d.*(Safari)?/i);
