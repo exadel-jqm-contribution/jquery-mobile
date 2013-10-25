@@ -31,7 +31,30 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     _counter: 0,
     _sliding: false,
     _sliding_type: null,
+    _checkBindFunction : function(){
+      if ( !Function.prototype.bind ) {
+          Function.prototype.bind = function (oThis) {
+            if ( typeof this !== "function" ) {
+              throw new TypeError( "Function.prototype.bind - what is trying to be bound is not callable" );
+            }
+
+            var aArgs = Array.prototype.slice.call( arguments, 1 ),
+                fToBind = this,
+                fNOP = function () {},
+                fBound = function () {
+                  return fToBind.apply( this instanceof fNOP && oThis ? this : oThis,
+                    aArgs.concat( Array.prototype.slice.call(arguments)) );
+                };
+
+            fNOP.prototype = this.prototype;
+            fBound.prototype = new fNOP();
+
+            return fBound;
+          };
+        }
+    },
     _create: function() {
+      this._checkBindFunction();
       this.element.addClass( "ui-carousel" );
       this._list = $( ".ui-carousel-items", this.element );
       this.options = $.extend( this.options, this.element.data( "options" ) );
