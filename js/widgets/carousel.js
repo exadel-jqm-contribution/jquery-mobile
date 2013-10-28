@@ -104,7 +104,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
       this.bindEvents();
       this.refresh();
-      this.to(0);
     },
 
     _ios7Webview_AnimationEnd: function( js_ts, js_tf, css_ts, css_tf, event_name ){
