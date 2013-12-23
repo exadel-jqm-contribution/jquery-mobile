@@ -91,7 +91,7 @@ Example for data attributes:
 * `indicators: null` -- container for indicators. Can by `string` as jQuery selector or jQuery object as DOM element.
 * `indicatorsListClass: "ui-carousel-indicators"` -- class for indicators container.
 * `animationDuration: 250` -- speed of sliding animation in milliseconds.
-* `useLegasyAnimation: false` -- If false widget try init browser build in support for css3 animation;
+* `useLegacyAnimation: false` -- If false widget try init browser build in support for css3 animation;
 * `showIndicator: true` -- show or hide indicators. If false, they will not render.
 * `showTitle: true` -- same for title.
 * `createIndicator: null` -- function for render indicator. Will be describe later.
@@ -203,7 +203,6 @@ Example. Create Carousel instance for specific element with special options:
 		// titleBuildIn: false, // we want draw owned title, so ...
 		createTitle: drawSpecialTitle,
 		enabled: true,
-
 	});
 
 

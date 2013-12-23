@@ -72,8 +72,8 @@
 			start();
 		});
 		var interval = setInterval( function() {
-			c.carousel( "next" );
-		}, c.carousel( "option", "animationDuration" ) + 20);
+			console.log( c.carousel( "next" ) );
+		}, c.carousel( "option", "animationDuration" ) + 80);
 	});
 
 	asyncTest( "go through the list in reverse order and check events", function() {
@@ -96,7 +96,7 @@
 			var length = c.carousel( "length" );
 			equal( show, length, "show count must be == count of items" );
 			equal( hide, length, "hide count must be == count of items" );
-			equal( beforeshow, beforeprev, "beforeshow == beforenext" );
+			equal( beforeshow, beforeprev, "beforeshow == beforeprev" );
 			equal( beforeshow, slidingstart, "beforeshow == slidingstart" );
 			notEqual( slidingdone, slidingstart, "Because we stops test with SHOW event -- slidingdone != slidingstart" );
 			equal( slidingdone, slidingstart - 1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
@@ -105,7 +105,7 @@
 		});
 		var interval = setInterval( function() {
 			c.carousel( "previous" );
-		}, c.carousel( "option", "animationDuration" ) + 20);
+		}, c.carousel( "option", "animationDuration" ) + 80);
 	});
 
 	test( "test owned indicators", function() {
