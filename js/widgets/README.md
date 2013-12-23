@@ -91,7 +91,7 @@ Example for data attributes:
 * `indicators: null` -- container for indicators. Can by `string` as jQuery selector or jQuery object as DOM element.
 * `indicatorsListClass: "ui-carousel-indicators"` -- class for indicators container.
 * `animationDuration: 250` -- speed of sliding animation in milliseconds.
-* `useLegacyAnimation: false` -- If false widget try init browser build in support for css3 animation;
+* `useLegasyAnimation: false` -- If false widget try init browser build in support for css3 animation;
 * `showIndicator: true` -- show or hide indicators. If false, they will not render.
 * `showTitle: true` -- same for title.
 * `createIndicator: null` -- function for render indicator. Will be describe later.
@@ -99,6 +99,7 @@ Example for data attributes:
 * `titleIsText: true` -- if TRUE then widget use jQuery.text() for add title, else jQuery.html();
 * `createTitle: null` -- function for render title. Will be describe later.
 * `enabled: true` -- this option for switch off sliding. After launch widget show first frame.
+* `passOnSwipeEvents: false` -- if `true` - `swipe*` events will pass to the DOM from carousel.
 
 
 #### Indicators
@@ -203,6 +204,7 @@ Example. Create Carousel instance for specific element with special options:
 		// titleBuildIn: false, // we want draw owned title, so ...
 		createTitle: drawSpecialTitle,
 		enabled: true,
+
 	});
 
 
@@ -253,3 +255,4 @@ Example. Create Carousel instance for specific element with special options:
 * `slidingstart` -- Before any sliding starts, but after `beforeshow`-event for frame;
 * `slidingdone` -- After sliding to next frame (animation completed). As first additional parameter will be set type of sliding (`"next"` or `"prev"`);
 * `goto` -- Before run `to` method. As first additional parameter: `index`;
+
