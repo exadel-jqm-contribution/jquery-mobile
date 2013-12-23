@@ -258,7 +258,7 @@
 	});
 
 	asyncTest( "refresh carousel from JSON with Events" , function(){
-		expect( 7 );
+		expect( 6 );
 		var c = $( "#carousel" ).carousel();
 
 		var fixture = [
@@ -297,7 +297,7 @@
 
 		setTimeout( function() {
 			equal( c.carousel("length"), fixture.length, "count of new items" );
-			ok( c.carousel( "next" ), "move to the second frame" );
+			c.carousel( "next" );
 		}, c.carousel("length") * c.carousel("option", "animationDuration") + 35);
 
 		c.carousel( "refresh", fixture );

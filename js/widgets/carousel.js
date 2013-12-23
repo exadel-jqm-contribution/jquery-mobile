@@ -18,11 +18,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       indicators: null,
       indicatorsListClass: "ui-carousel-indicators",
       animationDuration: 250,
-      useLegasyAnimation: false,
+      useLegacyAnimation: false,
       showIndicator: true,
       showTitle: true,
       titleIsText: true,
       createIndicator: null,
+      passOnSwipeEvents: true,
       titleBuildIn: false,
       createTitle: null,
       enabled: true
@@ -31,7 +32,30 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     _counter: 0,
     _sliding: false,
     _sliding_type: null,
+    _checkBindFunction : function(){
+      if ( !Function.prototype.bind ) {
+          Function.prototype.bind = function (oThis) {
+            if ( typeof this !== "function" ) {
+              throw new TypeError( "Function.prototype.bind - what is trying to be bound is not callable" );
+            }
+
+            var aArgs = Array.prototype.slice.call( arguments, 1 ),
+                fToBind = this,
+                fNOP = function () {},
+                fBound = function () {
+                  return fToBind.apply( this instanceof fNOP && oThis ? this : oThis,
+                    aArgs.concat( Array.prototype.slice.call(arguments)) );
+                };
+
+            fNOP.prototype = this.prototype;
+            fBound.prototype = new fNOP();
+
+            return fBound;
+          };
+        }
+    },
     _create: function() {
+      this._checkBindFunction();
       this.element.addClass( "ui-carousel" );
       this._list = $( ".ui-carousel-items", this.element );
       this.options = $.extend( this.options, this.element.data( "options" ) );
@@ -55,7 +79,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       if ( this.options.createTitle === null ) {
         this.options.createTitle = this._create_title.bind(this);
       }
-      if ( !this.options.useLegasyAnimation ) {
+      if ( !this.options.useLegacyAnimation ) {
         this._animation_meta = this._mainAnimationEnd;
 
         var is_webview_and_iOS7 = navigator.userAgent.match(/(iPad|iPhone);.*CPU.*OS 7_\d.*(Safari)?/i);
@@ -78,10 +102,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
           this._animation = this._animation_meta( "transition", "transform", "transform", "translateX", "transitionend" );
         }
       }
-
+      this._sliding = false;
       this.bindEvents();
       this.refresh();
-      this.to(0);
     },
 
     _ios7Webview_AnimationEnd: function( js_ts, js_tf, css_ts, css_tf, event_name ){
@@ -171,18 +194,31 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     },
 
     unBindEvents: function() {
-      this.element.off( "swipeleft" );
-      this.element.off( "swiperight" );
-      this.element.find( ".ui-right-arrow" ).off( "click" );
-      this.element.find( ".ui-left-arrow" ).off( "click" );
+      if ( $.isFunction(this.__swipe) ) {
+        this.element.off( "swipeleft", this.__swipeleft );
+        this.element.off( "swiperight", this.__swiperight );
+        this.element.off( "swipe", this.__swipe );
+        this.element.find( ".ui-right-arrow" ).off( "click", this.__swipeleft );
+        this.element.find( ".ui-left-arrow" ).off( "click", this.__swiperight );
+      }
     },
 
   	bindEvents: function() {
-  		// #TODO
-      this.element.on( "swipeleft", this.next.bind(this) );
-      this.element.on( "swiperight", this.previous.bind(this) );
-      this.element.find( ".ui-right-arrow" ).on('click', this.next.bind(this));
-      this.element.find( ".ui-left-arrow" ).on('click', this.previous.bind(this));
+      this.__swiperight = this.previous.bind( this );
+      this.__swipeleft = this.next.bind( this );
+
+      this.__swipe = function( e ) {
+        return this.options.passOnSwipeEvents ? !this._sliding : false;
+      }.bind( this );
+
+      this.element.on({
+        swiperight: this.__swiperight,
+        swipeleft: this.__swipeleft,
+        swipe: this.__swipe
+      });
+
+      this.element.find( ".ui-right-arrow" ).on( 'click', this.__swipeleft );
+      this.element.find( ".ui-left-arrow" ).on( 'click', this.__swiperight );
     },
 
     _render_frame: function( index, el, data ) {
@@ -384,18 +420,25 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     },
 
     next: function() {
-      this.element.trigger( "beforenext" );
-      this.slide( "next" );
-      return this;
+      if ( !this._sliding ) {
+        this.element.trigger( "beforenext" );
+        this.slide( "next" );
+        return !!this.options.passOnSwipeEvents;
+      }
+      return false;
     },
 
     previous: function() {
-      this.element.trigger("beforeprev" );
-      this.slide( "prev" );
-      return this;
+      if ( !this._sliding ) {
+        this.element.trigger("beforeprev" );
+        this.slide( "prev" );
+        return !!this.options.passOnSwipeEvents;
+      }
+      return false;
     },
 
     slide: function( type, next ) {
+
       if ( this._sliding ) {
         return;
       }
@@ -441,7 +484,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
       // prevent any sliding before main sliding is done
       this._sliding = true;
-      this._sliding_type = type;
+      this._sliding_type = type
+
       return true;
     },
 
