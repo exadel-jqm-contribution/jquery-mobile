@@ -20,11 +20,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			animationDuration: 250,
 			useLegacyAnimation: false,
 			showIndicator: true,
+			startFrom: 0,
 			showTitle: true,
 			titleIsText: true,
+			usejQMSwipes: false,
 			createIndicator: null,
 			passOnSwipeEvents: false,
-			titleBuildIn: false,
+			titleBuildIn: true,
 			createTitle: null,
 			enabled: true
 		},
@@ -58,6 +60,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this._checkBindFunction();
 			this.element.addClass( "ui-carousel" );
 			this._list = $( ".ui-carousel-items", this.element );
+
 			this.options = $.extend( this.options, this.element.data( "options" ) );
 			this.options = $.extend( this.options, this.element.data() );
 
@@ -79,6 +82,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			if ( this.options.createTitle === null ) {
 				this.options.createTitle = this._create_title.bind(this);
 			}
+
 			if ( !this.options.useLegacyAnimation ) {
 				this._animation_meta = this._mainAnimationEnd;
 
@@ -91,80 +95,73 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 				var test = this.element.get(0);
 				if ( test.style.webkitTransition !== undefined ) {
-					this._animation = this._animation_meta( "webkitTransition", "webkitTransform", "-webkit-transform", "translateX", "webkitTransitionEnd" );
+					this._animation = this._animation_meta( "webkitTransitionEnd" );
 				} else if ( test.style.oTransition !== undefined  ) {
-					this._animation = this._animation_meta( "oTransition", "oTransform", "-o-transform", "-o-translateX", "oTransitionEnd" );
+					this._animation = this._animation_meta( "oTransitionEnd" );
 				} else if ( test.style.otransition !== undefined  ) {
-					this._animation = this._animation_meta( "otransition", "otransform", "-o-transform", "-o-translateX", "otransitionend" );
+					this._animation = this._animation_meta( "otransitionend" );
 				} else if ( test.style.mozTransition !== undefined  ) {
-					this._animation = this._animation_meta( "mozTransition", "mozTransform", "-moz-transform", "-moz-translateX", "transitionend" );
+					this._animation = this._animation_meta( "transitionend" );
 				} else if ( test.style.transition !== undefined ) {
-					this._animation = this._animation_meta( "transition", "transform", "transform", "translateX", "transitionend" );
+					this._animation = this._animation_meta( "transitionend" );
 				}
 			}
+
+			if (this.options.usejQMSwipes) {
+				this.bindEvents = this.__bindEvents;
+			}
+
 			this._sliding = false;
+
+			this.__index = parseInt(this.options.startFrom, 10) || 0;
+
 			this._preBindEvents();
+
 			this.bindEvents();
+
 			this.refresh();
 		},
 
-		_ios7Webview_AnimationEnd: function( js_ts, js_tf, css_ts, css_tf, event_name ){
+		_ios7Webview_AnimationEnd: function( event_name ){
 			return function( direction, duration, $active, $next, done_cb ){
-				var active = $active.get(0),
-					next = $next.get(0);
-				direction *= -100;
+				var style = this._list[0].style;
 
-				next.style.left = (-direction) + "%";
+				style.webkitTransitionDuration =
+			    style.transitionDuration = this.options.animationDuration + 'ms';
 
-				next.style[js_ts] = css_ts + " " + duration + "ms ease";
-				next.style[js_tf] = css_tf + "( " + direction + "% )";
-				active.style[js_ts] = css_ts + " " + duration + "ms ease";
-				active.style[js_tf] = css_tf + "( " + direction + "% )";
+			    style.transform =
+			    style.webkitTransform = 'translate(-' + this.__offsets[this.__index] + 'px,0)' + 'translateZ(0)';
 
 				setTimeout( function(){
-					active.style[js_ts] = "";
-					next.style[js_ts] = "";
-					active.style[js_tf] = "";
-					next.style[js_tf] = "";
-					next.style.left = "0%";
-					active.style.left = direction + "%";
 					done_cb({
 						data: {
 							next: next.id,
 							active: active.id
 						}
 					});
-				}, duration );
+				}, this.options.animationDuration );
 			};
 		},
 
-		_mainAnimationEnd: function( js_ts, js_tf, css_ts, css_tf, event_name ){
-			return function( direction, duration, $active, $next, done_cb ){
-				var active = $active.get(0),
-					next = $next.get(0);
-				direction *= -100;
-				$( next ).one( event_name, {
-					next: next.id,
-					active: active.id,
-					direction: -direction
-				}, function(e) {
-					var next = document.getElementById(e.data.next),
-						active = document.getElementById(e.data.active);
-					active.style[js_ts] = "";
-					next.style[js_ts] = "";
-					active.style[js_tf] = "";
-					next.style[js_tf] = "";
-					next.style.left = "0%";
-					active.style.left = direction + "%";
-					done_cb(e);
-				});
+		_mainAnimationEnd: function( event_name ){
+			return function( $active, $next, done_cb ){
+				this._list.one( event_name, {
+					next: $next[0].id,
+					active: $active[0].id
+				}, done_cb);
 
-				next.style.left = (-direction) + "%";
+				var style = this._list[0].style;
+				style.webkitTransitionDuration =
+			    style.MozTransitionDuration =
+			    style.msTransitionDuration =
+			    style.OTransitionDuration =
+			    style.transitionDuration = this.options.animationDuration + 'ms';
 
-				next.style[js_ts] = css_ts + " " + duration + "ms ease";
-				next.style[js_tf] = css_tf + "( " + direction + "% )";
-				active.style[js_ts] = css_ts + " " + duration + "ms ease";
-				active.style[js_tf] = css_tf + "( " + direction + "% )";
+			    style.webkitTransform = 'translate(-' + this.__offsets[this.__index] + 'px,0)' + 'translateZ(0)';
+			    style.msTransform =
+			    style.MozTransform =
+			    style.OTransform = 'translateX(-' + this.__offsets[this.__index] + 'px)';
+
 			};
 		},
 
@@ -175,6 +172,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return this.uuid + "-" + this._counter;
 		},
 
+		__enabledFramesList: function(active){
+			active = active == undefined ? true : false;
+			var r = $( "*[data-type='image'], *[data-type='html']", this._list )
+			return !!active ? r.filter(":visible") : r;
+		},
+
 		refresh: function( data ) {
 			if ( data && $.isArray(data) ) {
 				// we can't define compliance of frames and new data
@@ -183,14 +186,32 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				this.clear();
 				$.each( data, this._addJSON.bind(this) );
 				// start view from the beginning
+				this.__init();
 				this.to(0);
 				return;
 			}
 			// check updates in DOM
-			$( "*[data-type='image'], *[data-type='html']", this._list )
-				.filter(":visible")
-				.each( this._render_frame.bind(this) );
-			this.to(0);
+			var $list = $( "*[data-type='image'], *[data-type='html']", this._list );
+
+			$list.each( this._render_frame.bind(this) );
+
+			this.length = function(length){
+				return function(){
+					return length;
+				};
+			}($list.length);
+
+			this.__enabledFramesList = function(list, visible){
+				return function(active){
+					return !!active ? visible : list;
+				}
+			}($list, $list.filter(":visible"));
+
+			setTimeout(function(){
+				this.__init();
+				this.to(this.__index);
+			}.bind(this), 0);
+
 			return this;
 		},
 
@@ -204,6 +225,25 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			}
 		},
 
+		__init: function(){
+			this._width = this.element.width();
+			this.element.css("visibility", 'hidden');
+
+			var count = this.length();
+
+			this.__offsets = new Array( count );
+
+			this.element.find( '.ui-carousel-items' ).width( (this._width * count) + 'px' );
+
+			this._list.find( '.ui-carousel-item' )
+				.css( "width", this._width + 'px' )
+				.each(function(i, el){
+					el.style.left = this.__offsets[i] = i * this._width;
+					$(el).data('itemIndex', i);
+				}.bind(this));
+			this.element.css("visibility", 'visible');
+		},
+
 		_preBindEvents: function(){
 			this.__swiperight = this.previous.bind( this );
 			this.__swipeleft = this.next.bind( this );
@@ -211,9 +251,100 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.__swipe = function( e ) {
 				return this.options.passOnSwipeEvents ? !this._sliding : false;
 			}.bind( this );
+
+			this.__resize = function( e ) {
+				this.__init();
+			}.bind( this );
 		},
 
-		bindEvents: function() {
+		bindEvents: function(){
+			var touch_support = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch,
+				tm_start = 'mousedown',
+				tm_move = 'mousemove',
+				tm_end = 'mouseup';
+
+			if ( touch_support ){
+				tm_start = 'touchstart';
+				tm_move = 'touchmove';
+				tm_end = 'touchend';
+			}
+
+			function tstart(ev){
+				var touch = {},
+					self = ev.data.self,
+					t = self._touch = {};
+				if ( typeof ev.originalEvent.touches != 'undefined' ){
+					touch = ev.originalEvent.touches[0];
+				} else {
+					touch = ev.originalEvent;
+				}
+				t.start = {
+					x: touch.pageX,
+					y: touch.pageY,
+					time: +new Date
+				};
+
+				t.isScrolling = undefined;
+
+				t.delta = {};
+
+				self.element.on('touchmove mousemove', {self: self}, tmove);
+				self.element.on('touchend mouseup', {self: self}, tend);
+			};
+
+			function tmove(ev){
+				if ( typeof ev.originalEvent.touches != 'undefined' && ev.originalEvent.touches.length > 1 || ev.originalEvent.scale && ev.originalEvent.scale !== 1) {
+					return;
+				};
+
+				var touch = {},
+					self = ev.data.self,
+					t = self._touch;
+				if ( typeof ev.originalEvent.touches != 'undefined' ){
+					touch = ev.originalEvent.touches[0];
+				} else {
+					touch = ev.originalEvent;
+				}
+				t.delta = {
+					x: touch.pageX - t.start.x,
+					y: touch.pageY - t.start.y
+				};
+
+				if ( typeof t.isScrolling == 'undefined') {
+					t.isScrolling = !!( t.isScrolling || Math.abs(t.delta.x) < Math.abs(t.delta.y) );
+				}
+
+				if ( !t.isScrolling ){
+					ev.preventDefault();
+				}
+			};
+
+			function tend(ev){
+				var self = ev.data.self,
+					t = self._touch;
+
+				var duration = +new Date - t.start.time,
+					direction = t.delta.x < 0 ? "next" : "previous";
+					isValidSlide = false;
+
+				isValidSlide = Number(duration) < 250 &&
+					Math.abs(t.delta.x) > 20 // jQM checks for 30 px
+					|| Math.abs(t.delta.x) > self._width/2;
+
+				if ( !t.isScrolling && isValidSlide) {
+					self[direction].call(self);
+				}
+				self.element.off('touchmove mousemove', tmove);
+				self.element.off('touchend mouseup', tend);
+			};
+
+			this.element.on("touchstart mousedown", {self: this}, tstart);
+			$(window).on('resize', this.__resize);
+		},
+
+		__bindEvents: function() {
+			$(window).on('resize', this.__resize);
+
 			this.element.on({
 				swiperight: this.__swiperight,
 				swipeleft: this.__swipeleft,
@@ -225,6 +356,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_render_frame: function( index, el, data ) {
+			//debugger;
 			var $el = $( el ),
 				params = data || $el.data(),
 				$item, $indicator,
@@ -257,18 +389,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				$el.data( "indicator", indicator_id );
 
 				$indicator.on( "click", {
-					move: this.slide.bind( this, false )
+					move: this.to.bind( this )
 				}, function ( event ) {
 					var id = "#" + $( this ).data( "targetElement" );
-					event.data.move( $(id), event );
+					event.data.move( $(id).data('itemIndex') );
 				});
 
 				$indicator
 					.on( "show", function( event ) {
-						$( this ).addClass('ui-carousel-indicator-active');
+						$( this ).addClass('ui-carousel-indicator-active ui-radio-on');
 					})
 					.on( "hide", function( event ) {
-						$( this ).removeClass('ui-carousel-indicator-active');
+						$( this ).removeClass('ui-carousel-indicator-active ui-radio-on');
 					});
 
 				// indicators can have actions for show and hide events
@@ -344,11 +476,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			// simple image pre loader
 			img = new Image();
 			img.onload = function() {
-				var $img = $(this);
-				$img.addClass( "ui-carousel-content" );
-				$img.removeAttr("width").removeAttr("height"); // Love IE
 				target.empty();
-				$img.appendTo( target );
+				target.css( 'background-image', 'url(' + url + ')' );
 				parent.trigger( "ready", {
 					item: parent
 				});
@@ -425,7 +554,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		next: function() {
 			if ( !this._sliding ) {
 				this.element.trigger( "beforenext" );
-				this.slide( "next" );
+				this.to( this._circle(this.__index + 1) );
 				return !!this.options.passOnSwipeEvents;
 			}
 			return false;
@@ -434,43 +563,43 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		previous: function() {
 			if ( !this._sliding ) {
 				this.element.trigger("beforeprev" );
-				this.slide( "prev" );
+				this.to( this._circle(this.__index - 1) );
 				return !!this.options.passOnSwipeEvents;
 			}
 			return false;
 		},
 
-		slide: function( move_type, next ) {
+		_circle: function(index) {
+			return (this.length() + (index % this.length())) % this.length();
+		},
 
-			if ( this._sliding ) {
+		to: function( index ) {
+			this.__index = parseInt( index, 10 ) || 0;
+			this.element.trigger( "goto", this.__index );
+			this.slide( false, this.__enabledFramesList().eq( this.__index ) );
+			return this;
+		},
+
+		slide: function( move_type, $next ) {
+			if ( this._sliding || !this.options.enabled ) {
 				return;
 			}
-			var $active = this.element.find( ".ui-carousel-item.ui-carousel-active" ),
-				$next = next || $active[move_type + 'All']( ".ui-carousel-item:visible" );
 
+			if ( ['next', 'prev'].indexOf(move_type) === -1 ) {
+				// figure out type of slid if we jump to the specific frame
+				move_type = $($next).nextAll(".ui-carousel-active").length === 0 ? "next" : "prev";
+			}
+
+			var $flist = this.__enabledFramesList(),
+				direction = move_type == "next" ? 1 : -1,
+				$active = this.__enabledFramesList().filter(".ui-carousel-active");
+
+			// in the beginning we doesn't have any active frames
 			if ( $active.length === 0 ) {
-				$next.trigger( "beforeshow" );
 				$next.addClass( "ui-carousel-active" ).trigger( "show" );
-				// in the beginning we doesn't have any active frames
 				// so animation is not necessary
 				return true;
 			}
-
-			if ( !this.options.enabled ) {
-				return false;
-			}
-
-			if ( move_type !== "next" && move_type !== "prev" ) {
-				// figure out type of slid if we jump to the specific frame
-				move_type = $next.nextAll(".ui-carousel-active").length === 0 ? "next" : "prev";
-			}
-
-			if ( $next.hasClass("ui-carousel-active") ) {
-				return false;
-			}
-
-			var fallback = move_type == "next" ? "first" : "last";
-			$next = $next.length ? $next : this.element.find( ".ui-carousel-item" )[fallback]();
 
 			$next.trigger( "beforeshow" );
 			this.element.trigger( "slidingstart", move_type );
@@ -480,10 +609,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				$("#" + ev.data.next).addClass( "ui-carousel-active" ).trigger( "show" );
 				this._sliding = false;
 				this.element.trigger( "slidingdone", this._sliding_type);
-			},
-				direction = move_type == "next" ? 1 : -1;
+			};
 
-			this._animation( direction, this.options.animationDuration, $active, $next, done.bind(this) );
+			this._animation( $active, $next, done.bind(this) );
 
 			// prevent any sliding before main sliding is done
 			this._sliding = true;
@@ -492,31 +620,20 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return true;
 		},
 
-		_animation: function( direction, duration, $active, $next, done_cb ) {
-			// move next frame to specific side for animation
-			$next.css( "left", ( 100 * direction ) + '%' );
-			$active.animate( {
-				left: ( 100 * direction * -1 ) + '%'
-			}, {
+		_animation: function( $active, $next, done_cb ) {
+			this._list.animate({
+				left: -1*this.__offsets[this.__index]
+			},{
 				duration: this.options.animationDuration,
 				complete: done_cb.bind(this, {
 					data:{
 						active: $active.attr( "id" ),
 						next: $next.attr( "id" )
 					}
-				}),
-				step: function( now, fx ) {
-					$next.css( "left", (100 * direction + now) + "%" );
-				}
+				})
 			});
 		},
 
-		to: function( index ) {
-			this.element.trigger( "goto", index );
-			var $el = $( ".ui-carousel-item:eq(" + index + ")", this.element );
-			this.slide( false, $el );
-			return this;
-		},
 
 		getFrame: function( index ) {
 			var f = $( ".ui-carousel-item:eq(" + index + ")", this.element );
@@ -524,10 +641,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				return false;
 			}
 			return f;
-		},
-
-		length: function() {
-			return this._list.find(".ui-carousel-item").length;
 		},
 
 		eachItem: function(callback) {
