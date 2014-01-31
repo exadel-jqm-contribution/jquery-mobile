@@ -24,6 +24,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			showTitle: true,
 			titleIsText: true,
 			usejQMSwipes: false,
+			theme: 'a',
 			createIndicator: null,
 			passOnSwipeEvents: false,
 			titleBuildIn: true,
@@ -58,11 +59,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 		_create: function() {
 			this._checkBindFunction();
-			this.element.addClass( "ui-carousel" );
 			this._list = $( ".ui-carousel-items", this.element );
 
 			this.options = $.extend( this.options, this.element.data( "options" ) );
 			this.options = $.extend( this.options, this.element.data() );
+
+			this.element.addClass( "ui-carousel ui-carousel-theme-" + this.options.theme);
 
 			if ( this.options.showIndicator !== false ) {
 				if ( this.options.indicators === null ) {
