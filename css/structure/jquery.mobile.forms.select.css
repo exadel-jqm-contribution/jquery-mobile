@@ -1,15 +1,13 @@
 .ui-select {
-	margin: .5em 0;
+	margin-top: .5em;
+	margin-bottom: .5em; /* no shorthand for margin because it would override margin-right for inline selects */
 	position: relative;
 }
 .ui-select > select {
 	position: absolute !important;
-	top: -9999px;
-	left: -9999px;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect(1px 1px 1px 1px);
 	clip: rect(1px,1px,1px,1px);
 }
 .ui-select .ui-btn {
@@ -66,7 +64,7 @@
 	padding-right: 4.6875em;
 }
 .ui-select .ui-btn-icon-right .ui-li-count {
-	right: 3.636em;
+	right: 3.2em;
 }
 /* We set the rules for the span as well to fix an issue on Chrome with text-overflow ellipsis for the button in combination with text-align center. */
 .ui-select .ui-btn > span:not(.ui-li-count) {
@@ -87,7 +85,7 @@
 .ui-selectmenu .ui-header {
 	margin: 0;
 	padding: 0;
-	border: 0;
+	border-width: 0;
 }
 .ui-selectmenu.ui-dialog .ui-header {
 	z-index: 1;
@@ -134,7 +132,6 @@
 	cursor: default;
 }
 
-.ui-screen-hidden,
 .ui-selectmenu .ui-selectmenu-placeholder {
 	display: none;
 }

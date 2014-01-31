@@ -56,6 +56,11 @@ define([
 				return uri.protocol + "//" + uri.host + uri.pathname + uri.search + hash;
 			},
 
+			//return the original document url
+			getDocumentUrl: function( asParsedObject ) {
+				return asParsedObject ? $.extend( {}, path.documentUrl ) : path.documentUrl.href;
+			},
+
 			parseLocation: function() {
 				return this.parseUrl( this.getLocation() );
 			},
@@ -286,7 +291,7 @@ define([
 				stateIndex = cleanedUrl.indexOf( this.uiStateKey );
 
 				// store the ui state keys for use
-				if( stateIndex > -1 ){
+				if ( stateIndex > -1 ) {
 					uiState = cleanedUrl.slice( stateIndex );
 					cleanedUrl = cleanedUrl.slice( 0, stateIndex );
 				}
@@ -301,18 +306,18 @@ define([
 				// TODO all this crap is terrible, clean it up
 				if ( isPath ) {
 					// reject the hash if it's a path or it's just a dialog key
-					if( path.isPath( preservedHash ) || preservedHash.replace("#", "").indexOf( this.uiStateKey ) === 0) {
+					if ( path.isPath( preservedHash ) || preservedHash.replace("#", "").indexOf( this.uiStateKey ) === 0) {
 						preservedHash = "";
 					}
 
 					// Append the UI State keys where it exists and it's been removed
 					// from the url
-					if( uiState && preservedHash.indexOf( this.uiStateKey ) === -1){
+					if ( uiState && preservedHash.indexOf( this.uiStateKey ) === -1) {
 						preservedHash += uiState;
 					}
 
 					// make sure that pound is on the front of the hash
-					if( preservedHash.indexOf( "#" ) === -1 && preservedHash !== "" ){
+					if ( preservedHash.indexOf( "#" ) === -1 && preservedHash !== "" ) {
 						preservedHash = "#" + preservedHash;
 					}
 
@@ -337,6 +342,52 @@ define([
 					hash = hash.substring( 1 );
 				}
 				return ( hasHash ? "#" : "" ) + hash.replace( /([!"#$%&'()*+,./:;<=>?@[\]^`{|}~])/g, "\\$1" );
+			},
+
+			// return the substring of a filepath before the sub-page key, for making
+			// a server request
+			getFilePath: function( path ) {
+				var splitkey = "&" + $.mobile.subPageUrlKey;
+				return path && path.split( splitkey )[0].split( dialogHashKey )[0];
+			},
+
+			// check if the specified url refers to the first page in the main
+			// application document.
+			isFirstPageUrl: function( url ) {
+				// We only deal with absolute paths.
+				var u = path.parseUrl( path.makeUrlAbsolute( url, this.documentBase ) ),
+
+					// Does the url have the same path as the document?
+					samePath = u.hrefNoHash === this.documentUrl.hrefNoHash ||
+						( this.documentBaseDiffers &&
+							u.hrefNoHash === this.documentBase.hrefNoHash ),
+
+					// Get the first page element.
+					fp = $.mobile.firstPage,
+
+					// Get the id of the first page element if it has one.
+					fpId = fp && fp[0] ? fp[0].id : undefined;
+
+				// The url refers to the first page if the path matches the document and
+				// it either has no hash value, or the hash is exactly equal to the id
+				// of the first page element.
+				return samePath &&
+					( !u.hash ||
+						u.hash === "#" ||
+						( fpId && u.hash.replace( /^#/, "" ) === fpId ) );
+			},
+
+			// Some embedded browsers, like the web view in Phone Gap, allow
+			// cross-domain XHR requests if the document doing the request was loaded
+			// via the file:// protocol. This is usually to allow the application to
+			// "phone home" and fetch app specific data. We normally let the browser
+			// handle external/cross-domain urls, but if the allowCrossDomainPages
+			// option is true, we will allow cross-domain http/https requests to go
+			// through our page loading logic.
+			isPermittedCrossDomainRequest: function( docUrl, reqUrl ) {
+				return $.mobile.allowCrossDomainPages &&
+					(docUrl.protocol === "file:" || docUrl.protocol === "content:") &&
+					reqUrl.search( /^https?:/ ) !== -1;
 			}
 		};
 
@@ -350,15 +401,20 @@ define([
 
 		path.documentBaseDiffers = (path.documentUrl.hrefNoHash !== path.documentBase.hrefNoHash);
 
-		//return the original document url
-		path.getDocumentUrl = function( asParsedObject ) {
-			return asParsedObject ? $.extend( {}, path.documentUrl ) : path.documentUrl.href;
-		};
-
 		//return the original document base url
 		path.getDocumentBase = function( asParsedObject ) {
 			return asParsedObject ? $.extend( {}, path.documentBase ) : path.documentBase.href;
 		};
+
+		// DEPRECATED as of 1.4.0 - remove in 1.5.0
+		$.extend( $.mobile, {
+
+			//return the original document url
+			getDocumentUrl: path.getDocumentUrl,
+
+			//return the original document base url
+			getDocumentBase: path.getDocumentBase
+		});
 })( jQuery );
 
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

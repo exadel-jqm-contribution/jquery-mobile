@@ -12,58 +12,68 @@
 define( [ "jquery",
 	"../../jquery.mobile.core",
 	"../../jquery.mobile.widget",
-	"../optionDemultiplexer",
 	"./reset" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
-$.widget( "mobile.checkboxradio", $.mobile.widget, $.extend( {
+$.widget( "mobile.checkboxradio", $.extend( {
+
+	initSelector: "input:not( :jqmData(role='flipswitch' ) )[type='checkbox'],input[type='radio']:not( :jqmData(role='flipswitch' ))",
+
 	options: {
-		theme: null,
-		mini: false
+		theme: "inherit",
+		mini: false,
+		wrapperClass: null,
+		enhanced: false,
+		iconpos: "left"
+
 	},
 	_create: function() {
 		var input = this.element,
 			o = this.options,
 			inheritAttr = function( input, dataAttr ) {
-				return input.jqmData( dataAttr ) || input.closest( "form, fieldset" ).jqmData( dataAttr );
+				return input.jqmData( dataAttr ) ||
+					input.closest( "form, fieldset" ).jqmData( dataAttr );
 			},
 			// NOTE: Windows Phone could not find the label through a selector
 			// filter works though.
-			parentLabel = $( input ).closest( "label" ),
-			label = parentLabel.length ? parentLabel : $( input ).closest( "form, fieldset, :jqmData(role='page'), :jqmData(role='dialog')" ).find( "label" ).filter( "[for='" + input[0].id + "']" ).first(),
+			parentLabel = input.closest( "label" ),
+			label = parentLabel.length ? parentLabel :
+				input
+					.closest( "form, fieldset, :jqmData(role='page'), :jqmData(role='dialog')" )
+					.find( "label" )
+					.filter( "[for='" + $.mobile.path.hashToSelector( input[0].id ) + "']" )
+					.first(),
 			inputtype = input[0].type,
-			checkedState = inputtype + "-on",
-			uncheckedState = inputtype + "-off",
-			iconpos = inheritAttr( input, "iconpos" ) || label.jqmData( "iconpos" ) || "left",
-			checkedClass = "ui-" + checkedState,
-			uncheckedClass = "ui-" + uncheckedState,
-			wrapper;
+			checkedClass = "ui-" + inputtype + "-on",
+			uncheckedClass = "ui-" + inputtype + "-off";
 
 		if ( inputtype !== "checkbox" && inputtype !== "radio" ) {
 			return;
 		}
+
+		if ( this.element[0].disabled ) {
+			this.options.disabled = true;
+		}
+
+		o.iconpos = inheritAttr( input, "iconpos" ) || label.attr( "data-" + $.mobile.ns + "iconpos" ) || o.iconpos,
 
 		// Establish options
 		o.mini = inheritAttr( input, "mini" ) || o.mini;
 
 		// Expose for other methods
 		$.extend( this, {
-			iconpos: iconpos,
 			input: input,
 			label: label,
+			parentLabel: parentLabel,
 			inputtype: inputtype,
 			checkedClass: checkedClass,
-			uncheckedClass: uncheckedClass,
-			checkedicon: checkedState,
-			uncheckedicon: uncheckedState
+			uncheckedClass: uncheckedClass
 		});
 
-		// Wrap the input + label in a div
-		wrapper = document.createElement( "div" );
-		wrapper.className = "ui-" + inputtype;
-		input.add( label ).wrapAll( wrapper );
-		label.addClass( "ui-btn ui-corner-all ui-btn-icon-" + iconpos );
+		if ( !this.options.enhanced ) {
+			this._enhance();
+		}
 
 		this._on( label, {
 			vmouseover: "_handleLabelVMouseOver",
@@ -78,8 +88,35 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, $.extend( {
 		});
 
 		this._handleFormReset();
-		this._setOptions( o );
 		this.refresh();
+	},
+
+	_enhance: function() {
+		this.label.addClass( "ui-btn ui-corner-all");
+
+		if ( this.parentLabel.length > 0 ) {
+			this.input.add( this.label ).wrapAll( this._wrapper() );
+		} else {
+			//this.element.replaceWith( this.input.add( this.label ).wrapAll( this._wrapper() ) );
+			this.element.wrap( this._wrapper() );
+			this.element.parent().prepend( this.label );
+		}
+
+		// Wrap the input + label in a div
+
+		this._setOptions({
+			"theme": this.options.theme,
+			"iconpos": this.options.iconpos,
+			"mini": this.options.mini
+		});
+
+	},
+
+	_wrapper: function() {
+		return $( "<div class='"  +
+			( this.options.wrapperClass ? this.options.wrapperClass : "" ) +
+			" ui-" + this.inputtype +
+			( this.options.disabled ? " ui-state-disabled" : "" ) + "' ></div>" );
 	},
 
 	_handleInputFocus: function() {
@@ -141,7 +178,7 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, $.extend( {
 
 	_cacheVals: function() {
 		this._getInputSet().each( function() {
-			$( this ).jqmData( "cacheVal", this.checked );
+			$( this ).attr("data-" + $.mobile.ns + "cacheVal", this.checked );
 		});
 	},
 
@@ -172,61 +209,100 @@ $.widget( "mobile.checkboxradio", $.mobile.widget, $.extend( {
 		this.refresh();
 	},
 
+	// Is the widget supposed to display an icon?
+	_hasIcon: function() {
+		var controlgroup, controlgroupWidget,
+			controlgroupConstructor = $.mobile.controlgroup;
+
+		// If the controlgroup widget is defined ...
+		if ( controlgroupConstructor ) {
+			controlgroup = this.element.closest(
+				":mobile-controlgroup," +
+				controlgroupConstructor.prototype.initSelector );
+
+			// ... and the checkbox is in a controlgroup ...
+			if ( controlgroup.length > 0 ) {
+
+				// ... look for a controlgroup widget instance, and ...
+				controlgroupWidget = $.data( controlgroup[ 0 ], "mobile-controlgroup" );
+
+				// ... if found, decide based on the option value, ...
+				return ( ( controlgroupWidget ? controlgroupWidget.options.type :
+
+					// ... otherwise decide based on the "type" data attribute.
+					controlgroup.attr( "data-" + $.mobile.ns + "type" ) ) !== "horizontal" );
+			}
+		}
+
+		// Normally, the widget displays an icon.
+		return true;
+	},
+
 	refresh: function() {
-		var input = this.element[ 0 ],
-			active = " " + $.mobile.activeBtnClass,
-			hasIcon = ( this.element.parents( ".ui-controlgroup-horizontal" ).length === 0 ),
-			checkedClass = this.checkedClass + ( hasIcon ? "" : active ),
-			label = this.label;
+		var hasIcon = this._hasIcon(),
+			isChecked = this.element[ 0 ].checked,
+			active = $.mobile.activeBtnClass,
+			iconposClass = "ui-btn-icon-" + this.options.iconpos,
+			addClasses = [],
+			removeClasses = [];
 
-		label
-			.toggleClass( "ui-btn-icon-" + this.iconpos, hasIcon )
-			.toggleClass( "ui-icon-" + this.checkedicon, input.checked )
-			.toggleClass( "ui-icon-" + this.uncheckedicon, !input.checked );
-		if ( input.checked ) {
-			label.removeClass( this.uncheckedClass + active ).addClass( checkedClass );
+		if ( hasIcon ) {
+			removeClasses.push( active );
+			addClasses.push( iconposClass );
 		} else {
-			label.removeClass( checkedClass ).addClass( this.uncheckedClass );
+			removeClasses.push( iconposClass );
+			( isChecked ? addClasses : removeClasses ).push( active );
 		}
 
-		if ( input.disabled ) {
-			this.disable();
+		if ( isChecked ) {
+			addClasses.push( this.checkedClass );
+			removeClasses.push( this.uncheckedClass );
 		} else {
-			this.enable();
+			addClasses.push( this.uncheckedClass );
+			removeClasses.push( this.checkedClass );
 		}
-	},
 
-	_setTheme: function( value ) {
-		if ( value ) {
-			this.label.removeClass( "ui-btn-" + this.options.theme ).addClass( "ui-btn-" + value );
-		}
-	},
-
-	_setMini: function( value ) {
-		/* TODO: expose the wrapper in _create */
-		this.label.parent().toggleClass( "ui-mini", !!value );
+		this.label
+			.addClass( addClasses.join( " " ) )
+			.removeClass( removeClasses.join( " " ) );
 	},
 
 	widget: function() {
 		return this.label.parent();
 	},
 
-	disable: function() {
-		this._super();
-		this.input.prop( "disabled", true );
-	},
+	_setOptions: function( options ) {
+		var label = this.label,
+			currentOptions = this.options,
+			outer = this.widget(),
+			hasIcon = this._hasIcon();
 
-	enable: function() {
-		this._super();
-		this.input.prop( "disabled", false );
+		if ( options.disabled !== undefined ) {
+			this.input.prop( "disabled", !!options.disabled );
+			outer.toggleClass( "ui-state-disabled", !!options.disabled );
+		}
+		if ( options.mini !== undefined ) {
+			outer.toggleClass( "ui-mini", !!options.mini );
+		}
+		if ( options.theme !== undefined ) {
+			label
+				.removeClass( "ui-btn-" + currentOptions.theme )
+				.addClass( "ui-btn-" + options.theme );
+		}
+		if ( options.wrapperClass !== undefined ) {
+			outer
+				.removeClass( currentOptions.wrapperClass )
+				.addClass( options.wrapperClass );
+		}
+		if ( options.iconpos !== undefined && hasIcon ) {
+			label.removeClass( "ui-btn-icon-" + currentOptions.iconpos ).addClass( "ui-btn-icon-" + options.iconpos );
+		} else if ( !hasIcon ) {
+			label.removeClass( "ui-btn-icon-" + currentOptions.iconpos );
+		}
+		this._super( options );
 	}
 
-}, $.mobile.behaviors.formReset, $.mobile.behaviors.optionDemultiplexer ) );
-
-$.mobile.checkboxradio.initSelector = "input[type='checkbox'],input[type='radio']";
-
-//auto self-init widgets
-$.mobile._enhancer.add( "mobile.checkboxradio" );
+}, $.mobile.behaviors.formReset ) );
 
 })( jQuery );
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

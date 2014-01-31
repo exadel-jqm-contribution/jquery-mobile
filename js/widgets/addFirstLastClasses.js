@@ -1,5 +1,5 @@
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-//>>description: Behavior mixing to mark first and last visible item with special classes.
+//>>description: Behavior mixin to mark first and last visible item with special classes.
 //>>label: First & Last Classes
 //>>group: Widgets
 
@@ -29,6 +29,10 @@ $.mobile.behaviors.addFirstLastClasses = {
 		if ( !create ) {
 			this.element.trigger( "updatelayout" );
 		}
+	},
+
+	_removeFirstLastClasses: function( $els ) {
+		$els.removeClass( "ui-first-child ui-last-child" );
 	}
 };
 

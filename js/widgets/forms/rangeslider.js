@@ -10,11 +10,10 @@ define( [ "jquery",
 	"../../jquery.mobile.widget",
 	"./textinput",
 	"./reset",
-	"../optionDemultiplexer",
 	"./slider" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
-	$.widget( "mobile.rangeslider", $.mobile.widget, $.extend( {
+	$.widget( "mobile.rangeslider", $.extend( {
 
 		options: {
 			theme: null,
@@ -30,9 +29,13 @@ define( [ "jquery",
 			_inputFirst = $el.find( "input" ).first(),
 			_inputLast = $el.find( "input" ).last(),
 			_label = $el.find( "label" ).first(),
-			_sliderFirst = $.data( _inputFirst.get(0), "mobile-slider" ).slider,
-			_sliderLast = $.data( _inputLast.get(0), "mobile-slider" ).slider,
-			firstHandle = $.data( _inputFirst.get(0), "mobile-slider" ).handle,
+			_sliderWidgetFirst = $.data( _inputFirst.get( 0 ), "mobile-slider" ) ||
+				$.data( _inputFirst.slider().get( 0 ), "mobile-slider" ),
+			_sliderWidgetLast = $.data( _inputLast.get(0), "mobile-slider" ) ||
+				$.data( _inputLast.slider().get( 0 ), "mobile-slider" ),
+			_sliderFirst = _sliderWidgetFirst.slider,
+			_sliderLast = _sliderWidgetLast.slider,
+			firstHandle = _sliderWidgetFirst.handle,
 			_sliders = $( "<div class='ui-rangeslider-sliders' />" ).appendTo( $el );
 
 			_inputFirst.addClass( "ui-rangeslider-first" );
@@ -75,10 +78,10 @@ define( [ "jquery",
 				"vmousedown": "_dragFirstHandle"
 			});
 		},
-		_handleReset: function(){
+		_handleReset: function() {
 			var self = this;
 			//we must wait for the stack to unwind before updateing other wise sliders will not have updated yet
-			setTimeout( function(){
+			setTimeout( function() {
 				self._updateHighlight();
 			},0);
 		},
@@ -123,14 +126,33 @@ define( [ "jquery",
 			}
 		},
 
-		_setOption: function( options ) {
-			this._superApply( options );
+		_setOptions: function( options ) {
+			if ( options.theme !== undefined ) {
+				this._setTheme( options.theme );
+			}
+
+			if ( options.trackTheme !== undefined ) {
+				this._setTrackTheme( options.trackTheme );
+			}
+
+			if ( options.mini !== undefined ) {
+				this._setMini( options.mini );
+			}
+
+			if ( options.highlight !== undefined ) {
+				this._setHighlight( options.highlight );
+			}
+			this._super( options );
 			this.refresh();
 		},
 
 		refresh: function() {
 			var $el = this.element,
 				o = this.options;
+
+			if ( this._inputFirst.is( ":disabled" ) || this._inputLast.is( ":disabled" ) ) {
+				this.options.disabled = true;
+			}
 
 			$el.find( "input" ).slider({
 				theme: o.theme,
@@ -156,10 +178,9 @@ define( [ "jquery",
 				thisSlider = first ? this._inputFirst : this._inputLast,
 				otherSlider = first ? this._inputLast : this._inputFirst;
 
-
-			if( ( this._inputFirst.val() > this._inputLast.val() && event.type === "mousedown" && !$(event.target).hasClass("ui-slider-handle")) ){
+			if ( ( this._inputFirst.val() > this._inputLast.val() && event.type === "mousedown" && !$(event.target).hasClass("ui-slider-handle")) ) {
 				thisSlider.blur();
-			} else if( event.type === "mousedown" ){
+			} else if ( event.type === "mousedown" ) {
 				return;
 			}
 			if ( min > max && !this._sliderTarget ) {
@@ -236,12 +257,7 @@ define( [ "jquery",
 			this.element.find( "input" ).removeClass( "ui-rangeslider-first ui-rangeslider-last" ).slider( "destroy" );
 		}
 
-	}, $.mobile.behaviors.formReset, $.mobile.behaviors.optionDemultiplexer ) );
-
-$.mobile.rangeslider.initSelector = ":jqmData(role='rangeslider')";
-
-//auto self-init widgets
-$.mobile._enhancer.add( "mobile.rangeslider", { dependencies: [ "mobile.slider" ] } );
+	}, $.mobile.behaviors.formReset ) );
 
 })( jQuery );
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

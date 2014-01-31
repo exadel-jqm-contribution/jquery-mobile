@@ -5,10 +5,9 @@
 //>>css.structure: ../css/structure/jquery.mobile.fixedToolbar.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jquery.mobile.navigation", "./page","./toolbar","../jquery.mobile.zoom", "../jquery.mobile.registry" ], function( jQuery ) {
+define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jquery.mobile.navigation", "./page","./toolbar","../jquery.mobile.zoom" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
-
 
 	$.widget( "mobile.toolbar", $.mobile.toolbar, {
 		options: {
@@ -18,7 +17,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 			transition: "slide", //can be none, fade, slide (slide maps to slideup or slidedown)
 			fullscreen: false,
 			tapToggle: true,
-			tapToggleBlacklist: "a, button, input, select, textarea, .ui-header-fixed, .ui-footer-fixed, .ui-popup, .ui-panel, .ui-panel-dismiss-open",
+			tapToggleBlacklist: "a, button, input, select, textarea, .ui-header-fixed, .ui-footer-fixed, .ui-flipswitch, .ui-popup, .ui-panel, .ui-panel-dismiss-open",
 			hideDuringFocus: "input, textarea, select",
 			updatePagePadding: true,
 			trackPersistentToolbars: true,
@@ -36,21 +35,28 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 
 		_create: function() {
 			this._super();
-			if( this.options.position === "fixed" && !this.options.supportBlacklist() ){
-				this.element.addClass( "ui-"+ this.role +"-fixed" );
-				this.updatePagePadding();
-				this._addTransitionClass();
-				this._bindPageEvents();
-				this._bindToggleHandlers();
-				this._setOptions( this.options );
+			if ( this.options.position === "fixed" && !this.options.supportBlacklist() ) {
+				this._makeFixed();
 			}
 		},
 
-		_setOptions: function( o ){
-			if( this.options.position === "fixed" && !this.options.supportBlacklist() ){
+		_makeFixed: function() {
+			this.element.addClass( "ui-"+ this.role +"-fixed" );
+			this.updatePagePadding();
+			this._addTransitionClass();
+			this._bindPageEvents();
+			this._bindToggleHandlers();
+			this._setOptions( this.options );
+		},
+
+		_setOptions: function( o ) {
+			if ( o.position === "fixed" && this.options.position !== "fixed" ) {
+				this._makeFixed();
+			}
+			if ( this.options.position === "fixed" && !this.options.supportBlacklist() ) {
 				var $page = ( !!this.page )? this.page: ( $(".ui-page-active").length > 0 )? $(".ui-page-active"): $(".ui-page").eq(0);
 
-				if( o.fullscreen !== undefined){
+				if ( o.fullscreen !== undefined) {
 					if ( o.fullscreen ) {
 						this.element.addClass( "ui-"+ this.role +"-fullscreen" );
 						$page.addClass( "ui-page-" + this.role + "-fullscreen" );
@@ -79,7 +85,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 		},
 
 		_bindPageEvents: function() {
-			var page = ( !!this.page )? this.element.closest( ".ui-page" ): $.mobile.document;
+			var page = ( !!this.page )? this.element.closest( ".ui-page" ): this.document;
 			//page event bindings
 			// Fixed toolbars require page zoom to be disabled, otherwise usability issues crop up
 			// This method is meant to disable zoom while a fixed-positioned toolbar page is visible
@@ -112,7 +118,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 		_handlePageShow: function() {
 			this.updatePagePadding( ( !!this.page )? this.page: ".ui-page-active" );
 			if ( this.options.updatePagePadding ) {
-				this._on( $.mobile.window, { "throttledresize": "updatePagePadding" } );
+				this._on( this.window, { "throttledresize": "updatePagePadding" } );
 			}
 		},
 
@@ -120,12 +126,11 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 			var o = this.options,
 				thisFooter, thisHeader, nextFooter, nextHeader;
 
-
 			if ( o.disablePageZoom ) {
 				$.mobile.zoom.enable( true );
 			}
 			if ( o.updatePagePadding ) {
-				this._off( $.mobile.window, "throttledresize" );
+				this._off( this.window, "throttledresize" );
 			}
 
 			if ( o.trackPersistentToolbars ) {
@@ -163,7 +168,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 		},
 
 		_useTransition: function( notransition ) {
-			var $win = $.mobile.window,
+			var $win = this.window,
 				$el = this.element,
 				scroll = $win.scrollTop(),
 				elHeight = $el.height(),
@@ -264,6 +269,12 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 						}
 					}
 				});
+		},
+
+		_setRelative: function() {
+			if( this.options.position !== "fixed" ){
+				$( "[data-"+ $.mobile.ns + "role='page']" ).css({ "position": "relative" });
+			}
 		},
 
 		_destroy: function() {

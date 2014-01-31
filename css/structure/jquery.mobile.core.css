@@ -12,6 +12,17 @@
 .ui-mobile fieldset {
 	border-width: 0;
 }
+/* Fixes for fieldset issues on IE10 and FF (see #6077) */
+.ui-mobile fieldset {
+	min-width: 0;
+}
+@-moz-document url-prefix() {
+	.ui-mobile fieldset {
+		display: table-column;
+		vertical-align: middle;
+	}
+}
+
 /* Viewport */
 .ui-mobile-viewport {
 	margin: 0;
@@ -44,6 +55,7 @@ div.ui-mobile-viewport {
 .ui-mobile .ui-page-active {
 	display: block;
 	overflow: visible;
+	overflow-x: hidden;
 }
 @media screen and (orientation: portrait) {
 	.ui-mobile .ui-page {
@@ -64,12 +76,9 @@ div.ui-mobile-viewport {
 /* Non-js content hiding */
 .ui-nojs {
 	position: absolute !important;
-	top: -9999px;
-	left: -9999px;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect(1px 1px 1px 1px);
 	clip: rect(1px,1px,1px,1px);
 }
 
@@ -167,6 +176,10 @@ div.ui-mobile-viewport {
 	border-style: solid;
 	position: relative;
 }
+.ui-header:empty,
+.ui-footer:empty {
+	min-height: 2.6875em;
+}
 .ui-header .ui-title,
 .ui-footer .ui-title {
 	font-size: 1em;
@@ -226,8 +239,8 @@ div.ui-mobile-viewport {
 }
 .ui-btn-icon-notext {
 	padding: 0;
-	width: 1.5em;
-	height: 1.5em;
+	width: 1.75em;
+	height: 1.75em;
 	text-indent: -9999px;
 	white-space: nowrap !important;
 }
@@ -236,9 +249,6 @@ div.ui-mobile-viewport {
 }
 .ui-mini .ui-btn {
 	font-size: inherit;
-}
-.ui-mini .ui-controlgroup-label {
-	font-size: 16px;
 }
 /* Make buttons in toolbars default to mini and inline. */
 .ui-header .ui-btn,
@@ -253,6 +263,7 @@ div.ui-mobile-viewport {
 	font-size: 12.5px;
 }
 .ui-mini.ui-btn-icon-notext,
+.ui-mini .ui-btn-icon-notext,
 .ui-header .ui-btn-icon-notext,
 .ui-footer .ui-btn-icon-notext {
 	font-size: 16px;	
@@ -266,8 +277,7 @@ div.ui-mobile-viewport {
 .ui-btn-icon-left {
 	padding-left: 2.5em;
 }
-.ui-btn-icon-right,
-.ui-listview > li > .ui-btn[class*="ui-icon-"] {
+.ui-btn-icon-right {
 	padding-right: 2.5em;
 }
 .ui-btn-icon-top {
@@ -283,39 +293,53 @@ div.ui-mobile-viewport {
 	padding-left: .3125em;
 	padding-right: .3125em;
 }
-.ui-btn[class*="ui-icon-"]:after {
+.ui-btn-icon-left:after,
+.ui-btn-icon-right:after,
+.ui-btn-icon-top:after,
+.ui-btn-icon-bottom:after,
+.ui-btn-icon-notext:after {
 	content: "";
 	position: absolute;
 	display: block;
-	width: 18px;
-	height: 18px;
+	width: 22px;
+	height: 22px;
 }
 .ui-btn-icon-notext:after,
 .ui-btn-icon-left:after,
-.ui-btn-icon-right:after,
-.ui-listview > li > .ui-btn[class*="ui-icon-"]:after {
+.ui-btn-icon-right:after {
 	top: 50%;
-	margin-top: -9px;
+	margin-top: -11px;
 }
 .ui-btn-icon-left:after {
-	left: .625em;
+	left: .5625em;
 }
-.ui-btn-icon-right:after,
-.ui-listview > li > .ui-btn[class*="ui-icon-"]:after {
-	right: .625em;
+.ui-btn-icon-right:after {
+	right: .5625em;
+}
+.ui-mini.ui-btn-icon-left:after,
+.ui-mini .ui-btn-icon-left:after,
+.ui-header .ui-btn-icon-left:after,
+.ui-footer .ui-btn-icon-left:after {
+	left: .37em;
+}
+.ui-mini.ui-btn-icon-right:after,
+.ui-mini .ui-btn-icon-right:after,
+.ui-header .ui-btn-icon-right:after,
+.ui-footer .ui-btn-icon-right:after {
+	right: .37em;
 }
 .ui-btn-icon-notext:after,
 .ui-btn-icon-top:after,
 .ui-btn-icon-bottom:after {
 	left: 50%;
-	margin-left: -9px;
+	margin-left: -11px;
 }
 .ui-btn-icon-top:after {
-	top: .625em;
+	top: .5625em;
 }
 .ui-btn-icon-bottom:after {
 	top: auto;
-	bottom: .625em;
+	bottom: .5625em;
 }
 /* Buttons in header position classes */
 .ui-header .ui-btn-left,
@@ -336,12 +360,37 @@ div.ui-mobile-viewport {
 	right: .4em;
 }
 .ui-btn-icon-notext.ui-btn-left {
-	top: .375em;
+	top: .3125em;
 	left: .3125em;
 }
 .ui-btn-icon-notext.ui-btn-right {
-	top: .375em;
+	top: .3125em;
 	right: .3125em;
+}
+
+/* Button elements */
+button.ui-btn,
+.ui-controlgroup-controls button.ui-btn-icon-notext {
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	width: 100%;
+}
+button.ui-btn-inline {
+	width: auto;
+}
+/* Firefox adds a 1px border in a button element. We negate this to make sure they have the same height as other buttons in controlgroups. */
+button.ui-btn::-moz-focus-inner {
+	border: 0;
+}
+button.ui-btn-icon-notext,
+.ui-controlgroup-horizontal .ui-controlgroup-controls button.ui-btn {
+	-webkit-box-sizing: content-box;
+	-moz-box-sizing: content-box;
+	box-sizing: content-box;
+	width: 1.75em;
 }
 
 /* Form labels */
@@ -352,16 +401,19 @@ div.ui-mobile-viewport {
 }
 
 /* Accessible content hiding */
+/* ui-hide-label deprecated in 1.4. TODO: Remove in 1.5 */
 .ui-hide-label > label,
 .ui-hide-label .ui-controlgroup-label,
 .ui-hide-label .ui-rangeslider label,
 .ui-hidden-accessible {
 	position: absolute !important;
-	top: -9999px;
-	left: -9999px;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect(1px 1px 1px 1px);
 	clip: rect(1px,1px,1px,1px);
+}
+
+/* Used for hiding elements by the filterable widget. You can also use this class to hide list items or buttons in controlgroups; this ensures correct corner styling. */
+.ui-screen-hidden {
+	display: none !important;
 }

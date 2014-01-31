@@ -7,6 +7,13 @@ fieldset.ui-controlgroup {
 .ui-field-contain fieldset.ui-controlgroup {
 	margin: 0;
 }
+.ui-mini .ui-controlgroup-label {
+	font-size: 16px;
+}
+.ui-controlgroup.ui-mini .ui-btn-icon-notext,
+.ui-controlgroup .ui-mini.ui-btn-icon-notext {
+	font-size: inherit;
+}
 .ui-controlgroup-controls .ui-btn,
 .ui-controlgroup-controls .ui-checkbox,
 .ui-controlgroup-controls .ui-radio,
@@ -108,13 +115,14 @@ fieldset.ui-controlgroup {
 	-webkit-box-shadow: none;
 	box-shadow: none;
 }
+/* Fixes legend not wrapping on IE10 */
+.ui-controlgroup-label legend {
+	max-width: 100%;
+}
 .ui-controlgroup-controls > label {
 	position: absolute !important;
-	top: -9999px;
-	left: -9999px;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect(1px 1px 1px 1px);
 	clip: rect(1px,1px,1px,1px);
 }

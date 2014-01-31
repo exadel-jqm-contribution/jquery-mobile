@@ -5,20 +5,20 @@
 //>>css.structure: ../css/structure/jquery.mobile.listview.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-define( [ "jquery", "../jquery.mobile.widget", "./page", "./addFirstLastClasses", "../jquery.mobile.registry" ], function( jQuery ) {
+define( [ "jquery", "../jquery.mobile.widget", "./page", "./addFirstLastClasses" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
 var getAttr = $.mobile.getAttribute;
 
-$.widget( "mobile.listview", $.mobile.widget, $.extend( {
+$.widget( "mobile.listview", $.extend( {
 
 	options: {
 		theme: null,
-		countTheme: null,
+		countTheme: null, /* Deprecated in 1.4 */
 		dividerTheme: null,
-		icon: "arrow-r",
-		splitIcon: "arrow-r",
+		icon: "carat-r",
+		splitIcon: "carat-r",
 		splitTheme: null,
 		corners: true,
 		shadow: true,
@@ -79,19 +79,21 @@ $.widget( "mobile.listview", $.mobile.widget, $.extend( {
 		return $( results );
 	},
 
+	_beforeListviewRefresh: $.noop,
+	_afterListviewRefresh: $.noop,
+
 	refresh: function( create ) {
 		var buttonClass, pos, numli, item, itemClass, itemTheme, itemIcon, icon, a,
-			isDivider, startCount, newStartCount, value, last, splittheme, spliticon,
-			altButtonClass, dividerTheme,
+			isDivider, startCount, newStartCount, value, last, splittheme, splitThemeClass, spliticon,
+			altButtonClass, dividerTheme, li,
 			o = this.options,
 			$list = this.element,
-			li = this._getChildrenByTagName( $list[ 0 ], "li", "LI" ),
 			ol = !!$.nodeName( $list[ 0 ], "ol" ),
 			start = $list.attr( "start" ),
 			itemClassDict = {},
 			countBubbles = $list.find( ".ui-li-count" ),
-			countTheme = getAttr( $list[ 0 ], "counttheme", true ) || this.options.countTheme,
-			countThemeClass = countTheme ? "ui-body-" + countTheme : false;
+			countTheme = getAttr( $list[ 0 ], "counttheme" ) || this.options.countTheme,
+			countThemeClass = countTheme ? "ui-body-" + countTheme : "ui-body-inherit";
 
 		if ( o.theme ) {
 			$list.addClass( "ui-group-theme-" + o.theme );
@@ -103,18 +105,22 @@ $.widget( "mobile.listview", $.mobile.widget, $.extend( {
 			$list.css( "counter-reset", "listnumbering " + startCount );
 		}
 
+		this._beforeListviewRefresh();
+
+		li = this._getChildrenByTagName( $list[ 0 ], "li", "LI" );
+
 		for ( pos = 0, numli = li.length; pos < numli; pos++ ) {
 			item = li.eq( pos );
 			itemClass = "";
 
 			if ( create || item[ 0 ].className.search( /\bui-li-static\b|\bui-li-divider\b/ ) < 0 ) {
 				a = this._getChildrenByTagName( item[ 0 ], "a", "A" );
-				isDivider = ( getAttr( item[ 0 ], "role", true ) === "list-divider" );
+				isDivider = ( getAttr( item[ 0 ], "role" ) === "list-divider" );
 				value = item.attr( "value" );
-				itemTheme = getAttr( item[ 0 ], "theme", true );
+				itemTheme = getAttr( item[ 0 ], "theme" );
 
 				if ( a.length && a[ 0 ].className.search( /\bui-btn\b/ ) < 0 && !isDivider ) {
-					itemIcon = getAttr( item[ 0 ], "icon", true );
+					itemIcon = getAttr( item[ 0 ], "icon" );
 					icon = ( itemIcon === false ) ? false : ( itemIcon || o.icon );
 
 					// TODO: Remove in 1.5 together with links.js (links.js / .ui-link deprecated in 1.4)
@@ -130,21 +136,22 @@ $.widget( "mobile.listview", $.mobile.widget, $.extend( {
 						itemClass = "ui-li-has-alt";
 
 						last = a.last();
-						splittheme = getAttr( last[ 0 ], "theme", true ) || o.splitTheme || getAttr( item[ 0 ], "theme", true );
-						spliticon = getAttr( last[ 0 ], "icon", true ) || getAttr( item[ 0 ], "icon", true ) || o.splitIcon;
-						altButtonClass = splittheme ? "ui-btn ui-btn-" + splittheme + " ui-icon-" + spliticon : "ui-btn ui-icon-" + spliticon;
+						splittheme = getAttr( last[ 0 ], "theme" ) || o.splitTheme || getAttr( item[ 0 ], "theme", true );
+						splitThemeClass = splittheme ? " ui-btn-" + splittheme : "";
+						spliticon = getAttr( last[ 0 ], "icon" ) || getAttr( item[ 0 ], "icon" ) || o.splitIcon;
+						altButtonClass = "ui-btn ui-btn-icon-notext ui-icon-" + spliticon + splitThemeClass;
 
 						last
 							.attr( "title", $.trim( last.getEncodedText() ) )
 							.addClass( altButtonClass )
 							.empty();
 					} else if ( icon ) {
-						buttonClass += " ui-icon-" + icon;
+						buttonClass += " ui-btn-icon-right ui-icon-" + icon;
 					}
 
 					a.first().addClass( buttonClass );
 				} else if ( isDivider ) {
-					dividerTheme = ( getAttr( item[ 0 ], "theme", true ) || o.dividerTheme || o.theme );
+					dividerTheme = ( getAttr( item[ 0 ], "theme" ) || o.dividerTheme || o.theme );
 
 					itemClass = "ui-li-divider ui-bar-" + ( dividerTheme ? dividerTheme : "inherit" );
 
@@ -192,15 +199,11 @@ $.widget( "mobile.listview", $.mobile.widget, $.extend( {
 		this._addThumbClasses( li );
 		this._addThumbClasses( li.find( ".ui-btn" ) );
 
+		this._afterListviewRefresh();
+
 		this._addFirstLastClasses( li, this._getVisibles( li, create ), create );
-		// autodividers binds to this to redraw dividers after the listview refresh
-		this._trigger( "afterrefresh" );
-	}}, $.mobile.behaviors.addFirstLastClasses ) );
-
-$.mobile.listview.initSelector = ":jqmData(role='listview')";
-
-//auto self-init widgets
-$.mobile._enhancer.add( "mobile.listview" );
+	}
+}, $.mobile.behaviors.addFirstLastClasses ) );
 
 })( jQuery );
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

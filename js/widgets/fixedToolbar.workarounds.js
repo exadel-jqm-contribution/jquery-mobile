@@ -8,7 +8,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 (function( $, undefined ) {
 	$.widget( "mobile.toolbar", $.mobile.toolbar, {
 
-		_create: function() {
+		_makeFixed: function() {
 			this._super();
 			this._workarounds();
 		},
@@ -23,7 +23,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 			os = null,
 			self = this;
 			//set the os we are working in if it dosent match one with workarounds return
-			if( platform.indexOf( "iPhone" ) > -1 || platform.indexOf( "iPad" ) > -1  || platform.indexOf( "iPod" ) > -1 ) {
+			if ( platform.indexOf( "iPhone" ) > -1 || platform.indexOf( "iPad" ) > -1  || platform.indexOf( "iPod" ) > -1 ) {
 				os = "ios";
 			} else if ( ua.indexOf( "Android" ) > -1 ) {
 				os = "android";
@@ -31,7 +31,7 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 				return;
 			}
 			//check os version if it dosent match one with workarounds return
-			if( os === "ios" ) {
+			if ( os === "ios" ) {
 				//iOS  workarounds
 				self._bindScrollWorkaround();
 			} else if ( os === "android" && wkversion && wkversion < 534 ) {
@@ -47,9 +47,9 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 		_viewportOffset: function() {
 			var $el = this.element,
 				header = $el.hasClass( "ui-header" ),
-				offset = Math.abs( $el.offset().top - $.mobile.window.scrollTop() );
-			if( !header ) {
-				offset = Math.round( offset - $.mobile.window.height() + $el.outerHeight() ) - 60;
+				offset = Math.abs( $el.offset().top - this.window.scrollTop() );
+			if ( !header ) {
+				offset = Math.round( offset - this.window.height() + $el.outerHeight() ) - 60;
 			}
 			return offset;
 		},
@@ -58,10 +58,10 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 		_bindScrollWorkaround: function() {
 			var self = this;
 			//bind to scrollstop and check if the toolbars are correctly positioned
-			this._on( $.mobile.window, { scrollstop: function() {
+			this._on( this.window, { scrollstop: function() {
 				var viewportOffset = self._viewportOffset();
 				//check if the header is visible and if its in the right place
-				if( viewportOffset > 2 && self._visible ) {
+				if ( viewportOffset > 2 && self._visible ) {
 					self._triggerRedraw();
 				}
 			}});

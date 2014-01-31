@@ -4,6 +4,12 @@
 (function($){
 	module( 'jquery.mobile.forms.checkboxradio.js' );
 
+	test( "widget with weird label is created successfully", function() {
+		var elem = $( "#chk\\[\\'3\\'\\]-1" );
+		ok( elem.parent().is( "div.ui-checkbox" ), "element has been wrapped in a div.ui-checkbox" );
+		ok( elem.siblings( "label[for='chk\\[\\'3\\'\\]-1']" ).length === 1, "element has exactly one sibling of the form label[for='chk[\'3\']-1']" );
+	});
+
 	test( "widget can be disabled and enabled", function(){
 		var input = $( "#checkbox-1" ),
 			button = input.parent().find( ".ui-btn" );
@@ -17,9 +23,8 @@
 		ok( input.prop("checked"), "checked after click" );
 		ok( button.hasClass( "ui-checkbox-on" ), "active styles after click" );
 		button.trigger( "click" );
-
 		input.checkboxradio( "disable" );
-		ok( input.attr( "disabled" ), "input disabled" );
+		ok( input.prop( "disabled" ), "input disabled" );
 		ok( input.parent().hasClass( "ui-state-disabled" ), "disabled styles" );
 		ok( !input.prop( "checked" ), "not checked before click" );
 		button.trigger( "click" );
@@ -94,7 +99,7 @@
 		var $inherited = $( "#checkbox-inherit-theme" ),
 			$explicit = $( "#checkbox-explicit-theme" );
 
-		deepEqual( $inherited.siblings("label").css( "background-color" ), "rgb(44, 44, 44)" ); /* The RGB value should match the background color we set for ui-btn-b in the default theme */
+		deepEqual( $inherited.siblings("label").css( "background-color" ), "rgb(51, 51, 51)" ); /* The RGB value should match the background color we set for ui-btn-b in the default theme */
 		ok( $explicit.siblings("label").hasClass( "ui-btn-b" ), "should not inherit" );
 	});
 
@@ -128,5 +133,60 @@
 
 		ok( bottomicon.hasClass("ui-btn-icon-bottom"), "Icon position set on label adds the appropriate class." );
 		ok( topicon.hasClass("ui-btn-icon-top"), "Icon position set on input adds the appropriate class to the label." );
+	});
+
+	test( "Converting from horizontal to vertical controlgroup causes icons to appear", function() {
+		var controlgroup = $( "#set-vertical-group" ),
+			checkbox = $( "#set-vertical-group-1" );
+
+		controlgroup.controlgroup( "option", "type", "vertical" );
+
+		deepEqual( checkbox.prev().hasClass( "ui-btn-icon-left" ), true,
+			"After converting from a horizontal controlgroup to a vertical controlgroup the checkbox inside has an icon position class" );
+	});
+
+	test( "Runtime generation of a horizontal controlgroup does not cause checkboxes inside to have space set aside for icons", function() {
+		var controlgroup = $( "<div>" +
+			"<label for='dynamic-horizontal-checkbox1'>Checkbox 1</label>" +
+			"<input type='checkbox' id='dynamic-horizontal-checkbox1'></input>" +
+			"</div>" ).appendTo( "#the-content" ).controlgroup({ type: "horizontal" });
+
+		deepEqual( controlgroup.find( ":mobile-checkboxradio" ).prev().hasClass( "ui-btn-icon-left" ), false,
+			"Dynamically created horizontal controlgroup checkboxes do not have icon position classes" );
+
+		controlgroup.remove();
+	});
+
+	test( "Manual value update", function() {
+		var h = $( "#manual-set-horizontal-1" ),
+			v = $( "#manual-set-vertical-1" );
+
+		h[ 0 ].checked = true;
+		h.checkboxradio( "refresh" );
+		deepEqual( h.prev().hasClass( $.mobile.activeBtnClass ), true, "Horizontal: After checking and refreshing, the active class is present." );
+		deepEqual( h.prev().hasClass( "ui-btn-icon-left" ), false, "Horizontal: After checking and refreshing, the icon position class is not present." );
+		deepEqual( h.prev().hasClass( "ui-checkbox-on" ), true, "Horizontal: After checking and refreshing, the label has the ui-checkbox-on class" );
+		deepEqual( h.prev().hasClass( "ui-checkbox-off" ), false, "Horizontal: After checking and refreshing, the label does not have the ui-checkbox-off class" );
+
+		h[ 0 ].checked = false;
+		h.checkboxradio( "refresh" );
+		deepEqual( h.prev().hasClass( $.mobile.activeBtnClass ), false, "Horizontal: After unchecking and refreshing, the active class is not present." );
+		deepEqual( h.prev().hasClass( "ui-btn-icon-left" ), false, "Horizontal: After unchecking and refreshing, the icon position class is not present." );
+		deepEqual( h.prev().hasClass( "ui-checkbox-on" ), false, "Horizontal: After unchecking and refreshing, the label does not have the ui-checkbox-on class" );
+		deepEqual( h.prev().hasClass( "ui-checkbox-off" ), true, "Horizontal: After unchecking and refreshing, the label has the ui-checkbox-off class" );
+
+		v[ 0 ].checked = true;
+		v.checkboxradio( "refresh" );
+		deepEqual( v.prev().hasClass( $.mobile.activeBtnClass ), false, "Vertical: After checking and refreshing, the active class is not present." );
+		deepEqual( v.prev().hasClass( "ui-btn-icon-left" ), true, "Vertical: After checking and refreshing, the icon position class is not present." );
+		deepEqual( v.prev().hasClass( "ui-checkbox-on" ), true, "Vertical: After checking and refreshing, the label has the ui-checkbox-on class" );
+		deepEqual( v.prev().hasClass( "ui-checkbox-off" ), false, "Vertical: After checking and refreshing, the label does not have the ui-checkbox-off class" );
+
+		v[ 0 ].checked = false;
+		v.checkboxradio( "refresh" );
+		deepEqual( v.prev().hasClass( $.mobile.activeBtnClass ), false, "Vertical: After unchecking and refreshing, the active class is not present." );
+		deepEqual( v.prev().hasClass( "ui-btn-icon-left" ), true, "Vertical: After unchecking and refreshing, the icon position class is not present." );
+		deepEqual( v.prev().hasClass( "ui-checkbox-on" ), false, "Vertical: After unchecking and refreshing, the label does not have the ui-checkbox-on class" );
+		deepEqual( v.prev().hasClass( "ui-checkbox-off" ), true, "Vertical: After unchecking and refreshing, the label has the ui-checkbox-off class" );
 	});
 })(jQuery);

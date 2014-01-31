@@ -1,14 +1,13 @@
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
-//>>description: Changes input type to another after custom enhancements are made (ex. range > numberic).
+//>>description: Changes input type to another after custom enhancements are made (ex. range > numeric).
 //>>label: Degrade Inputs
 //>>group: Utilities
 
-
-define( [ "jquery", "./widgets/page", "./jquery.mobile.registry" ], function( jQuery ) {
+define( [ "jquery", "./widgets/page" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
-$.mobile.page.prototype.options.degradeInputs = {
+$.mobile.degradeInputs = {
 	color: false,
 	date: false,
 	datetime: false,
@@ -23,38 +22,33 @@ $.mobile.page.prototype.options.degradeInputs = {
 	url: false,
 	week: false
 };
+// Backcompat remove in 1.5
+$.mobile.page.prototype.options.degradeInputs = $.mobile.degradeInputs;
 
-//auto self-init widgets
-$.mobile._enhancer.add( "mobile.degradeinputs", undefined, function( target ) {
+// Auto self-init widgets
+$.mobile.degradeInputsWithin = function( target ) {
 
-	var $target = $( target ),
-		page = $.mobile.closestPageData( $target ), options;
+	target = $( target );
 
-	if ( !page ) {
-		return;
-	}
-
-	options = page.options;
-
-	// degrade inputs to avoid poorly implemented native functionality
-	$target.find( "input" ).not( page.keepNativeSelector() ).each(function() {
-		var $this = $( this ),
+	// Degrade inputs to avoid poorly implemented native functionality
+	target.find( "input" ).not( $.mobile.page.prototype.keepNativeSelector() ).each(function() {
+		var element = $( this ),
 			type = this.getAttribute( "type" ),
-			optType = options.degradeInputs[ type ] || "text",
+			optType = $.mobile.degradeInputs[ type ] || "text",
 			html, hasType, findstr, repstr;
 
-		if ( options.degradeInputs[ type ] ) {
-			html = $( "<div>" ).html( $this.clone() ).html();
+		if ( $.mobile.degradeInputs[ type ] ) {
+			html = $( "<div>" ).html( element.clone() ).html();
 			// In IE browsers, the type sometimes doesn't exist in the cloned markup, so we replace the closing tag instead
 			hasType = html.indexOf( " type=" ) > -1;
 			findstr = hasType ? /\s+type=["']?\w+['"]?/ : /\/?>/;
 			repstr = " type=\"" + optType + "\" data-" + $.mobile.ns + "type=\"" + type + "\"" + ( hasType ? "" : ">" );
 
-			$this.replaceWith( html.replace( findstr, repstr ) );
+			element.replaceWith( html.replace( findstr, repstr ) );
 		}
 	});
 
-});
+};
 
 })( jQuery );
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

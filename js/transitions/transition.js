@@ -2,7 +2,7 @@
 //>>description: Animated page change base constructor and logic
 //>>label: Transition Core
 //>>group: Transitions
-//>>css.structure: ../css/structure/jquery.mobile.transition.css
+//>>css.structure: ../css/structure/jquery.mobile.transition.css, ../css/structure/jquery.mobile.transition.fade.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
 define( [ "jquery",
@@ -20,7 +20,7 @@ define( [ "jquery",
 	// TODO remove direct references to $.mobile and properties, we should
 	//      favor injection with params to the constructor
 	$.mobile.Transition = function() {
-		this.init.apply(this, arguments);
+		this.init.apply( this, arguments );
 	};
 
 	$.extend($.mobile.Transition.prototype, {
@@ -59,19 +59,21 @@ define( [ "jquery",
 			if ( $.mobile.window.scrollTop() !== this.toScroll ) {
 				this.scrollPage();
 			}
-
+			if ( !this.sequential ) {
+				this.$to.addClass( $.mobile.activePageClass );
+			}
 			this.deferred.resolve( this.name, this.reverse, this.$to, this.$from, true );
 		},
 
-		doneOut: function( screenHeight, reverseClass, none ) {
+		doneOut: function( screenHeight, reverseClass, none, preventFocus ) {
 			this.beforeDoneOut();
-			this.startIn( screenHeight, reverseClass, none );
+			this.startIn( screenHeight, reverseClass, none, preventFocus );
 		},
 
 		hideIn: function( callback ) {
 			// Prevent flickering in phonegap container: see comments at #4024 regarding iOS
 			this.$to.css( "z-index", -10 );
-			callback.call(this);
+			callback.call( this );
 			this.$to.css( "z-index", "" );
 		},
 
@@ -79,8 +81,10 @@ define( [ "jquery",
 			// By using scrollTo instead of silentScroll, we can keep things better in order
 			// Just to be precautios, disable scrollstart listening like silentScroll would
 			$.event.special.scrollstart.enabled = false;
-
-			window.scrollTo( 0, this.toScroll );
+			//if we are hiding the url bar or the page was previously scrolled scroll to hide or return to position
+			if ( $.mobile.hideUrlBar || this.toScroll !== $.mobile.defaultHomeScroll ) {
+				window.scrollTo( 0, this.toScroll );
+			}
 
 			// reenable scrollstart listening like silentScroll would
 			setTimeout( function() {
@@ -88,23 +92,27 @@ define( [ "jquery",
 			}, 150 );
 		},
 
-		startIn: function( screenHeight, reverseClass, none ) {
+		startIn: function( screenHeight, reverseClass, none, preventFocus ) {
 			this.hideIn(function() {
 				this.$to.addClass( $.mobile.activePageClass + this.toPreClass );
 
 				// Send focus to page as it is now display: block
-				$.mobile.focusPage( this.$to );
+				if ( !preventFocus ) {
+					$.mobile.focusPage( this.$to );
+				}
 
 				// Set to page height
 				this.$to.height( screenHeight + this.toScroll );
 
-				this.scrollPage();
+                if ( !none ) {
+                    this.scrollPage();
+                }
 			});
 
 			if ( !none ) {
 				this.$to.animationComplete( $.proxy(function() {
 					this.doneIn();
-				}, this));
+				}, this ));
 			}
 
 			this.$to
@@ -127,7 +135,6 @@ define( [ "jquery",
 				.addClass( this.name + " out" + reverseClass );
 		},
 
-
 		toggleViewportClass: function() {
 			$.mobile.pageContainer.toggleClass( "ui-mobile-viewport-transitioning viewport-" + this.name );
 		},
@@ -141,15 +148,15 @@ define( [ "jquery",
 			var reverseClass = this.reverse ? " reverse" : "",
 				screenHeight = $.mobile.getScreenHeight(),
 				maxTransitionOverride = $.mobile.maxTransitionWidth !== false && $.mobile.window.width() > $.mobile.maxTransitionWidth,
-				none = !$.support.cssTransitions || maxTransitionOverride || !this.name || this.name === "none" || Math.max( $.mobile.window.scrollTop(), this.toScroll ) > $.mobile.getMaxScrollForTransition();
+				none = !$.support.cssTransitions || !$.support.cssAnimations || maxTransitionOverride || !this.name || this.name === "none" || Math.max( $.mobile.window.scrollTop(), this.toScroll ) > $.mobile.getMaxScrollForTransition();
 
-			this.toScroll = $.mobile.urlHistory.getActive().lastScroll || $.mobile.defaultHomeScroll;
+			this.toScroll = $.mobile.navigate.history.getActive().lastScroll || $.mobile.defaultHomeScroll;
 			this.toggleViewportClass();
 
 			if ( this.$from && !none ) {
 				this.startOut( screenHeight, reverseClass, none );
 			} else {
-				this.doneOut( screenHeight, reverseClass, none );
+				this.doneOut( screenHeight, reverseClass, none, true );
 			}
 
 			return this.deferred.promise();

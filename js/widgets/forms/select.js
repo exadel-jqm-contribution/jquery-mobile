@@ -5,15 +5,16 @@
 //>>css.structure: ../css/structure/jquery.mobile.forms.select.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-define( [ "jquery", "../../jquery.mobile.core", "../../jquery.mobile.widget", "../../jquery.mobile.zoom", "./reset", "../../jquery.mobile.registry" ], function( jQuery ) {
+define( [ "jquery", "../../jquery.mobile.core", "../../jquery.mobile.widget", "../../jquery.mobile.zoom", "./reset" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
-$.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
+$.widget( "mobile.selectmenu", $.extend( {
+	initSelector: "select:not( :jqmData(role='slider')):not( :jqmData(role='flipswitch') )",
+
 	options: {
 		theme: null,
-		disabled: false,
-		icon: "arrow-d",
+		icon: "carat-d",
 		iconpos: "right",
 		inline: false,
 		corners: true,
@@ -76,9 +77,9 @@ $.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
 		}
 
 		this.select = this.element.removeClass( "ui-btn-left ui-btn-right" ).wrap( "<div class='ui-select" + classes + "'>" );
-		this.selectID  = this.select.attr( "id" );
-		this.buttonId = this.selectID + "-button";
-		this.label = $( "label[for='"+ this.selectID +"']" );
+		this.selectId  = this.select.attr( "id" ) || ( "select-" + this.uuid );
+		this.buttonId = this.selectId + "-button";
+		this.label = $( "label[for='"+ this.selectId +"']" );
 		this.isMultiple = this.select[ 0 ].multiple;
 	},
 
@@ -127,7 +128,7 @@ $.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
 		// Add counter for multi selects
 		if ( this.isMultiple ) {
 			this.buttonCount = $( "<span>" )
-				.addClass( "ui-li-count" )
+				.addClass( "ui-li-count ui-body-inherit" )
 				.hide()
 				.appendTo( button.addClass( "ui-li-has-count" ) );
 		}
@@ -147,6 +148,10 @@ $.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
 		});
 
 		this._handleFormReset();
+
+		this._on( this.button, {
+			keydown: "_handleKeydown"
+		});
 
 		this.build();
 	},
@@ -239,13 +244,16 @@ $.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
 			if ( text ) {
 				span.text( text );
 			} else {
-				span.html( "&nbsp;" );
+
+				// Set the contents to &nbsp; which we write as &#160; to be XHTML compliant - see gh-6699
+				span.html( "&#160;" );
 			}
 
 			// TODO possibly aggregate multiple select option classes
 			return span
 				.addClass( self.select.attr( "class" ) )
-				.addClass( selected.attr( "class" ) );
+				.addClass( selected.attr( "class" ) )
+				.removeClass( "ui-screen-hidden" );
 		})());
 	},
 
@@ -258,13 +266,21 @@ $.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
 		}
 	},
 
+	_handleKeydown: function( /* event */ ) {
+		this._delay( "_refreshButton" );
+	},
+
 	_reset: function() {
 		this.refresh();
 	},
 
-	refresh: function() {
+	_refreshButton: function() {
 		this.setButtonText();
 		this.setButtonCount();
+	},
+
+	refresh: function() {
+		this._refreshButton();
 	},
 
 	// open and close preserved in native selects
@@ -283,10 +299,6 @@ $.widget( "mobile.selectmenu", $.mobile.widget, $.extend( {
 	}
 }, $.mobile.behaviors.formReset ) );
 
-$.mobile.selectmenu.initSelector = "select:not( :jqmData(role='slider') )";
-
-//auto self-init widgets
-$.mobile._enhancer.add( "mobile.selectmenu" );
 })( jQuery );
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });

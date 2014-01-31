@@ -3,7 +3,7 @@
 //>>label: Slidertooltip
 //>>group: Forms
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
-//>>css.structure: ../css/structure/jquery.mobile.slider.tooltip.css
+//>>css.structure: ../css/structure/jquery.mobile.forms.slider.tooltip.css
 
 define( [ "jquery", "./slider" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
@@ -38,7 +38,7 @@ $.widget( "mobile.slider", $.mobile.slider, {
 		this._setOption( "popupEnabled", this.options.popupEnabled );
 
 		this._on( this.handle, { "vmousedown" : "_showPopup" } );
-		this._on( this.slider.add( $.mobile.document ), { "vmouseup" : "_hidePopup" } );
+		this._on( this.slider.add( this.document ), { "vmouseup" : "_hidePopup" } );
 		this._refresh();
 	},
 
@@ -61,6 +61,7 @@ $.widget( "mobile.slider", $.mobile.slider, {
 			if ( value && !this._popup ) {
 				this._popup = getPopup()
 					.addClass( "ui-body-" + ( this.options.theme || "a" ) )
+					.hide()
 					.insertBefore( this.element );
 			}
 		}

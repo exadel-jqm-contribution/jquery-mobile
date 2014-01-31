@@ -2,6 +2,7 @@ div.ui-slider {
 	height: 30px;
 	margin: .5em 0;
 	padding: 0;
+	-ms-touch-action: pan-y pinch-zoom double-tap-zoom;
 }
 div.ui-slider:before,
 div.ui-slider:after {
@@ -21,7 +22,6 @@ input.ui-slider-input {
 	width: 40px;
 	height: 20px;
 	line-height: 20px;
-	background-image: none;
 	border-width: 1px;
 	border-style: solid;
 	outline: 0;
@@ -74,12 +74,9 @@ input.ui-slider-input {
 }
 select.ui-slider-switch {
 	position: absolute !important;
-	top: -9999px;
-	left: -9999px;
 	height: 1px;
 	width: 1px;
 	overflow: hidden;
-	clip: rect(1px 1px 1px 1px);
 	clip: rect(1px,1px,1px,1px);
 }
 div.ui-slider-switch {
@@ -118,6 +115,7 @@ div.ui-slider-switch.ui-mini {
 .ui-slider-handle-snapping {
 	-webkit-transition: left 70ms linear;
 	-moz-transition: left 70ms linear;
+	transition: left 70ms linear;
 }
 .ui-slider-switch .ui-slider-label {
 	position: absolute;
@@ -156,6 +154,7 @@ div.ui-slider-switch.ui-mini {
 	margin: 0;
 }
 @media (min-width: 28em) {
+	/* ui-hide-label deprecated in 1.4. TODO: Remove in 1.5 */
 	.ui-field-contain div.ui-slider-switch,
 	.ui-field-contain.ui-hide-label div.ui-slider-switch {
 		display: inline-block;

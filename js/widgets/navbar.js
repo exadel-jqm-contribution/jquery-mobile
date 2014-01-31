@@ -5,12 +5,11 @@
 //>>css.structure: ../css/structure/jquery.mobile.navbar.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-
-define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.grid", "../jquery.mobile.registry" ], function( jQuery ) {
+define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.grid" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
-$.widget( "mobile.navbar", $.mobile.widget, {
+$.widget( "mobile.navbar", {
 	options: {
 		iconpos: "top",
 		grid: null
@@ -20,8 +19,7 @@ $.widget( "mobile.navbar", $.mobile.widget, {
 
 		var $navbar = this.element,
 			$navbtns = $navbar.find( "a" ),
-			iconpos = $navbtns.filter( ":jqmData(icon)" ).length ? this.options.iconpos : undefined,
-			classes = "ui-btn";
+			iconpos = $navbtns.filter( ":jqmData(icon)" ).length ? this.options.iconpos : undefined;
 
 		$navbar.addClass( "ui-navbar" )
 			.attr( "role", "navigation" )
@@ -31,8 +29,9 @@ $.widget( "mobile.navbar", $.mobile.widget, {
 
 		$navbtns
 			.each( function() {
-				var icon = $.mobile.getAttribute( this, "icon", true ),
-					theme = $.mobile.getAttribute( this, "theme", true );
+				var icon = $.mobile.getAttribute( this, "icon" ),
+					theme = $.mobile.getAttribute( this, "theme" ),
+					classes = "ui-btn";
 
 				if ( theme ) {
 					classes += " ui-btn-" + theme;
@@ -44,15 +43,19 @@ $.widget( "mobile.navbar", $.mobile.widget, {
 			});
 
 		$navbar.delegate( "a", "vclick", function( /* event */ ) {
-			var activeBtn;
+			var activeBtn = $( this );
 
-			if ( !$( this ).is( ".ui-disabled, .ui-btn-active" ) ) {
+			if ( !( activeBtn.hasClass( "ui-state-disabled" ) ||
+
+				// DEPRECATED as of 1.4.0 - remove after 1.4.0 release
+				// only ui-state-disabled should be present thereafter
+				activeBtn.hasClass( "ui-disabled" ) ||
+				activeBtn.hasClass( $.mobile.activeBtnClass ) ) ) {
+
 				$navbtns.removeClass( $.mobile.activeBtnClass );
-				$( this ).addClass( $.mobile.activeBtnClass );
+				activeBtn.addClass( $.mobile.activeBtnClass );
 
 				// The code below is a workaround to fix #1181
-				activeBtn = $( this );
-
 				$( document ).one( "pagehide", function() {
 					activeBtn.removeClass( $.mobile.activeBtnClass );
 				});
@@ -65,11 +68,6 @@ $.widget( "mobile.navbar", $.mobile.widget, {
 		});
 	}
 });
-
-$.mobile.navbar.initSelector = ":jqmData(role='navbar')";
-
-//auto self-init widgets
-$.mobile._enhancer.add( "mobile.navbar" );
 
 })( jQuery );
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);

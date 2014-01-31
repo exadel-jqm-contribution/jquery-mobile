@@ -1,4 +1,4 @@
-/* panel */
+/* Panel */
 .ui-panel {
 	width: 17em;
 	min-height: 100%;
@@ -16,43 +16,49 @@
 }
 .ui-panel-fixed {
 	position: fixed;
-	bottom: -1px; /* fixes gap on Chrome for Android */
+	bottom: -1px; /* Fixes gap on Chrome for Android */
 	padding-bottom: 1px;
 }
-.ui-panel-display-overlay {
-	z-index: 1001; /* fixed toolbars have z-index 1000 */
-}
 .ui-panel-display-reveal {
-	z-index: 0;
+	z-index: 1;
 }
 .ui-panel-display-push {
 	z-index: 999;
+}
+.ui-panel-display-overlay {
+	z-index: 1001; /* Fixed toolbars have z-index 1000 */
 }
 .ui-panel-inner {
 	padding: 1em;
 }
 
-/* content-wrap */
-.ui-panel-content-wrap {
+/* Container, page and wrapper */
+.ui-panel-page-container {
+	overflow-x: visible;
+}
+.ui-panel-page-container-themed .ui-page-active {
+	background: none;
+}
+.ui-panel-wrapper {
 	position: relative;
-	left: 0;
 	min-height: inherit;
 	border: 0;
+	overflow-x: hidden;
 	z-index: 999;
 }
-.ui-panel-content-wrap-display-overlay,
-.ui-panel-animate.ui-panel-content-wrap > .ui-header, /* ios4 fix */
-.ui-panel-content-wrap-closed {
-	position: static;
+
+/* Fixed toolbars */
+.ui-panel-fixed-toolbar {
+	overflow-x: hidden;
 }
 
-/* dismiss */
+/* Dismiss */
 .ui-panel-dismiss {
 	position: absolute;
 	top: 0;
 	left: 0;
+	right: 0;
 	height: 100%;
-	width: 100%;
 	z-index: 1002;
 	display: none;
 }
@@ -60,29 +66,39 @@
 	display: block;
 }
 
-/* animate class is added to panel, wrapper and fixed toolbars */
+/* Animate class is added to panel, wrapper and fixed toolbars */
 .ui-panel-animate {
-	-webkit-transition: -webkit-transform 350ms ease;
-	-moz-transition: -moz-transform 350ms ease;
-	transition: transform 350ms ease;
+	-webkit-transition: -webkit-transform 300ms ease;
+	-moz-transition: -moz-transform 300ms ease;
+	transition: transform 300ms ease;
 }
 
-/* hardware acceleration for smoother transitions on WebKit browsers */
-.ui-panel-animate.ui-panel:not(.ui-panel-display-reveal),
-.ui-panel-animate.ui-panel:not(.ui-panel-display-reveal) > div,
-.ui-panel-animate.ui-panel-closed.ui-panel-display-reveal > div,
-.ui-panel-animate.ui-panel-content-wrap,
-.ui-panel-animate.ui-panel-content-fixed-toolbar {
+/* Fix for Windows Phone issue #6349: unset the transition for transforms in case of fixed toolbars. */
+@media screen and ( max-device-width: 768px ) {
+	.ui-page-header-fixed .ui-panel-animate.ui-panel-wrapper,
+	.ui-page-footer-fixed .ui-panel-animate.ui-panel-wrapper,
+	.ui-panel-animate.ui-panel-fixed-toolbar {
+		-ms-transition: none;
+	}
+	/* We need a transitionend event ... */
+	.ui-panel-animate.ui-panel-fixed-toolbar {
+		-ms-transition: -ms-transform 1ms;
+		-ms-transform: rotate(0deg);
+	}
+}
+
+/* Hardware acceleration for smoother transitions on WebKit browsers */
+.ui-panel-animate.ui-panel:not(.ui-panel-display-reveal) {
 	-webkit-backface-visibility: hidden;
 	-webkit-transform: translate3d(0,0,0);
 }
 
-/* positioning: panel */
-/* panel left  */
+/* Panel positioning (for overlay and push) */
+/* Panel left closed */
 .ui-panel-position-left {
 	left: -17em;
 }
-/* animated: panel left (for overlay and push) */
+/* Panel left closed animated */
 .ui-panel-animate.ui-panel-position-left.ui-panel-display-overlay,
 .ui-panel-animate.ui-panel-position-left.ui-panel-display-push {
 	left: 0;
@@ -90,23 +106,23 @@
 	-moz-transform: translate3d(-17em,0,0);
 	transform: translate3d(-17em,0,0);
 }
-/* panel left open */
-.ui-panel-position-left.ui-panel-display-reveal, /* negate "panel left" for reveal */
-.ui-panel-position-left.ui-panel-open {
+/* Panel left open */
+.ui-panel-position-left.ui-panel-display-reveal, /* Unset "panel left closed" for reveal */
+.ui-panel-open.ui-panel-position-left {
 	left: 0;
 }
-/* animated: panel left open (for overlay and push) */
-.ui-panel-animate.ui-panel-position-left.ui-panel-open.ui-panel-display-overlay,
-.ui-panel-animate.ui-panel-position-left.ui-panel-open.ui-panel-display-push {
+/* Panel left open animated */
+.ui-panel-animate.ui-panel-open.ui-panel-position-left.ui-panel-display-overlay,
+.ui-panel-animate.ui-panel-open.ui-panel-position-left.ui-panel-display-push {
 	-webkit-transform: translate3d(0,0,0);
 	transform: translate3d(0,0,0);
 	-moz-transform: none;
 }
-/* panel right */
+/* Panel right closed */
 .ui-panel-position-right {
 	right: -17em;
 }
-/* animated: panel right (for overlay and push) */
+/* Panel right closed animated */
 .ui-panel-animate.ui-panel-position-right.ui-panel-display-overlay,
 .ui-panel-animate.ui-panel-position-right.ui-panel-display-push {
 	right: 0;
@@ -114,68 +130,56 @@
 	-moz-transform: translate3d(17em,0,0);
 	transform: translate3d(17em,0,0);
 }
-/* panel right open */
-.ui-panel-position-right.ui-panel-display-reveal,  /* negate "panel right" for reveal */
+/* Panel right open */
+.ui-panel-position-right.ui-panel-display-reveal, /* Unset "panel right closed" for reveal */
 .ui-panel-position-right.ui-panel-open {
 	right: 0;
 }
-/* animated: panel right open (for overlay and push) */
-.ui-panel-animate.ui-panel-position-right.ui-panel-open.ui-panel-display-overlay,
-.ui-panel-animate.ui-panel-position-right.ui-panel-open.ui-panel-display-push {
+/* Panel right open animated */
+.ui-panel-animate.ui-panel-open.ui-panel-position-right.ui-panel-display-overlay,
+.ui-panel-animate.ui-panel-open.ui-panel-position-right.ui-panel-display-push {
 	-webkit-transform: translate3d(0,0,0);
 	transform: translate3d(0,0,0);
 	-moz-transform: none;
 }
 
-/* positioning: content wrap, fixed toolbars and dismiss */
-/* panel left open */
-.ui-panel-content-fixed-toolbar-position-left.ui-panel-content-fixed-toolbar-open,
-.ui-panel-content-wrap-position-left.ui-panel-content-wrap-open,
-.ui-panel-dismiss-position-left.ui-panel-dismiss-open {
+/* Wrapper and fixed toolbars positioning (for reveal and push) */
+/* Panel left open */
+.ui-panel-page-content-position-left {
 	left: 17em;
 	right: -17em;
 }
-/* animated: panel left open (for reveal and push) */
-.ui-panel-animate.ui-panel-content-fixed-toolbar-position-left.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-reveal,
-.ui-panel-animate.ui-panel-content-fixed-toolbar-position-left.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-push,
-.ui-panel-animate.ui-panel-content-wrap-position-left.ui-panel-content-wrap-open.ui-panel-content-wrap-display-reveal,
-.ui-panel-animate.ui-panel-content-wrap-position-left.ui-panel-content-wrap-open.ui-panel-content-wrap-display-push {
+/* Panel left open animated */
+.ui-panel-animate.ui-panel-page-content-position-left {
 	left: 0;
 	right: 0;
 	-webkit-transform: translate3d(17em,0,0);
 	-moz-transform: translate3d(17em,0,0);
 	transform: translate3d(17em,0,0);
 }
-/* panel right open */
-.ui-panel-content-fixed-toolbar-position-right.ui-panel-content-fixed-toolbar-open,
-.ui-panel-content-wrap-position-right.ui-panel-content-wrap-open,
-.ui-panel-dismiss-position-right.ui-panel-dismiss-open {
+/* Panel right open */
+.ui-panel-page-content-position-right {
 	left: -17em;
 	right: 17em;
 }
-/* animated: panel right open (for reveal and push) */
-.ui-panel-animate.ui-panel-content-fixed-toolbar-position-right.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-reveal, 
-.ui-panel-animate.ui-panel-content-fixed-toolbar-position-right.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-push,
-.ui-panel-animate.ui-panel-content-wrap-position-right.ui-panel-content-wrap-open.ui-panel-content-wrap-display-reveal, 
-.ui-panel-animate.ui-panel-content-wrap-position-right.ui-panel-content-wrap-open.ui-panel-content-wrap-display-push {
+/* Panel right open animated */
+.ui-panel-animate.ui-panel-page-content-position-right {
 	left: 0;
 	right: 0;
 	-webkit-transform: translate3d(-17em,0,0);
 	-moz-transform: translate3d(-17em,0,0);
 	transform: translate3d(-17em,0,0);
 }
-/* negate "panel left/right open" for overlay */
-.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-overlay,
-.ui-panel-content-wrap-open.ui-panel-content-wrap-display-overlay {
-	left: 0;
+
+/* Dismiss model open */
+.ui-panel-dismiss-open.ui-panel-dismiss-position-left {
+	left: 17em;
+}
+.ui-panel-dismiss-open.ui-panel-dismiss-position-right {
+	right: 17em;
 }
 
-/* always disable overflow-x to prevent zoom issue on Android */
-.ui-page-active.ui-page-panel {
-	overflow-x: hidden;
-}
-
-/* shadows and borders */
+/* Shadows and borders */
 .ui-panel-display-reveal {
 	-webkit-box-shadow: inset -5px 0 5px rgba(0,0,0,.15);
 	-moz-box-shadow: inset -5px 0 5px rgba(0,0,0,.15);
@@ -196,40 +200,36 @@
 	-moz-box-shadow: -5px 0 5px rgba(0,0,0,.15);
 	box-shadow: -5px 0 5px rgba(0,0,0,.15);
 }
-.ui-panel-display-push.ui-panel-open.ui-panel-position-left {
+.ui-panel-open.ui-panel-position-left.ui-panel-display-push {
 	border-right-width: 1px;
 	margin-right: -1px;
 }
-.ui-panel-animate.ui-panel-content-fixed-toolbar-position-left.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-push {
+.ui-panel-page-content-position-left.ui-panel-page-content-display-push {
 	margin-left: 1px;
+	width: auto;
 }
-.ui-panel-display-push.ui-panel-open.ui-panel-position-right {
+.ui-panel-open.ui-panel-position-right.ui-panel-display-push {
 	border-left-width: 1px;
 	margin-left: -1px;
 }
-.ui-panel-animate.ui-panel-content-fixed-toolbar-position-right.ui-panel-content-fixed-toolbar-open.ui-panel-content-fixed-toolbar-display-push {
+.ui-panel-page-content-position-right.ui-panel-page-content-display-push {
 	margin-right: 1px;
+	width: auto;
 }
 
-/* wrap on wide viewports once open */
-@media (min-width:55em){
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-fixed-toolbar-display-push.ui-panel-content-fixed-toolbar-position-left,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-fixed-toolbar-display-reveal.ui-panel-content-fixed-toolbar-position-left,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-wrap-display-push.ui-panel-content-wrap-position-left,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-wrap-display-reveal.ui-panel-content-wrap-position-left {
+/* Responsive: wrap on wide viewports once open */
+@media (min-width:55em) {
+	.ui-responsive-panel .ui-panel-page-content-open.ui-panel-page-content-position-left {
 		margin-right: 17em;
 	}
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-fixed-toolbar-display-push.ui-panel-content-fixed-toolbar-position-right,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-fixed-toolbar-display-reveal.ui-panel-content-fixed-toolbar-position-right,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-wrap-display-push.ui-panel-content-wrap-position-right,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-wrap-display-reveal.ui-panel-content-wrap-position-right {
+	.ui-responsive-panel .ui-panel-page-content-open.ui-panel-page-content-position-right {
 		margin-left: 17em;
 	}
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-fixed-toolbar-display-push,
-	.ui-responsive-panel.ui-page-panel-open .ui-panel-content-fixed-toolbar-display-reveal {
+	.ui-responsive-panel .ui-panel-page-content-open {
 		width: auto;	
 	}
-	.ui-responsive-panel .ui-panel-dismiss-display-push {
+	.ui-responsive-panel .ui-panel-dismiss-display-push,
+	.ui-responsive-panel.ui-page-active ~ .ui-panel-dismiss-display-push {
 		display: none;
-	}	
+	}
 }
