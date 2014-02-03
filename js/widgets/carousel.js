@@ -682,6 +682,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		clear: function( done ) {
 			this.element.trigger("clear_all");
 			$(".ui-carousel-item", this.element).each(this._remove.bind(this));
+			this.refresh();
 		},
 
 		_createIndicator: function( list, title) {

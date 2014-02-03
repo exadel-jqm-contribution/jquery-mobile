@@ -190,7 +190,7 @@
 			equal( $(".ui-carousel-item", c).length, 0, "no .ui-carousel-item" );
 			equal( $(".ui-carousel-indicator", c).length, 0, "no .ui-carousel-indicator" );
 			start();
-		}, c.carousel("length") * c.carousel("option", "animationDuration") + 10 );
+		}, 0);
 	});
 
 	// asyncTest( "remove active frame", function() {
