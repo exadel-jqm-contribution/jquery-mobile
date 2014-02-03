@@ -265,12 +265,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				tm_move = 'mousemove',
 				tm_end = 'mouseup';
 
-			if ( touch_support ){
-				tm_start = 'touchstart';
-				tm_move = 'touchmove';
-				tm_end = 'touchend';
-			}
-
 			function tstart(ev){
 				var touch = {},
 					self = ev.data.self,
@@ -341,7 +335,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			};
 
 			this.element.on("touchstart mousedown", {self: this}, tstart);
+
 			$(window).on('resize', this.__resize);
+
+			this.unBindEvents = function(){
+				this.element.off("touchstart mousedown", tstart);
+			}
 		},
 
 		__bindEvents: function() {
@@ -358,7 +357,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_render_frame: function( index, el, data ) {
-			//debugger;
 			var $el = $( el ),
 				params = data || $el.data(),
 				$item, $indicator,
@@ -393,8 +391,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				$indicator.on( "click", {
 					move: this.to.bind( this )
 				}, function ( event ) {
-					var id = "#" + $( this ).data( "targetElement" );
-					event.data.move( $(id).data('itemIndex') );
+					var id = "#" + $( this ).data( "targetElement" ),
+						$el = $(id);
+					event.data.move( $el.data('itemIndex') );
 				});
 
 				$indicator
