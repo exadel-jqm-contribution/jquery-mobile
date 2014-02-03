@@ -158,40 +158,40 @@
 		}, 0);
 	});
 
-	// test( "test owned titles", function() {
-	// 	var title_draw = function( text, target ) {
-	// 		var item = $( "<h3><span></span></h3>" ).addClass( "title" );
-	// 		item.find( "span" ).addClass( "title" ).text( text );
-	// 		item.appendTo( target );
-	// 		return item;
-	// 	},
-	// 	c = $("#carousel").clone().appendTo("#list").carousel({
-	// 		createTitle: title_draw
-	// 	});
-	// 	equal( $("h3", c).length, c.carousel("length"), "count h3 nodes with titles" );
-	// 	equal( $("span.title", c).length, c.carousel("length"), "count h3 nodes with titles" );
-	// });
+	test( "test owned titles", function() {
+		var title_draw = function( text, target ) {
+			var item = $( "<h3><span></span></h3>" ).addClass( "title" );
+			item.find( "span" ).addClass( "title" ).text( text );
+			item.appendTo( target );
+			return item;
+		},
+		c = $("#carousel").clone().appendTo("#list").carousel({
+			createTitle: title_draw
+		});
+		equal( $("h3", c).length, c.carousel("length"), "count h3 nodes with titles" );
+		equal( $("span.title", c).length, c.carousel("length"), "count h3 nodes with titles" );
+	});
 
-	// test( "test titleBuildIn title option", function() {
-	// 	var c = $("#carousel").clone().appendTo("#list").carousel({
-	// 		titleBuildIn: true
-	// 	});
+	test( "test titleBuildIn title option", function() {
+		var c = $("#carousel").clone().appendTo("#list").carousel({
+			titleBuildIn: true
+		});
 
-	// 	ok( $(".ui-carousel-title .ui-carousel-title-inside", c).length > 0, "titles render with 2 wraps");
-	// 	equal( $(".ui-carousel-title .ui-carousel-title-inside", c).length, c.carousel("length"), "titles render with 2 wraps");
-	// });
+		ok( $(".ui-carousel-title .ui-carousel-title-inside", c).length > 0, "titles render with 2 wraps");
+		equal( $(".ui-carousel-title .ui-carousel-title-inside", c).length, c.carousel("length"), "titles render with 2 wraps");
+	});
 
-	// asyncTest( "clear carousel", function() {
-	// 	var c = $("#carousel").clone().appendTo("#list").carousel();
-	// 	c.carousel("clear");
-	// 	expect(3);
-	// 	setTimeout(function(){
-	// 		equal( c.carousel("length"), 0, "remove all frames");
-	// 		equal( $(".ui-carousel-item", c).length, 0, "no .ui-carousel-item" );
-	// 		equal( $(".ui-carousel-indicator", c).length, 0, "no .ui-carousel-indicator" );
-	// 		start();
-	// 	}, c.carousel("length") * c.carousel("option", "animationDuration") + 10 );
-	// });
+	asyncTest( "clear carousel", function() {
+		var c = $("#carousel").clone().appendTo("#list").carousel();
+		c.carousel("clear");
+		expect(3);
+		setTimeout(function(){
+			equal( c.carousel("length"), 0, "remove all frames");
+			equal( $(".ui-carousel-item", c).length, 0, "no .ui-carousel-item" );
+			equal( $(".ui-carousel-indicator", c).length, 0, "no .ui-carousel-indicator" );
+			start();
+		}, c.carousel("length") * c.carousel("option", "animationDuration") + 10 );
+	});
 
 	// asyncTest( "remove active frame", function() {
 	// 	expect(6);
