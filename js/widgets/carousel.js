@@ -13,6 +13,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
 (function ( $, undefined ) {
+
+
+
 	$.widget( "mobile.carousel", $.mobile.widget, {
 		options:{
 			indicators: null,
@@ -37,25 +40,25 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		_sliding_type: null,
 		_checkBindFunction : function(){
 			if ( !Function.prototype.bind ) {
-					Function.prototype.bind = function (oThis) {
-						if ( typeof this !== "function" ) {
-							throw new TypeError( "Function.prototype.bind - what is trying to be bound is not callable" );
-						}
+				Function.prototype.bind = function (oThis) {
+					if ( typeof this !== "function" ) {
+						throw new TypeError( "Function.prototype.bind - what is trying to be bound is not callable" );
+					}
 
-						var aArgs = Array.prototype.slice.call( arguments, 1 ),
-								fToBind = this,
-								fNOP = function () {},
-								fBound = function () {
-									return fToBind.apply( this instanceof fNOP && oThis ? this : oThis,
-										aArgs.concat( Array.prototype.slice.call(arguments)) );
-								};
+					var aArgs = Array.prototype.slice.call( arguments, 1 ),
+						fToBind = this,
+						fNOP = function () {},
+						fBound = function () {
+							return fToBind.apply( this instanceof fNOP && oThis ? this : oThis,
+								aArgs.concat( Array.prototype.slice.call(arguments)) );
+						};
 
-						fNOP.prototype = this.prototype;
-						fBound.prototype = new fNOP();
+					fNOP.prototype = this.prototype;
+					fBound.prototype = new fNOP();
 
-						return fBound;
-					};
-				}
+					return fBound;
+				};
+			}
 		},
 		_create: function() {
 			this._checkBindFunction();
@@ -650,7 +653,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		remove: function( index, $el ) {
-			debugger;
+			//debugger;
 			if ( $.isFunction( index ) ){
 				$el = $( index );
 				index = $el.data( 'itemIndex' )-0;
@@ -666,17 +669,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var $indicator = $( "#" + $el.data("indicator") );
 
 			// if frame is active we need move carousel to the next frame before remove it.
-			if ( index == this.__index ) {
+			//if ( index == this.__index ) {
 				// and bind last event action
 				$el.one( "hide", this.remove.bind(this, $el) );
 				this.next();
-			} else {
 				this._remove( index, $el );
-			}
+			//} else {
+			//}
 			return this;
 		},
 
 		_remove: function( index, el ) {
+			console.log( '_remove' );
 			var $el = $(el),
 				// indicator can be in any part of DOM,
 				// so we use only previously saved id for find it.
