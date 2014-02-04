@@ -208,56 +208,57 @@
 	// 	$frame2.on( "show", function(){
 	// 		ok( true, "second frame show before first frame removed" );
 	// 	});
+	// 	setTimeout( function(){
+	// 		c.carousel("remove", 0);
+	// 	}, 0 );
 
 	// 	setTimeout(function(){
 	// 		equal( c.carousel("length"), current_length - 1, "removed one frame");
 	// 		equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
 	// 		equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
 	// 		start();
-	// 	}, 5 * c.carousel("option", "animationDuration") + 15 );
-
-	// 	c.carousel("remove", 0);
+	// 	}, 0 );
 	// });
 
-	// asyncTest( "refresh carousel from JSON" , function(){
-	// 	expect( 4 );
-	// 	var c = $("#carousel").clone().appendTo("#list").carousel();
+	asyncTest( "refresh carousel from JSON" , function(){
+		expect( 4 );
+		var c = $("#carousel").clone().appendTo("#list").carousel();
 
-	// 	var fixture = [
-	// 		{
-	// 			type: "image",
-	// 			title: "Test",
-	// 			content: "../../../css/themes/default/images/ajax-loader.gif"
-	// 		},
-	// 		{
-	// 			type: "image",
-	// 			title: "Test2",
-	// 			content: "../../../css/themes/default/images/ajax-loader.gif"
-	// 		},
-	// 		{
-	// 			type: "image",
-	// 			title: "Test3",
-	// 			content: "../../../css/themes/default/images/ajax-loader.gif"
-	// 		}
-	// 	];
+		var fixture = [
+			{
+				type: "image",
+				title: "Test",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png"
+			},
+			{
+				type: "image",
+				title: "Test2",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png"
+			},
+			{
+				type: "image",
+				title: "Test3",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png"
+			}
+		];
 
-	// 	setTimeout( function() {
-	// 		equal( c.carousel("length"), fixture.length, "count of new items" );
+		setTimeout( function() {
+			equal( c.carousel("length"), fixture.length, "count of new items" );
 
-	// 		equal( c.carousel( "getFrame", 0 ).find("img").attr("src"),
-	// 			fixture[0].content,
-	// 			"check image src attribute for first frame");
-	// 		equal( c.carousel( "getFrame", 1 ).find("img").attr("src"),
-	// 			fixture[1].content,
-	// 			"check image src attribute for second frame");
-	// 		equal( c.carousel( "getFrame", 2 ).find("img").attr("src"),
-	// 			fixture[2].content,
-	// 			"check image src attribute for 3rd frame");
+			equal( c.carousel( "getFrame", 0 ).find("img").attr("src"),
+				fixture[0].content,
+				"check image src attribute for first frame");
+			equal( c.carousel( "getFrame", 1 ).find("img").attr("src"),
+				fixture[1].content,
+				"check image src attribute for second frame");
+			equal( c.carousel( "getFrame", 2 ).find("img").attr("src"),
+				fixture[2].content,
+				"check image src attribute for 3rd frame");
 
-	// 		start();
-	// 	}, c.carousel("length") * c.carousel("option", "animationDuration") + 35);
-	// 	c.carousel( "refresh", fixture );
-	// });
+			start();
+		}, c.carousel("length") * c.carousel("option", "animationDuration") + 35);
+		c.carousel( "refresh", fixture );
+	});
 
 	// asyncTest( "refresh carousel from JSON with Events" , function(){
 	// 	expect( 6 );

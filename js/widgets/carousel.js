@@ -649,21 +649,29 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return this;
 		},
 
-		remove: function( index, el ) {
-			if ( el === undefined ) {
-				el = this._list.find( ".ui-carousel-item:eq(" + index + ")" );
+		remove: function( index, $el ) {
+			debugger;
+			if ( $.isFunction( index ) ){
+				$el = $( index );
+				index = $el.data( 'itemIndex' )-0;
+			} else {
+				index = parseInt( index, 10 );
+				if ( $el === undefined ) {
+					$el = this._list.find( ".ui-carousel-item" ).eq( index );
+				} else {
+					index = $el.data( 'itemIndex' )-0;
+				}
 			}
 
-			var $el = $(el),
-				$indicator = $( "#" + $el.data("indicator") );
+			var $indicator = $( "#" + $el.data("indicator") );
 
 			// if frame is active we need move carousel to the next frame before remove it.
-			if ( $el.hasClass("ui-carousel-active") ) {
+			if ( index == this.__index ) {
 				// and bind last event action
-				$el.one( "hide", this.remove.bind(this, index, $el) );
+				$el.one( "hide", this.remove.bind(this, $el) );
 				this.next();
 			} else {
-				this._remove( index, el );
+				this._remove( index, $el );
 			}
 			return this;
 		},
@@ -677,6 +685,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$indicator.trigger( "itemremove" ).off();
 			$indicator.remove();
 			$el.remove();
+			this.refresh();
 		},
 
 		clear: function( done ) {
