@@ -212,17 +212,13 @@
 			if ( !show0 ){
 				ok( false, "active frame hide before remove" );
 			}
+			equal( c.carousel("length"), current_length - 1, "removed one frame");
+			equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
+			equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
 			start();
 		});
 		setTimeout( function(){
 			c.carousel("remove", 0);
-		}, 0 );
-
-		setTimeout(function(){
-			console.log( 'checks' );
-			equal( c.carousel("length"), current_length - 1, "removed one frame");
-			equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
-			equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
 		}, 0 );
 	});
 

@@ -14,8 +14,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 (function ( $, undefined ) {
 
-
-
 	$.widget( "mobile.carousel", $.mobile.widget, {
 		options:{
 			indicators: null,
@@ -166,7 +164,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			    style.msTransform =
 			    style.MozTransform =
 			    style.OTransform = 'translateX(-' + this.__offsets[this.__index] + 'px)';
-
 			};
 		},
 
@@ -609,6 +606,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.element.trigger( "slidingstart", move_type );
 
 			var done = function(ev) {
+
 				$("#" + ev.data.active).removeClass( "ui-carousel-active" ).trigger( "hide" );
 				$("#" + ev.data.next).addClass( "ui-carousel-active" ).trigger( "show" );
 				this._sliding = false;
@@ -654,7 +652,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		remove: function( index, $el ) {
 			//debugger;
-			if ( $.isFunction( index ) ){
+			if ( typeof index == 'object' ){
 				$el = $( index );
 				index = $el.data( 'itemIndex' )-0;
 			} else {
@@ -669,13 +667,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var $indicator = $( "#" + $el.data("indicator") );
 
 			// if frame is active we need move carousel to the next frame before remove it.
-			//if ( index == this.__index ) {
+			if ( index == this.__index ) {
 				// and bind last event action
 				$el.one( "hide", this.remove.bind(this, $el) );
 				this.next();
+			} else {
 				this._remove( index, $el );
-			//} else {
-			//}
+			}
 			return this;
 		},
 
