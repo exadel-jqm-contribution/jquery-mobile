@@ -181,27 +181,26 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		refresh: function( data ) {
+			var $list;
 			if ( data && $.isArray(data) ) {
 				// we can't define compliance of frames and new data
 				// in new versions we can add optional support for data-items
 				// with specific value of frame ids.
 				this.clear();
-				$.each( data, this._addJSON.bind(this) );
-				// start view from the beginning
-				this.__init();
-				this.to(0);
-				return;
-			}
-			// check updates in DOM
-			var $list = $( "*[data-type='image'], *[data-type='html']", this._list );
 
-			$list.each( this._render_frame.bind(this) );
+				$list = $( $.map( data, this._addJSON.bind(this) ) );
+			} else {
+				// check updates in DOM
+				$list = $( "*[data-type='image'], *[data-type='html']", this._list );
+
+				$list.each( this._render_frame.bind(this) );
+			};
 
 			this.length = function(length){
 				return function(){
 					return length;
 				};
-			}($list.length);
+			}( $list.length );
 
 			this.__enabledFramesList = function(list, visible){
 				return function(active){
@@ -209,10 +208,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				}
 			}($list, $list.filter(":visible"));
 
-			setTimeout(function(){
+			// setTimeout(function(){
 				this.__init();
 				this.to(this.__index);
-			}.bind(this), 0);
+			// }.bind(this), 0);
 
 			return this;
 		},
@@ -479,6 +478,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			img.onload = function() {
 				target.empty();
 				target.css( 'background-image', 'url(' + url + ')' );
+				target.data('imageUrl', url);
 				parent.trigger( "ready", {
 					item: parent
 				});
@@ -506,10 +506,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$el.trigger( "ready" );
 		},
 
-		_addJSON: function( /* , item */ ) {
-			// when we use jQuery.each we receiving in first argument INDEX of element
-			var item = arguments[arguments.length - 1],
-				el = $( "<div></div>" );
+		_addJSON: function( item ) {
+			var el = $( "<div></div>" );
+
+			if ( arguments.length > 1 ){
+				// when we use jQuery.each we receiving in first argument INDEX of element
+				item = (typeof arguments[0] == 'object' ? arguments[0] : arguments[1])
+			}
 
 			item.imageUrl = item.type == "image" ? item.content : "";
 

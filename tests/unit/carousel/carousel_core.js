@@ -193,120 +193,107 @@
 	// 	}, 0);
 	// });
 
-	asyncTest( "remove active frame", function() {
-		expect(6);
-		var c = $("#carousel").clone().appendTo("#list").carousel(),
-			current_length = c.carousel( "length" ),
-			$frame = c.carousel( "getFrame", 0 ),
-			$frame2 = c.carousel( "getFrame", 1 ),
-			show0 = false;
-		$frame.on( "hide", function() {
-			ok( true, "active frame hide before remove" );
-			show0 = true;
-		});
-		$frame.on( "itemremove", function(){
-			ok( true, "hidden frame receive event about removing" );
-		});
-		$frame2.on( "show", function(){
-			ok( true, "second frame show before first frame removed" );
-			if ( !show0 ){
-				ok( false, "active frame hide before remove" );
+	// asyncTest( "remove active frame", function() {
+	// 	expect(6);
+	// 	var c = $("#carousel").clone().appendTo("#list").carousel(),
+	// 		current_length = c.carousel( "length" ),
+	// 		$frame = c.carousel( "getFrame", 0 ),
+	// 		$frame2 = c.carousel( "getFrame", 1 ),
+	// 		show0 = false;
+	// 	$frame.on( "hide", function() {
+	// 		ok( true, "active frame hide before remove" );
+	// 		show0 = true;
+	// 	});
+	// 	$frame.on( "itemremove", function(){
+	// 		ok( true, "hidden frame receive event about removing" );
+	// 	});
+	// 	$frame2.on( "show", function(){
+	// 		ok( true, "second frame show before first frame removed" );
+	// 		if ( !show0 ){
+	// 			ok( false, "active frame hide before remove" );
+	// 		}
+	// 		equal( c.carousel("length"), current_length - 1, "removed one frame");
+	// 		equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
+	// 		equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
+	// 		start();
+	// 	});
+	// 	setTimeout( function(){
+	// 		c.carousel("remove", 0);
+	// 	}, 0 );
+	// });
+
+	asyncTest( "refresh carousel from JSON" , function(){
+		expect( 1 );
+		var c = $("#carousel").clone().appendTo("#list").carousel();
+		function file_name( str ){
+			return str.replace(/(.+\/)(.+?)\)*/, '$2');
+		}
+		var fixture = [
+			{
+				type: "image",
+				title: "Test",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png"
+			},
+			{
+				type: "image",
+				title: "Test2",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png"
+			},
+			{
+				type: "image",
+				title: "Test3",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png",
+				onReady: function() {
+					equal( c.carousel("length"), fixture.length, "count of new items" );
+					start();
+				}
 			}
-			equal( c.carousel("length"), current_length - 1, "removed one frame");
-			equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
-			equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
-			start();
-		});
-		setTimeout( function(){
-			c.carousel("remove", 0);
-		}, 0 );
+		];
+
+		c.carousel( "refresh", fixture );
 	});
 
-	// asyncTest( "refresh carousel from JSON" , function(){
-	// 	expect( 4 );
-	// 	var c = $("#carousel").clone().appendTo("#list").carousel();
+	asyncTest( "refresh carousel from JSON with Events" , function(){
+		expect( 6 );
+		var c = $( "#carousel" ).clone().appendTo("#list").carousel();
 
-	// 	var fixture = [
-	// 		{
-	// 			type: "image",
-	// 			title: "Test",
-	// 			content: "../../../css/themes/default/images/icons-png/audio-black.png"
-	// 		},
-	// 		{
-	// 			type: "image",
-	// 			title: "Test2",
-	// 			content: "../../../css/themes/default/images/icons-png/audio-black.png"
-	// 		},
-	// 		{
-	// 			type: "image",
-	// 			title: "Test3",
-	// 			content: "../../../css/themes/default/images/icons-png/audio-black.png"
-	// 		}
-	// 	];
-
-	// 	setTimeout( function() {
-	// 		equal( c.carousel("length"), fixture.length, "count of new items" );
-
-	// 		equal( c.carousel( "getFrame", 0 ).find("img").attr("src"),
-	// 			fixture[0].content,
-	// 			"check image src attribute for first frame");
-	// 		equal( c.carousel( "getFrame", 1 ).find("img").attr("src"),
-	// 			fixture[1].content,
-	// 			"check image src attribute for second frame");
-	// 		equal( c.carousel( "getFrame", 2 ).find("img").attr("src"),
-	// 			fixture[2].content,
-	// 			"check image src attribute for 3rd frame");
-
-	// 		start();
-	// 	}, c.carousel("length") * c.carousel("option", "animationDuration") + 35);
-	// 	c.carousel( "refresh", fixture );
-	// });
-
-	// asyncTest( "refresh carousel from JSON with Events" , function(){
-	// 	expect( 6 );
-	// 	var c = $( "#carousel" ).clone().appendTo("#list").carousel();
-
-	// 	var fixture = [
-	// 		{
-	// 			type: "image",
-	// 			title: "Test",
-	// 			content: "../../../css/themes/default/images/icons-png/audio-black.png",
-	// 			onReady: function() {
-	// 				ok( true, "fire READY for first item" );
-	// 			},
-	// 			onShow: function() {
-	// 				ok( true, "fire SHOW for first item" );
-	// 			},
-	// 			onHide: function() {
-	// 				ok( true, "fire HIDE for first item" );
-	// 			}
-	// 		},
-	// 		{
-	// 			type: "image",
-	// 			title: "Test2",
-	// 			content: "../../../css/themes/default/images/icons-png/audio-black.png",
-	// 			onReady: function() {
-	// 				ok( true, "fire READY for second item" );
-	// 			},
-	// 			onShow: function() {
-	// 				ok( true, "fire SHOW for second item" );
-	// 				start();
-	// 			}
-	// 		},
-	// 		{
-	// 			type: "image",
-	// 			title: "Test3",
-	// 			content: "../../../css/themes/default/images/icons-png/audio-black.png"
-	// 		}
-	// 	];
-	// 	c.carousel( "refresh", fixture );
-
-	// 	setTimeout( function() {
-	// 		equal( c.carousel("length"), fixture.length, "count of new items" );
-	// 		c.carousel( "next" );
-	// 	}, 0);
-
-	// });
+		var fixture = [
+			{
+				type: "image",
+				title: "Test",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png",
+				onReady: function() {
+					ok( true, "fire READY for first item" );
+				},
+				onShow: function() {
+					ok( true, "fire SHOW for first item" );
+				},
+				onHide: function() {
+					ok( true, "fire HIDE for first item" );
+				}
+			},
+			{
+				type: "image",
+				title: "Test2",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png",
+				onReady: function() {
+					ok( true, "fire READY for second item" );
+					equal( c.carousel("length"), fixture.length, "count of new items" );
+					c.carousel( "next" );
+				},
+				onShow: function() {
+					ok( true, "fire SHOW for second item" );
+					start();
+				}
+			},
+			{
+				type: "image",
+				title: "Test3",
+				content: "../../../css/themes/default/images/icons-png/audio-black.png"
+			}
+		];
+		c.carousel( "refresh", fixture );
+	});
 
 	// asyncTest( "check html-type items", function(){
 	// 	expect( 3 );
