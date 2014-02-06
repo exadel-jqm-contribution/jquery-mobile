@@ -14,8 +14,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 (function ( $, undefined ) {
 
-
-
 	$.widget( "mobile.carousel", $.mobile.widget, {
 		options:{
 			indicators: null,
@@ -166,7 +164,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			    style.msTransform =
 			    style.MozTransform =
 			    style.OTransform = 'translateX(-' + this.__offsets[this.__index] + 'px)';
-
 			};
 		},
 
@@ -184,27 +181,26 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		refresh: function( data ) {
+			var $list;
 			if ( data && $.isArray(data) ) {
 				// we can't define compliance of frames and new data
 				// in new versions we can add optional support for data-items
 				// with specific value of frame ids.
 				this.clear();
-				$.each( data, this._addJSON.bind(this) );
-				// start view from the beginning
-				this.__init();
-				this.to(0);
-				return;
-			}
-			// check updates in DOM
-			var $list = $( "*[data-type='image'], *[data-type='html']", this._list );
 
-			$list.each( this._render_frame.bind(this) );
+				$list = $( $.map( data, this._addJSON.bind(this) ) );
+			} else {
+				// check updates in DOM
+				$list = $( "*[data-type='image'], *[data-type='html']", this._list );
+
+				$list.each( this._render_frame.bind(this) );
+			};
 
 			this.length = function(length){
 				return function(){
 					return length;
 				};
-			}($list.length);
+			}( $list.length );
 
 			this.__enabledFramesList = function(list, visible){
 				return function(active){
@@ -212,10 +208,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				}
 			}($list, $list.filter(":visible"));
 
-			setTimeout(function(){
+			// setTimeout(function(){
 				this.__init();
 				this.to(this.__index);
-			}.bind(this), 0);
+			// }.bind(this), 0);
 
 			return this;
 		},
@@ -482,6 +478,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			img.onload = function() {
 				target.empty();
 				target.css( 'background-image', 'url(' + url + ')' );
+				target.data('imageUrl', url);
 				parent.trigger( "ready", {
 					item: parent
 				});
@@ -509,10 +506,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$el.trigger( "ready" );
 		},
 
-		_addJSON: function( /* , item */ ) {
-			// when we use jQuery.each we receiving in first argument INDEX of element
-			var item = arguments[arguments.length - 1],
-				el = $( "<div></div>" );
+		_addJSON: function( item ) {
+			var el = $( "<div></div>" );
+
+			if ( arguments.length > 1 ){
+				// when we use jQuery.each we receiving in first argument INDEX of element
+				item = (typeof arguments[0] == 'object' ? arguments[0] : arguments[1])
+			}
 
 			item.imageUrl = item.type == "image" ? item.content : "";
 
@@ -609,6 +609,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.element.trigger( "slidingstart", move_type );
 
 			var done = function(ev) {
+
 				$("#" + ev.data.active).removeClass( "ui-carousel-active" ).trigger( "hide" );
 				$("#" + ev.data.next).addClass( "ui-carousel-active" ).trigger( "show" );
 				this._sliding = false;
@@ -654,7 +655,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		remove: function( index, $el ) {
 			//debugger;
-			if ( $.isFunction( index ) ){
+			if ( typeof index == 'object' ){
 				$el = $( index );
 				index = $el.data( 'itemIndex' )-0;
 			} else {
@@ -669,13 +670,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var $indicator = $( "#" + $el.data("indicator") );
 
 			// if frame is active we need move carousel to the next frame before remove it.
-			//if ( index == this.__index ) {
+			if ( index == this.__index ) {
 				// and bind last event action
 				$el.one( "hide", this.remove.bind(this, $el) );
 				this.next();
+			} else {
 				this._remove( index, $el );
-			//} else {
-			//}
+			}
 			return this;
 		},
 
