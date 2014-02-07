@@ -14,8 +14,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 (function ( $, undefined ) {
 
-
-
 	$.widget( "mobile.carousel", $.mobile.widget, {
 		options:{
 			indicators: null,
@@ -62,7 +60,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 		_create: function() {
 			this._checkBindFunction();
-			this._list = $( ".ui-carousel-items", this.element );
+
 
 			this.options = $.extend( this.options, this.element.data( "options" ) );
 			this.options = $.extend( this.options, this.element.data() );
@@ -114,16 +112,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 			if (this.options.usejQMSwipes) {
 				this.bindEvents = this.__bindEvents;
+				this._preBindEvents();
 			}
 
 			this._sliding = false;
-
 			this.__index = parseInt(this.options.startFrom, 10) || 0;
-
-			this._preBindEvents();
-
 			this.bindEvents();
-
 			this.refresh();
 		},
 
@@ -166,7 +160,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			    style.msTransform =
 			    style.MozTransform =
 			    style.OTransform = 'translateX(-' + this.__offsets[this.__index] + 'px)';
-
 			};
 		},
 
@@ -183,39 +176,42 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			return !!active ? r.filter(":visible") : r;
 		},
 
+		_update_items_list: function(){
+			this._list = $( ".ui-carousel-items", this.element );
+			return $( "*[data-type='image'], *[data-type='html'], .ui-carousel-item", this._list );
+		},
+
 		refresh: function( data ) {
+			var $list;
 			if ( data && $.isArray(data) ) {
 				// we can't define compliance of frames and new data
 				// in new versions we can add optional support for data-items
 				// with specific value of frame ids.
 				this.clear();
-				$.each( data, this._addJSON.bind(this) );
-				// start view from the beginning
-				this.__init();
-				this.to(0);
-				return;
-			}
-			// check updates in DOM
-			var $list = $( "*[data-type='image'], *[data-type='html']", this._list );
-
-			$list.each( this._render_frame.bind(this) );
+				$.map( data, this._addJSON.bind(this) );
+				$list = this._update_items_list();
+			} else {
+				// check updates in DOM
+				$list = this._update_items_list();
+				$list.each( this._render_frame.bind(this) );
+			};
 
 			this.length = function(length){
 				return function(){
 					return length;
 				};
-			}($list.length);
+			}( $list.length );
 
 			this.__enabledFramesList = function(list, visible){
 				return function(active){
 					return !!active ? visible : list;
 				}
-			}($list, $list.filter(":visible"));
+			}( $list, $list.filter(":visible") );
 
-			setTimeout(function(){
+			setTimeout( function(){
 				this.__init();
 				this.to(this.__index);
-			}.bind(this), 0);
+			}.bind(this), 0 );
 
 			return this;
 		},
@@ -232,7 +228,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		__init: function(){
 			this._width = this.element.width();
-			this.element.css("visibility", 'hidden');
 
 			var count = this.length();
 
@@ -246,7 +241,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					el.style.left = this.__offsets[i] = i * this._width;
 					$(el).data('itemIndex', i);
 				}.bind(this));
-			this.element.css("visibility", 'visible');
 		},
 
 		_preBindEvents: function(){
@@ -416,7 +410,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 						$( "#" + $(this).data("indicator") ).trigger( "show" );
 					});
 			}
-			$el.data("_processed", el_id);
+			return $el.data("_processed", el_id);
 		},
 
 		// one place for wrap frame content
@@ -482,6 +476,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			img.onload = function() {
 				target.empty();
 				target.css( 'background-image', 'url(' + url + ')' );
+				target.data('imageUrl', url);
 				parent.trigger( "ready", {
 					item: parent
 				});
@@ -509,10 +504,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$el.trigger( "ready" );
 		},
 
-		_addJSON: function( /* , item */ ) {
-			// when we use jQuery.each we receiving in first argument INDEX of element
-			var item = arguments[arguments.length - 1],
-				el = $( "<div></div>" );
+		_addJSON: function( item ) {
+			var el = $( "<div></div>" );
+
+			if ( arguments.length > 1 ){
+				// when we use jQuery.each we receiving in first argument INDEX of element
+				item = (typeof arguments[0] == 'object' ? arguments[0] : arguments[1])
+			}
 
 			item.imageUrl = item.type == "image" ? item.content : "";
 
@@ -532,7 +530,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			if (item.onHide) {
 				el.on( "hide", item.onHide );
 			}
-			this._render_frame( this._list.find(".ui-carousel-item").length, el );
+			el = this._render_frame( 0, el );
 			return el;
 		},
 
@@ -654,7 +652,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		remove: function( index, $el ) {
 			//debugger;
-			if ( $.isFunction( index ) ){
+			if ( typeof index == 'object' ){
 				$el = $( index );
 				index = $el.data( 'itemIndex' )-0;
 			} else {
@@ -669,18 +667,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			var $indicator = $( "#" + $el.data("indicator") );
 
 			// if frame is active we need move carousel to the next frame before remove it.
-			//if ( index == this.__index ) {
+			if ( index == this.__index ) {
 				// and bind last event action
 				$el.one( "hide", this.remove.bind(this, $el) );
 				this.next();
+			} else {
 				this._remove( index, $el );
-			//} else {
-			//}
+			}
+			this.refresh();
 			return this;
 		},
 
 		_remove: function( index, el ) {
-			console.log( '_remove' );
 			var $el = $(el),
 				// indicator can be in any part of DOM,
 				// so we use only previously saved id for find it.
@@ -689,12 +687,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			$indicator.trigger( "itemremove" ).off();
 			$indicator.remove();
 			$el.remove();
-			this.refresh();
 		},
 
 		clear: function( done ) {
 			this.element.trigger("clear_all");
 			$(".ui-carousel-item", this.element).each(this._remove.bind(this));
+			this.__index = 0;
 			this.refresh();
 		},
 
