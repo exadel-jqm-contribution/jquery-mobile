@@ -58,13 +58,13 @@
 		c.carousel( "getFrame", c.carousel("length") - 1 ).on("hide", function() {
 			console.log('stop');
 			var length = c.carousel( "length" );
-			equal( show+1, length, "show count must be == count of items" );
+			equal( show, length, "show count must be == count of items" );
 			equal( hide, length, "hide count must be == count of items" );
 			equal( beforeshow, beforenext, "beforeshow == beforenext" );
 			equal( beforeshow, slidingstart, "beforeshow == slidingstart" );
 			notEqual( slidingdone, slidingstart, "Because we stops test with SHOW event -- slidingdone != slidingstart" );
 			equal( slidingdone, slidingstart-1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
-			equal( show+1, beforeshow, "show == beforeshow" );
+			equal( show, beforeshow, "show == beforeshow" );
 			ok( true, "last frame hide" );
 			clearInterval( interval );
 			start();
@@ -92,14 +92,15 @@
 		c.on( "slidingdone", function(){ slidingdone++;	});
 
 		c.carousel( "getFrame", 0).on("show", function() {
+			if ( ++i == 1) return;
 			var length = c.carousel( "length" );
-			equal( show, length, "show count must be == count of items" );
+			equal( show, length+1, "show count+1 must be == count of items" );
 			equal( hide, length, "hide count must be == count of items" );
 			equal( beforeshow, beforeprev, "beforeshow == beforeprev" );
 			equal( beforeshow, slidingstart, "beforeshow == slidingstart" );
 			notEqual( slidingdone, slidingstart, "Because we stops test with SHOW event -- slidingdone != slidingstart" );
 			equal( slidingdone, slidingstart - 1, "Because we stops test with SHOW event -- slidingdone == slidingstart-1" );
-			equal( show, beforeshow, "show == beforeshow" );
+			equal( show, beforeshow+1, "show == beforeshow+1" );
 			clearInterval( interval );
 			start();
 		});
@@ -300,25 +301,25 @@
 		c.carousel( "refresh", fixture );
 	});
 
-	// asyncTest( "check html-type items", function(){
-	// 	expect( 3 );
+	asyncTest( "check html-type items", function(){
+		expect( 3 );
 
-	// 	$( "#test_events" ).on( "click", function(){
-	// 		ok( true, "event created before init carousel still exists" );
-	// 	});
+		$( "#test_events" ).on( "click", function(){
+			ok( true, "event created before init carousel still exists" );
+		});
 
-	// 	var c = $( "#carousel" ).clone().appendTo("#list").carousel();
+		var c = $( "#carousel" ).clone().appendTo("#list").carousel();
 
-	// 	$( "#test_events" ).click();
-	// 	var $frame = c.carousel( "getFrame", 1 );
-	// 	equal( $(".ui-carousel-title", $frame).text(), $frame.data("title"), "check frame title before change" );
+		$( "#test_events" ).click();
+		var $frame = c.carousel( "getFrame", 1 );
+		equal( $(".ui-carousel-title", $frame).text(), $frame.data("title"), "check frame title before change" );
 
-	// 	$frame.data( "title", "1" );
-	// 	c.carousel( "refresh" );
-	// 	setTimeout( function() {
-	// 		equal( $(".ui-carousel-title", $frame).text(), $frame.data("title"), "check frame title after change" );
-	// 		start();
-	// 	}, 160);
-	// });
+		$frame.data( "title", "1" );
+		c.carousel( "refresh" );
+		setTimeout( function() {
+			equal( $(".ui-carousel-title", $frame).text(), $frame.data("title"), "check frame title after change" );
+			start();
+		}, 0);
+	});
 
 }( jQuery ));

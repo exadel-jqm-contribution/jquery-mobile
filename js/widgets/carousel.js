@@ -112,16 +112,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 			if (this.options.usejQMSwipes) {
 				this.bindEvents = this.__bindEvents;
+				this._preBindEvents();
 			}
 
 			this._sliding = false;
-
 			this.__index = parseInt(this.options.startFrom, 10) || 0;
-
-			this._preBindEvents();
-
 			this.bindEvents();
-
 			this.refresh();
 		},
 
@@ -210,12 +206,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				return function(active){
 					return !!active ? visible : list;
 				}
-			}($list, $list.filter(":visible"));
+			}( $list, $list.filter(":visible") );
 
-			// setTimeout(function(){
-			this.__init();
-			this.to(this.__index);
-			// }.bind(this), 0);
+			setTimeout( function(){
+				this.__init();
+				this.to(this.__index);
+			}.bind(this), 0 );
 
 			return this;
 		},
@@ -232,7 +228,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		__init: function(){
 			this._width = this.element.width();
-			this.element.css("visibility", 'hidden');
 
 			var count = this.length();
 
@@ -246,7 +241,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					el.style.left = this.__offsets[i] = i * this._width;
 					$(el).data('itemIndex', i);
 				}.bind(this));
-			this.element.css("visibility", 'visible');
 		},
 
 		_preBindEvents: function(){
@@ -605,7 +599,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			// in the beginning we doesn't have any active frames
 			if ( $active.length === 0 ) {
 				$next.addClass( "ui-carousel-active" ).trigger( "show" );
-				console.log( $next.attr("id") + " first show" );
 				// so animation is not necessary
 				return true;
 			}
@@ -614,12 +607,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.element.trigger( "slidingstart", move_type );
 
 			var done = function(ev) {
-
 				$("#" + ev.data.active).removeClass( "ui-carousel-active" ).trigger( "hide" );
 				$("#" + ev.data.next).addClass( "ui-carousel-active" ).trigger( "show" );
-				console.log( "#" + ev.data.active + ' hide' );
-				console.log( "#" + ev.data.next + ' show' );
-
 				this._sliding = false;
 				this.element.trigger( "slidingdone", this._sliding_type);
 			};
@@ -690,7 +679,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_remove: function( index, el ) {
-			console.log( '_remove' );
 			var $el = $(el),
 				// indicator can be in any part of DOM,
 				// so we use only previously saved id for find it.

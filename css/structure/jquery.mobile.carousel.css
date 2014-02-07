@@ -1,6 +1,5 @@
 .ui-carousel {
   overflow: hidden;
-  visibility: hidden;
   position: relative; }
   .ui-carousel .ui-carousel-items {
     overflow: hidden;
