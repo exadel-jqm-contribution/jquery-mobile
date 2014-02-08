@@ -63,9 +63,18 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		_create: function() {
 			this.options = $.extend( this.options, this.element.data( "options" ) );
 			this.options = $.extend( this.options, this.element.data() );
-
 			this.element.addClass( "ui-carousel ui-carousel-theme-" + this.options.theme);
+		},
 
+		_setOptions: function( options ) {
+			if ( options.theme !== undefined ){
+				this.element.removeClass( "ui-carousel-theme-" + this.options.theme );
+				this.element.addClass( "ui-carousel-theme-" + options.theme );
+			}
+			this.options = $.extend( this.options, options );
+		},
+
+		_init: function() {
 			if ( this.options.showIndicator !== false ) {
 				if ( this.options.indicators === null ) {
 					this.options.indicators = $('<div></div>');
@@ -73,7 +82,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				} else if (typeof this.options.indicators === "string") {
 					this.options.indicators = $(this.options.indicators);
 				}
-
 				this.options.indicators.addClass(this.options.indicatorsListClass);
 			}
 
@@ -110,7 +118,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			}
 
 			if (this.options.usejQMSwipes) {
-				this.bindEvents = this.__bindEvents;
+				this.bindEvents = this.__jqm_bindEvents;
 				this._preBindEvents();
 			}
 
@@ -143,11 +151,12 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		_mainAnimationEnd: function( event_name ){
 			return function( $active, $next, done_cb ){
-				this._list.one( event_name, {
-					next: $next[0].id,
-					active: $active[0].id
-				}, done_cb);
-
+				if ( $next ){
+					this._list.one( event_name, {
+						next: $next[0].id,
+						active: $active[0].id
+					}, done_cb);
+				}
 				var style = this._list[0].style;
 				style.webkitTransitionDuration =
 			    style.MozTransitionDuration =
@@ -208,7 +217,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			}( $list, $list.filter(":visible") );
 
 			setTimeout( function(){
-				this.__init();
+				this._resize();
 				this.to(this.__index);
 			}.bind(this), 0 );
 
@@ -225,10 +234,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			}
 		},
 
-		__init: function(){
-			this._width = this.element.width();
-
+		_resize: function(){
 			var count = this.length();
+			this._width = this.element.width();
 
 			this.__offsets = new Array( count );
 
@@ -240,6 +248,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					el.style.left = this.__offsets[i] = i * this._width;
 					$(el).data('itemIndex', i);
 				}.bind(this));
+			this._list[0].style.left = "-" + this.__offsets[this.__index] + "px";
 		},
 
 		_preBindEvents: function(){
@@ -249,18 +258,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			this.__swipe = function( e ) {
 				return this.options.passOnSwipeEvents ? !this._sliding : false;
 			}.bind( this );
-
-			this.__resize = function( e ) {
-				this.__init();
-			}.bind( this );
 		},
 
 		bindEvents: function(){
-			var touch_support = ('ontouchstart' in window) || window.DocumentTouch && document instanceof DocumentTouch,
-				tm_start = 'mousedown',
-				tm_move = 'mousemove',
-				tm_end = 'mouseup';
-
 			function tstart(ev){
 				var touch = {},
 					self = ev.data.self,
@@ -332,15 +332,15 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 			this.element.on("touchstart mousedown", {self: this}, tstart);
 
-			$(window).on('resize', this.__resize);
+			$(window).on( 'resize', this._resize.bind(this) );
 
 			this.unBindEvents = function(){
 				this.element.off("touchstart mousedown", tstart);
 			}
 		},
 
-		__bindEvents: function() {
-			$(window).on('resize', this.__resize);
+		__jqm_bindEvents: function() {
+			$(window).on( 'resize', this._resize.bind(this) );
 
 			this.element.on({
 				swiperight: this.__swiperight,
@@ -622,6 +622,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_animation: function( $active, $next, done_cb ) {
+			if ( !$next ) return;
 			this._list.animate({
 				left: -1*this.__offsets[this.__index]
 			},{
@@ -634,7 +635,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				})
 			});
 		},
-
 
 		getFrame: function( index ) {
 			var f = $( ".ui-carousel-item:eq(" + index + ")", this.element );
