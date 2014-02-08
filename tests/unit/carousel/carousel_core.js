@@ -56,7 +56,6 @@
 		c.on( "slidingdone", function(){ slidingdone++;	});
 
 		c.carousel( "getFrame", c.carousel("length") - 1 ).on("hide", function() {
-			console.log('stop');
 			var length = c.carousel( "length" );
 			equal( show, length, "show count must be == count of items" );
 			equal( hide, length, "hide count must be == count of items" );
@@ -265,11 +264,9 @@
 				content: "../../../css/themes/default/images/icons-png/audio-black.png",
 				onReady: function() {
 					ok( true, "fire READY for first item" );
-					console.log( "fire READY for first item" );
 				},
 				onShow: function() {
 					ok( true, "fire SHOW for first item" );
-					console.log( "fire SHOW for first item" );
 					c.carousel( "next" );
 				},
 				onHide: function() {
@@ -283,11 +280,9 @@
 				onReady: function() {
 					ok( true, "fire READY for second item" );
 					equal( c.carousel("length"), fixture.length, "count of new items" );
-					console.log( "fire READY for second item" );
 				},
 				onShow: function() {
 					ok( true, "fire SHOW for second item" );
-					console.log( "fire SHOW for second item" );
 					start();
 				}
 			},
