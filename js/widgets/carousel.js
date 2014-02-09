@@ -437,30 +437,29 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
 		// widget implementation for title renderer
 		_create_title: function( title_str, target ) {
-			var title = $( ".ui-carousel-title", target );
-			var text_function = this.options.titleIsText ? "text" : "html";
+			var title = $( ".ui-carousel-title", target ),
+				text_function = this.options.titleIsText ? "text" : "html";
 			// just update
 			if ( title.length > 0 ){
 				if ( this.options.titleBuildIn ) {
-					$( ".ui-carousel-title-inside", title ).text( title_str );
+					if ( title.find(".ui-carousel-title-inside") ) {
+						$( ".ui-carousel-title-inside", title ).text( title_str );
+					} else {
+						title.remove();
+					}
 				} else {
-					title.text( title_str );
+					title[text_function]( title_str );
 				}
-				return title;
-			}
-			// create title block
-			title = $( "<div></div>" );
-			title.addClass( "ui-carousel-title" );
-			// by default styles title will occupy whole space on the bottom of frame
-			// with this option title will be sized in limited space
-			if ( this.options.titleBuildIn ) {
-				var el = $( "<div></div>" ).addClass( "ui-carousel-title-inside" );
-				el[text_function]( title_str ).appendTo( title );
 			} else {
-				title[text_function]( title_str );
+				if ( this.options.titleBuildIn ) {
+					title = $( "<div class=\"ui-carousel-title\"><div class=\"ui-carousel-title-inside\"></div></div>" );
+					title.children()[text_function]( title_str );
+				} else {
+					title = $( "<div class=\"ui-carousel-title\"></div>" );
+					title[text_function]( title_str );
+				}
+				title.appendTo( target );
 			}
-			// place title at the end of frame.
-			title.appendTo( target );
 			return title;
 		},
 
