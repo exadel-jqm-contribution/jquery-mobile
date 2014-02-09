@@ -67,9 +67,13 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		_setOptions: function( options ) {
-			if ( options.theme !== undefined ){
+			if ( options['theme'] !== undefined ){
 				this.element.removeClass( "ui-carousel-theme-" + this.options.theme );
 				this.element.addClass( "ui-carousel-theme-" + options.theme );
+			}
+
+			if ( options['showIndicator'] !== undefined ) {
+				$(this.options.indicators).hide();
 			}
 			this.options = $.extend( this.options, options );
 		},
@@ -83,10 +87,11 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 					this.options.indicators = $(this.options.indicators);
 				}
 				this.options.indicators.addClass(this.options.indicatorsListClass);
-			}
-
-			if ( this.options.createIndicator === null ) {
-				this.options.createIndicator = this._createIndicator.bind(this);
+				if ( this.options.createIndicator === null ) {
+					this.options.createIndicator = this._createIndicator.bind(this);
+				}
+			} else {
+				this.options.createIndicator = function(){};
 			}
 
 			if ( this.options.createTitle === null ) {
