@@ -442,12 +442,16 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 			// just update
 			if ( title.length > 0 ){
 				if ( this.options.titleBuildIn ) {
-					if ( title.find(".ui-carousel-title-inside") ) {
-						$( ".ui-carousel-title-inside", title ).text( title_str );
+					if ( title.children().hasClass("ui-carousel-title-inside") ) {
+						$( ".ui-carousel-title-inside", title )[text_function]( title_str );
 					} else {
-						title.remove();
+						title.html( "<div class=\"ui-carousel-title-inside\"></div>" );
+						title.children()[text_function]( title_str );
 					}
 				} else {
+					if ( title.children().hasClass("ui-carousel-title-inside") ) {
+						title.children().remove();
+					}
 					title[text_function]( title_str );
 				}
 			} else {
