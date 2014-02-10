@@ -1,6 +1,7 @@
 .ui-carousel {
   overflow: hidden;
-  position: relative; }
+  position: relative;
+  padding: 5px 5px 40px 5px; }
   .ui-carousel .ui-carousel-items {
     overflow: hidden;
     position: relative; }
