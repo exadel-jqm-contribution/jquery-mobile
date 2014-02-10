@@ -72,14 +72,14 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 				this.element.addClass( "ui-carousel-theme-" + options.theme );
 			}
 
-			if ( options['showIndicator'] !== undefined ) {
-				$(this.options.indicators).hide();
+			if ( options['showIndicator'] !== undefined && !!options['showIndicator'] != this.options.indicators ) {
+				$(this.options.indicators).toggle(!!options['showIndicator']);
 			}
 			this.options = $.extend( this.options, options );
 		},
 
 		_init: function() {
-			if ( this.options.showIndicator !== false ) {
+			if ( this.options.showIndicator ) {
 				if ( this.options.indicators === null ) {
 					this.options.indicators = $('<div></div>');
 					this.options.indicators.appendTo(this.element);
@@ -583,6 +583,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 		},
 
 		to: function( index ) {
+			if ( !this.options.enabled ) return false;
 			this.__index = parseInt( index, 10 ) || 0;
 			this.element.trigger( "goto", this.__index );
 			this.slide( false, this.__enabledFramesList().eq( this.__index ) );
