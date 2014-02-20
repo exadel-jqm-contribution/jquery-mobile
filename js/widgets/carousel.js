@@ -37,10 +37,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     }
   };
   _checkBindFunction();
-  // var requestAnimationFrame =
-  //   window.requestAnimationFrame ||     // Firefox 23 / IE 10 / Chrome / Safari 7 (incl. iOS)
-  //   window.mozRequestAnimationFrame ||  // Firefox < 23
-  //   window.webkitRequestAnimationFrame; // Older versions of Safari / Chrome
+
   $.widget( "mobile.carousel", $.mobile.widget, {
     options:{
       indicators: null,
@@ -57,7 +54,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       passOnSwipeEvents: false,
       titleBuildIn: true,
       createTitle: null,
-      enabled: true
+      enabled: true,
+      disabled: false
     },
     _list: null,
     _counter: 0,
@@ -65,6 +63,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     _sliding_type: null,
     _resizing: null, // setTimeout handler
     active: null,   // current active frame :: jQuery
+    __rerender_indicators: true,
 
     _create: function() {
       this.options = $.extend( this.options, this.element.data( "options" ) );
@@ -78,9 +77,24 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         this.element.addClass( "ui-carousel-theme-" + options.theme );
       }
 
+      if ( options['indicators'] !== undefined ) {
+        this.__rerender_indicators = true;
+
+        $(this.options.indicators).remove();
+      }
+
       if ( options['showIndicator'] !== undefined && !!options['showIndicator'] != this.options.indicators ) {
         $(this.options.indicators).toggle(!!options['showIndicator']);
       }
+
+      // backward compatibility
+      if ( options['enabled'] !== undefined && !!options['enabled'] != this.options.enabled ) {
+        this._setOption( 'disabled', !!!options.enabled );
+      }
+      if ( options['disabled'] !== undefined && !!options['disabled'] != this.options.disabled ) {
+        this._setOption( 'enabled', !!!options.enabled );
+      }
+
       this.options = $.extend( this.options, options );
     },
 
@@ -92,7 +106,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         } else if (typeof this.options.indicators === "string") {
           this.options.indicators = $(this.options.indicators);
         }
-        this.options.indicators.addClass(this.options.indicatorsListClass);
+        this.options.indicators.addClass(this.options.indicatorsListClass +
+          ' ' + this.options.indicatorsListClass + '-theme-' + this.options.theme);
         if ( this.options.createIndicator === null ) {
           this.options.createIndicator = this._createIndicator.bind(this);
         }
@@ -137,6 +152,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       this.__index = parseInt(this.options.startFrom, 10) || 0;
       this.bindEvents();
       this.refresh();
+      this.__rerender_indicators = false;
     },
 
     _ios7Webview_AnimationEnd: function( event_name ){
@@ -200,7 +216,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
     _update_items_list: function(){
       this._list = $( ".ui-carousel-items", this.element );
-      return $( "*[data-type='image'], *[data-type='html'], .ui-carousel-item", this._list );
+      return $( "*[data-type='image'], *[data-type='html'], .ui-carousel-item", this._list ).filter(":visible");
     },
 
     refresh: function( data ) {
@@ -396,39 +412,40 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
           break;
       }
       if ( this.options.showIndicator ) {
-        if ( !is_new_element ) {
-          return;
+        $el.data("_processed", el_id);
+
+        if ( !is_new_element && !this.__rerender_indicators ) {
+          $indicator = $( '#' + $el.data("indicator") );
+        } else {
+          var indicator_id = this._UID();
+          $indicator = this.options.createIndicator( this.options.indicators, params.title || "");
+
+          $indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
+          $el.data( "indicator", indicator_id );
+
+          $indicator
+            .on( "show", function( event ) {
+              $( this ).addClass('ui-carousel-indicator-active ui-radio-on');
+            })
+            .on( "hide", function( event ) {
+              $( this ).removeClass('ui-carousel-indicator-active ui-radio-on');
+            });
+
+          // indicators can have actions for show and hide events
+          $el
+            .on( "hide", function( event ) {
+              $( "#" + $(this).data("indicator") ).trigger( "hide" );
+            })
+            .on( "show" , function( event ) {
+              $( "#" + $(this).data("indicator") ).trigger( "show" );
+            });
         }
-        var indicator_id = this._UID();
-        $indicator = this.options.createIndicator( this.options.indicators, params.title || "");
-
-        $indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
-        $el.data( "indicator", indicator_id );
-
         $indicator.on( "click", {
           move: this.to.bind( this )
         }, function ( event ) {
-          var id = "#" + $( this ).data( "targetElement" ),
-            $el = $(id);
-          event.data.move( $el.data('itemIndex') );
+          var id = "#" + $( this ).data( "targetElement" );
+          event.data.move( $(id).data('itemIndex') );
         });
-
-        $indicator
-          .on( "show", function( event ) {
-            $( this ).addClass('ui-carousel-indicator-active ui-radio-on');
-          })
-          .on( "hide", function( event ) {
-            $( this ).removeClass('ui-carousel-indicator-active ui-radio-on');
-          });
-
-        // indicators can have actions for show and hide events
-        $el
-          .on( "hide", function( event ) {
-            $( "#" + $(this).data("indicator") ).trigger( "hide" );
-          })
-          .on( "show" , function( event ) {
-            $( "#" + $(this).data("indicator") ).trigger( "show" );
-          });
       }
       return $el.data("_processed", el_id);
     },
@@ -599,7 +616,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     },
 
     to: function( index ) {
-      if ( !this.options.enabled ) return false;
+      if ( this.options.disabled ) return false;
       this.__index = parseInt( index, 10 ) || 0;
       this.element.trigger( "goto", this.__index );
       this.slide( false, this.__enabledFramesList().eq( this.__index ) );
@@ -607,7 +624,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     },
 
     slide: function( move_type, $next ) {
-      if ( this._sliding || !this.options.enabled ) {
+      if ( this._sliding || this.options.disabled ) {
         return;
       }
 
@@ -622,6 +639,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       this.active = this.__enabledFramesList().filter(".ui-carousel-active");
 
       // in the beginning we doesn't have any active frames
+      console.log( 'fire' );
       if ( this.active.length === 0 ) {
         $next.addClass( "ui-carousel-active" ).trigger( "show" );
         this.active = $next;
@@ -665,7 +683,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     },
 
     getFrame: function( index ) {
-      var f = $( ".ui-carousel-item:eq(" + index + ")", this.element );
+      var f = this._list.find( ".ui-carousel-item" ).eq( index );
       if ( f.length === 0 ) {
         return false;
       }
@@ -691,8 +709,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         }
       }
 
-      var $indicator = $( "#" + $el.data("indicator") );
-
       // if frame is active we need move carousel to the next frame before remove it.
       if ( index == this.__index ) {
         // and bind last event action
@@ -700,8 +716,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         this.next();
       } else {
         this._remove( index, $el );
+        //setTimeout( function(){
+          this.refresh();
+        //}.bind(this), 0 );
       }
-      this.refresh();
       return this;
     },
 

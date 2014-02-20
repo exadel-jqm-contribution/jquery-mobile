@@ -214,6 +214,7 @@
 			}
 			equal( c.carousel("length"), current_length - 1, "removed one frame");
 			equal( $(".ui-carousel-item", c).length, current_length - 1, "check count .ui-carousel-item" );
+			debugger;
 			equal( $(".ui-carousel-indicator", c).length, current_length - 1, "check count .ui-carousel-indicator" );
 			start();
 		});
