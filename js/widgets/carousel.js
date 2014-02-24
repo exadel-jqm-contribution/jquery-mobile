@@ -639,7 +639,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       this.active = this.__enabledFramesList().filter(".ui-carousel-active");
 
       // in the beginning we doesn't have any active frames
-      console.log( 'fire' );
       if ( this.active.length === 0 ) {
         $next.addClass( "ui-carousel-active" ).trigger( "show" );
         this.active = $next;
