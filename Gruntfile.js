@@ -2,6 +2,7 @@ module.exports = function( grunt ) {
 	"use strict";
 
 	var _ = require( "underscore" ),
+		cheerio = require( "cheerio" ),
 
 		replaceCombinedCssReference = function( content, processedName ) {
 			return content.replace( /\.\.\/css\//, "css/" )
@@ -393,7 +394,7 @@ module.exports = function( grunt ) {
 						var processedName = grunt.config.process( name + "<%= versionSuffix %>" );
 						content = content.replace( /_assets\/js\/">/gi, "_assets/js/index.js\">" );
 						content = content.replace( /\.\.\/external\/jquery\//gi, "js/" );
-						content = content.replace( /\.\.\/js\//gi, "js/" );
+						content = content.replace( /\.\.\/js\/\"/gi, "js/\"" );
 						content = content.replace( /js\/"/gi, "js/" + processedName + ".min.js\"" );
 						content = replaceCombinedCssReference( content, processedName );
 						content = content.replace( /^\s*<\?php include\(\s*['"]([^'"]+)['"].*$/gmi,
@@ -435,15 +436,45 @@ module.exports = function( grunt ) {
 			},
 			"demos.backbone": {
 				options: {
-					processContent: function( content /*, srcPath */ ) {
-						var processedName = grunt.config.process( name + "<%= versionSuffix %>" );
-						content = content.replace( /"jquery": "\.\.\/\.\.\/\.\.\/js\/jquery"/,
-								"\"jquery\": \"../../js/jquery\"" );
-						content = replaceCombinedCssReference( content, processedName );
+					processContent: function( content, srcPath ) {
+						var $,
+							processedName = grunt.config.process( name + "<%= versionSuffix %>" );
 
-						// Update dependency to jquery.mobile claimed by jquerymobile.js
-						content = content.replace( /\[ "\.\.\/\.\.\/js\/\?noext" \]/,
-							"[ \"../../../" + processedName + "\" ]" );
+						if ( /\.html$/.test( srcPath ) ) {
+
+							content = replaceCombinedCssReference( content, processedName );
+
+							$ = cheerio.load( content );
+
+							$( "script" ).each( function ( idx, element ) {
+								var script = $( element );
+								if ( /requirejs\.config\.js$/.test( script.attr( "src" ) ) ) {
+
+									// Get rid of the requirejs.config.js script tag since we're using the built bundle
+									script.remove();
+								} else if ( /require.js$/.test( script.attr( "src" ) ) ) {
+
+									// Use the rawgithub.com version for requirejs
+									script.attr( "src",
+										"//rawgithub.com/jrburke/requirejs/" +
+										grunt.template.process( "<%= pkg.devDependencies.requirejs %>" ) +
+										"/require.js" );
+								}
+							});
+
+							// write out newly created file contents
+							content = $.html();
+						} else if ( /\.js$/.test( srcPath ) ) {
+
+							// Redifines paths for compiled demos
+							content = content.replace( /baseUrl:.*$/m, "baseUrl: \"../js\"," );
+							content = content.replace( /\.\.\/external\/jquery\//, "" );
+							content = content.replace( /jquery\.mobile/, processedName );
+							content = content.replace(
+								/"backbone-requirejs-demos".*$/m,
+								"\"backbone-requirejs-demos\": \"../backbone-requirejs/js\"" );
+						}
+
 						return content;
 					}
 				},
@@ -459,7 +490,7 @@ module.exports = function( grunt ) {
 				files: [
 					{
 						expand: true,
-						cwd: "js",
+						cwd: "external/jquery",
 						src: [ "jquery.js" ],
 						dest: path.join( dist, "demos/js/" )
 					},
@@ -647,8 +678,8 @@ module.exports = function( grunt ) {
 						"!js/requirejs.config.js"
 					],
 					instrumentedFiles: "temp/",
-					htmlReport: "build/report/coverage",
-					lcovReport: "build/report/lcov",
+					htmlReport: "_tests/reports/coverage",
+					lcovReport: "_tests/reports/lcov",
 					linesThresholdPct: 0
 				}
 			},
@@ -754,10 +785,13 @@ module.exports = function( grunt ) {
 		},
 
 		coveralls: {
+			options: {
+				force: true
+			},
 			all: {
 
 				// LCOV coverage file relevant to every target
-				src: "build/report/lcov/lcov.info"
+				src: "_tests/reports/lcov/lcov.info"
 			}
 		},
 
@@ -831,28 +865,14 @@ module.exports = function( grunt ) {
 			dist: [ dist ],
             git: [ path.join( dist, "git" ) ],
 			tmp: [ "<%= dirs.tmp %>" ],
+			testsOutput: [ "_tests" ],
 			"googleCDN": [ "<%= dirs.cdn.google %>" ],
 			"jqueryCDN": [ "<%= dirs.cdn.jquery %>" ]
 		}
 	});
 
 	// grunt plugins
-	grunt.loadNpmTasks( "grunt-bowercopy" );
-	grunt.loadNpmTasks( "grunt-contrib-jshint" );
-	grunt.loadNpmTasks( "grunt-contrib-clean" );
-	grunt.loadNpmTasks( "grunt-contrib-copy" );
-	grunt.loadNpmTasks( "grunt-contrib-compress" );
-	grunt.loadNpmTasks( "grunt-contrib-concat" );
-	grunt.loadNpmTasks( "grunt-contrib-connect" );
-	grunt.loadNpmTasks( "grunt-contrib-cssmin" );
-	grunt.loadNpmTasks( "grunt-coveralls" );
-	grunt.loadNpmTasks( "grunt-qunit-istanbul" );
-	grunt.loadNpmTasks( "grunt-contrib-requirejs" );
-	grunt.loadNpmTasks( "grunt-contrib-uglify" );
-	grunt.loadNpmTasks( "grunt-git-authors" );
-	grunt.loadNpmTasks( "grunt-qunit-junit" );
-	grunt.loadNpmTasks( "grunt-hash-manifest" );
-
+	require( "load-grunt-tasks" )( grunt );
 	// load the project's default tasks
 	grunt.loadTasks( "build/tasks");
 
@@ -901,7 +921,15 @@ module.exports = function( grunt ) {
 
 	grunt.registerTask( "updateDependencies", [ "bowercopy" ] );
 
-	grunt.registerTask( "test", [ "jshint", "config:fetchHeadHash", "js:release", "connect", "qunit:http" ] );
+	grunt.registerTask( "test",
+		[
+			"clean:testsOutput",
+			"jshint",
+			"config:fetchHeadHash",
+			"js:release",
+			"connect", "qunit:http"
+		]
+	);
 	grunt.registerTask( "test:ci", [ "qunit_junit", "connect", "qunit:http" ] );
 
 	// Default grunt

@@ -19,7 +19,12 @@ define( [
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
-var rInitialLetter = /([A-Z])/g;
+var rInitialLetter = /([A-Z])/g,
+
+	// Construct iconpos class from iconpos value
+	iconposClass = function( iconpos ) {
+		return ( "ui-btn-icon-" + ( iconpos === null ? "left" : iconpos ) );
+	};
 
 $.widget( "mobile.collapsible", {
 	options: {
@@ -42,14 +47,15 @@ $.widget( "mobile.collapsible", {
 		var elem = this.element,
 			ui = {
 				accordion: elem
-					.closest( ":jqmData(role='collapsible-set')" +
-						( $.mobile.collapsibleset ? ", :mobile-collapsibleset" : "" ) )
+					.closest( ":jqmData(role='collapsible-set')," +
+						":jqmData(role='collapsibleset')" +
+						( $.mobile.collapsibleset ? ", :mobile-collapsibleset" :
+							"" ) )
 					.addClass( "ui-collapsible-set" )
 			};
 
-		$.extend( this, {
-			_ui: ui
-		});
+		this._ui = ui;
+		this._renderedOptions = this._getOptions( this.options );
 
 		if ( this.options.enhanced ) {
 			ui.heading = $( ".ui-collapsible-heading", this.element[ 0 ] );
@@ -113,7 +119,7 @@ $.widget( "mobile.collapsible", {
 
 	_enhance: function( elem, ui ) {
 		var iconclass,
-			opts = this._getOptions( this.options ),
+			opts = this._renderedOptions,
 			contentThemeClass = this._themeClassFromOption( "ui-body-", opts.contentTheme );
 
 		elem.addClass( "ui-collapsible " +
@@ -149,8 +155,7 @@ $.widget( "mobile.collapsible", {
 				.first()
 				.addClass( "ui-btn " +
 					( iconclass ? iconclass + " " : "" ) +
-					( iconclass ? ( "ui-btn-icon-" +
-						( opts.iconpos === "right" ? "right" : "left" ) ) +
+					( iconclass ? iconposClass( opts.iconpos ) +
 						" " : "" ) +
 					this._themeClassFromOption( "ui-btn-", opts.theme ) + " " +
 					( opts.mini ? "ui-mini " : "" ) );
@@ -164,19 +169,14 @@ $.widget( "mobile.collapsible", {
 	},
 
 	refresh: function() {
-		var key, options = {};
-
-		for ( key in $.mobile.collapsible.defaults ) {
-			options[ key ] = this.options[ key ];
-		}
-
-		this._setOptions( options );
+		this._applyOptions( this.options );
+		this._renderedOptions = this._getOptions( this.options );
 	},
 
-	_setOptions: function( options ) {
-		var isCollapsed, newTheme, oldTheme, hasCorners,
+	_applyOptions: function( options ) {
+		var isCollapsed, newTheme, oldTheme, hasCorners, hasIcon,
 			elem = this.element,
-			currentOpts = this._getOptions( this.options ),
+			currentOpts = this._renderedOptions,
 			ui = this._ui,
 			anchor = ui.anchor,
 			status = ui.status,
@@ -191,37 +191,61 @@ $.widget( "mobile.collapsible", {
 
 		isCollapsed = elem.hasClass( "ui-collapsible-collapsed" );
 
-		// Only options referring to the current state need to be applied right away
-		// It is enough to store options covering the alternate in this.options.
+		// We only need to apply the cue text for the current state right away.
+		// The cue text for the alternate state will be stored in the options
+		// and applied the next time the collapsible's state is toggled
 		if ( isCollapsed ) {
 			if ( opts.expandCueText !== undefined ) {
 				status.text( opts.expandCueText );
-			}
-			if ( opts.collapsedIcon !== undefined ) {
-				if ( currentOpts.collapsedIcon ) {
-					anchor.removeClass( "ui-icon-" + currentOpts.collapsedIcon );
-				}
-				if ( opts.collapsedIcon ) {
-					anchor.addClass( "ui-icon-" + opts.collapsedIcon );
-				}
 			}
 		} else {
 			if ( opts.collapseCueText !== undefined ) {
 				status.text( opts.collapseCueText );
 			}
-			if ( opts.expandedIcon !== undefined ) {
-				if ( currentOpts.expandedIcon ) {
-					anchor.removeClass( "ui-icon-" + currentOpts.expandedIcon );
-				}
-				if ( opts.expandedIcon ) {
-					anchor.addClass( "ui-icon-" + opts.expandedIcon );
-				}
-			}
 		}
 
-		if ( opts.iconpos !== undefined ) {
-			anchor.removeClass( "ui-btn-icon-" + ( currentOpts.iconPos === "right" ? "right" : "left" ) );
-			anchor.addClass( "ui-btn-icon-" + ( opts.iconPos === "right" ? "right" : "left" ) );
+		// Update icon
+
+		// Is it supposed to have an icon?
+		hasIcon =
+
+			// If the collapsedIcon is being set, consult that
+			( opts.collapsedIcon !== undefined ? opts.collapsedIcon !== false :
+
+				// Otherwise consult the existing option value
+				currentOpts.collapsedIcon !== false );
+
+
+		// If any icon-related options have changed, make sure the new icon
+		// state is reflected by first removing all icon-related classes
+		// reflecting the current state and then adding all icon-related
+		// classes for the new state
+		if ( !( opts.iconpos === undefined &&
+			opts.collapsedIcon === undefined &&
+			opts.expandedIcon === undefined ) ) {
+
+			// Remove all current icon-related classes
+			anchor.removeClass( [ iconposClass( currentOpts.iconpos ) ]
+				.concat( ( currentOpts.expandedIcon ?
+					[ "ui-icon-" + currentOpts.expandedIcon ] : [] ) )
+				.concat( ( currentOpts.collapsedIcon ?
+					[ "ui-icon-" + currentOpts.collapsedIcon ] : [] ) )
+				.join( " " ) );
+
+			// Add new classes if an icon is supposed to be present
+			if ( hasIcon ) {
+				anchor.addClass(
+					[ iconposClass( opts.iconpos !== undefined ?
+						opts.iconpos : currentOpts.iconpos ) ]
+						.concat( isCollapsed ?
+							[ "ui-icon-" + ( opts.collapsedIcon !== undefined ?
+								opts.collapsedIcon :
+								currentOpts.collapsedIcon ) ] :
+							[ "ui-icon-" + ( opts.expandedIcon !== undefined ?
+								opts.expandedIcon :
+								currentOpts.expandedIcon ) ] )
+						.join( " " ) );
+			}
 		}
 
 		if ( opts.theme !== undefined ) {
@@ -231,8 +255,10 @@ $.widget( "mobile.collapsible", {
 		}
 
 		if ( opts.contentTheme !== undefined ) {
-			oldTheme = this._themeClassFromOption( "ui-body-", currentOpts.theme );
-			newTheme = this._themeClassFromOption( "ui-body-", opts.theme );
+			oldTheme = this._themeClassFromOption( "ui-body-",
+				currentOpts.contentTheme );
+			newTheme = this._themeClassFromOption( "ui-body-",
+				opts.contentTheme );
 			ui.content.removeClass( oldTheme ).addClass( newTheme );
 		}
 
@@ -252,12 +278,16 @@ $.widget( "mobile.collapsible", {
 		if ( opts.mini !== undefined ) {
 			anchor.toggleClass( "ui-mini", opts.mini );
 		}
+	},
 
+	_setOptions: function( options ) {
+		this._applyOptions( options );
 		this._super( options );
+		this._renderedOptions = this._getOptions( this.options );
 	},
 
 	_handleExpandCollapse: function( isCollapse ) {
-		var opts = this._getOptions( this.options ),
+		var opts = this._renderedOptions,
 			ui = this._ui;
 
 		ui.status.text( isCollapse ? opts.expandCueText : opts.collapseCueText );

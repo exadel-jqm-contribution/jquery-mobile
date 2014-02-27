@@ -34,7 +34,6 @@ $.widget( "mobile.panel", {
 		positionFixed: false
 	},
 
-	_panelID: null,
 	_closeLink: null,
 	_parentPage: null,
 	_page: null,
@@ -49,7 +48,6 @@ $.widget( "mobile.panel", {
 
 		// expose some private props to other methods
 		$.extend( this, {
-			_panelID: el.attr( "id" ),
 			_closeLink: el.find( ":jqmData(rel='close')" ),
 			_parentPage: ( parentPage.length > 0 ) ? parentPage : false,
 			_page: this._getPage,
@@ -91,7 +89,7 @@ $.widget( "mobile.panel", {
 		var self = this,
 			target = self._parentPage ? self._parentPage.parent() : self.element.parent();
 
-		self._modal = $( "<div class='" + self.options.classes.modal + "' data-panelid='" + self._panelID + "'></div>" )
+		self._modal = $( "<div class='" + self.options.classes.modal + "'></div>" )
 			.on( "mousedown", function() {
 				self.close();
 			})
@@ -145,20 +143,31 @@ $.widget( "mobile.panel", {
 		this.element.addClass( this._getPanelClasses() );
 	},
 
-	_bindCloseEvents: function() {
-		var self = this;
-
-		self._closeLink.on( "click.panel" , function( e ) {
-			e.preventDefault();
-			self.close();
+	_handleCloseClickAndEatEvent: function( event ) {
+		if ( !event.isDefaultPrevented() ) {
+			event.preventDefault();
+			this.close();
 			return false;
+		}
+	},
+
+	_handleCloseClick: function( event ) {
+		if ( !event.isDefaultPrevented() ) {
+			this.close();
+		}
+	},
+
+	_bindCloseEvents: function() {
+		this._on( this._closeLink, {
+			"click": "_handleCloseClick"
 		});
-		self.element.on( "click.panel" , "a:jqmData(ajax='false')", function(/* e */) {
-			self.close();
+
+		this._on({
+			"click a:jqmData(ajax='false')": "_handleCloseClick"
 		});
 	},
 
-	_positionPanel: function() {
+	_positionPanel: function( scrollToTop ) {
 		var self = this,
 			panelInnerHeight = self._panelInner.outerHeight(),
 			expand = panelInnerHeight > $.mobile.getScreenHeight();
@@ -168,7 +177,9 @@ $.widget( "mobile.panel", {
 				self._unfixPanel();
 				$.mobile.resetActivePageHeight( panelInnerHeight );
 			}
-			window.scrollTo( 0, $.mobile.defaultHomeScroll );
+			if ( scrollToTop ) {
+				this.window[ 0 ].scrollTo( 0, $.mobile.defaultHomeScroll );
+			}
 		} else {
 			self._fixPanel();
 		}
@@ -212,9 +223,13 @@ $.widget( "mobile.panel", {
 	},
 
 	_handleClick: function( e ) {
-		if (  e.currentTarget.href.split( "#" )[ 1 ] === this._panelID && this._panelID !== undefined ) {
+		var link,
+			panelId = this.element.attr( "id" );
+
+		if ( e.currentTarget.href.split( "#" )[ 1 ] === panelId && panelId !== undefined ) {
+
 			e.preventDefault();
-			var link = $( e.target );
+			link = $( e.target );
 			if ( link.hasClass( "ui-btn" ) ) {
 				link.addClass( $.mobile.activeBtnClass );
 				this.element.one( "panelopen panelclose", function() {
@@ -297,7 +312,7 @@ $.widget( "mobile.panel", {
 					}
 
 					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
-						self.document.on( self._transitionEndEvents, complete );
+						self.element.animationComplete( complete, "transition" );
 					} else {
 						setTimeout( complete, 0 );
 					}
@@ -311,7 +326,7 @@ $.widget( "mobile.panel", {
 						.removeClass( o.classes.panelClosed )
 						.addClass( o.classes.panelOpen );
 
-					self._positionPanel();
+					self._positionPanel( true );
 
 					self._pageContentOpenClasses = self._getPosDisplayClasses( o.classes.pageContentPrefix );
 
@@ -329,7 +344,6 @@ $.widget( "mobile.panel", {
 					}
 				},
 				complete = function() {
-					self.document.off( self._transitionEndEvents, complete );
 
 					if ( o.display !== "overlay" ) {
 						self._wrapper().addClass( o.classes.pageContentPrefix + "-open" );
@@ -361,11 +375,6 @@ $.widget( "mobile.panel", {
 				o = this.options,
 
 				_closePanel = function() {
-					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
-						self.document.on( self._transitionEndEvents, complete );
-					} else {
-						setTimeout( complete, 0 );
-					}
 
 					self.element.removeClass( o.classes.panelOpen );
 
@@ -374,13 +383,17 @@ $.widget( "mobile.panel", {
 						self._fixedToolbars().removeClass( self._pageContentOpenClasses );
 					}
 
+					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
+						self.element.animationComplete( complete, "transition" );
+					} else {
+						setTimeout( complete, 0 );
+					}
+
 					if ( self._modal ) {
 						self._modal.removeClass( self._modalOpenClasses );
 					}
 				},
 				complete = function() {
-					self.document.off( self._transitionEndEvents, complete );
-
 					if ( o.theme && o.display !== "overlay" ) {
 						self._page().parent().removeClass( o.classes.pageContainer + "-themed " + o.classes.pageContainer + "-" + o.theme );
 					}
@@ -419,8 +432,6 @@ $.widget( "mobile.panel", {
 		this[ this._open ? "close" : "open" ]();
 	},
 
-	_transitionEndEvents: "webkitTransitionEnd oTransitionEnd otransitionend transitionend msTransitionEnd",
-
 	_destroy: function() {
 		var otherPanels,
 		o = this.options,
@@ -454,10 +465,6 @@ $.widget( "mobile.panel", {
 
 			this.document.off( "panelopen panelclose" );
 
-			if ( this._open ) {
-				this.document.off( this._transitionEndEvents );
-				$.mobile.resetActivePageHeight();
-			}
 		}
 
 		if ( this._open ) {
@@ -472,10 +479,7 @@ $.widget( "mobile.panel", {
 			.off( "panelbeforeopen" )
 			.off( "panelhide" )
 			.off( "keyup.panel" )
-			.off( "updatelayout" )
-			.off( this._transitionEndEvents );
-
-		this._closeLink.off( "click.panel" );
+			.off( "updatelayout" );
 
 		if ( this._modal ) {
 			this._modal.remove();

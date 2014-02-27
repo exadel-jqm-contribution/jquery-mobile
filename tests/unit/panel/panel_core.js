@@ -284,4 +284,74 @@
 		$panel.panel( "open" );
 	});
 
+	// Test for https://github.com/jquery/jquery-mobile/issues/6693
+	asyncTest( "unrelated link does not close the panel", function() {
+		var panel = $( "#panel-test-ignore-unrelated-link" ),
+			eventNs = ".ignoreUnrelatedLinkClick";
+
+		$( "#unrelated-link" ).one( "click", function( event ) {
+			event.preventDefault();
+		});
+
+		$.testHelper.detailedEventCascade([
+			function() {
+				panel.panel( "open" );
+			},
+
+			{
+				panelopen: { src: panel, event: "panelopen" + eventNs + "1" }
+			},
+
+			function( result ) {
+				deepEqual( result.panelopen.timedOut, false,
+					"Panel opened successfully" );
+				$( "#unrelated-link" ).click();
+			},
+
+			{
+				panelclose: { src: panel, event: "panelclose" + eventNs + "2" }
+			},
+
+			function( result ) {
+				deepEqual( result.panelclose.timedOut, true,
+					"Panel did not close in response to unrelated click" );
+				panel.panel( "close" );
+			},
+
+			{
+				panelclose: { src: panel, event: "panelclose" + eventNs + "3" }
+			},
+
+			start
+		]);
+	});
+
+	asyncTest( "Panel still opens after changing its ID", function() {
+		var eventNs = ".panelStillOpensAfterChangingItsId",
+			idTestPanel = $( "#panel-test-id-change" ),
+			idTestLink = $( "a[href='#panel-test-id-change']" );
+
+		expect( 1 );
+
+		idTestPanel.attr( "id", "something-else" );
+		idTestLink.attr( "href", "#something-else" );
+
+		$.testHelper.detailedEventCascade([
+			function() {
+				idTestLink.click();
+			},
+			{
+				panelopen: { src: idTestPanel, event: "panelopen" + eventNs + "1" }
+			},
+			function( result ) {
+				deepEqual( result.panelopen.timedOut, false, "Renamed panel has opened" );
+				idTestPanel.panel( "close" );
+			},
+			{
+				panelclose: { src: idTestPanel, event: "panelclose" + eventNs + "2" }
+			},
+			start
+		]);
+	});
+
 }( jQuery ));
