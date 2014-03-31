@@ -20,7 +20,7 @@
 	<script>
 		$.testHelper.asyncLoad([
 			[ "widgets/panel" ],
-			[ "jquery.mobile.init" ],
+			[ "init" ],
 			[ "panel_core.js" ]
 		]);
 	</script>
@@ -35,7 +35,7 @@
 
 	<div id="qunit"></div>
 
-	<div data-nstest-role="page">
+	<div data-nstest-role="page" id="page1">
 		<div data-nstest-role="panel" id="panel-test-create">
 			<p>Contents of a panel.</p>
 		</div>
@@ -67,7 +67,21 @@
 			<p>Contents of a panel.</p>
 			<a href="#demo-links" data-nstest-rel="close" data-nstest-role="button">Close panel</a>
 		</div>
-
+		<div data-nstest-role="panel" id="panel-test-ignore-unrelated-link">
+			<a href="#" id="unrelated-link" data-nstest-ajax="false">Unrelated link</a>
+		</div>
+		<div data-nstest-role="panel" id="panel-test-id-change">
+			<p>Contents of a panel.</p>
+		</div>
+		<div id="panel-test-get-wrapper">
+			<p>Contents of a panel.</p>
+		</div>
+		<div id="panel-test-get-wrapper-overlay">
+			<p>Contents of a panel.</p>
+		</div>
+		<div id="panel-test-get-wrapper-push">
+			<p>Contents of a panel.</p>
+		</div>
 		<div data-nstest-role="header">
 			<h1>Panel Test</h1>
 		</div>
@@ -83,7 +97,25 @@
 			<a href="#panel-test-destroy">Open Panel</a>
 			<a href="#panel-test-non-default-theme">Open Panel</a>
 			<a href="#panel-test-with-close">Open Panel</a>
+			<a href="#panel-test-id-change">Open Panel</a>
+			<a href="#panel-test-external">Open Panel</a>
 		</div>
+	</div>
+	<div data-nstest-role="page" id="page2"></div>
+	<div id="external-panel-getWrapper-test"></div>
+
+	<div data-nstest-role="page" id="multipage">
+		<div data-nstest-role="header">
+			<h1>Multipage</h1>
+		</div>
+		<div data-nstest-role="content">
+			<p>Contents of a page.</p>
+		</div>
+	</div>
+
+	<div data-nstest-role="panel" id="panel-test-external">
+		<a href="#multipage">Multipage</a>
+		<a href="#" data-nstest-rel="back">Back</a>
 	</div>
 
 </body>

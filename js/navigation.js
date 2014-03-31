@@ -4,15 +4,16 @@
 //>>group: Navigation
 define( [
 	"jquery",
-	"./jquery.mobile.core",
+	"./core",
 	"./navigation/path",
 	"./events/navigate",
 	"./navigation/history",
 	"./navigation/navigator",
 	"./navigation/method",
-	"./jquery.mobile.events",
-	"./jquery.mobile.support",
+	"./events",
+	"./support",
 	"jquery-plugins/jquery.hashchange",
+	"./animationComplete",
 	"./widgets/pagecontainer",
 	"./widgets/page",
 	"./transitions/handlers" ], function( jQuery ) {
@@ -21,6 +22,9 @@ define( [
 
 		// resolved on domready
 	var domreadyDeferred = $.Deferred(),
+
+		// resolved and nulled on window.load()
+		loadDeferred = $.Deferred(),
 		documentUrl = $.mobile.path.documentUrl,
 
 		// used to track last vclicked element to make sure its value is added to form data
@@ -86,7 +90,7 @@ define( [
 		}
 	};
 
-	//direct focus to the page title, or otherwise first focusable element
+	// Direct focus to the page title, or otherwise first focusable element
 	$.mobile.focusPage = function ( page ) {
 		var autofocus = page.find( "[autofocus]" ),
 			pageTitle = page.find( ".ui-title:eq(0)" );
@@ -108,19 +112,7 @@ define( [
 		return transition;
 	};
 
-	/* exposed $.mobile methods */
-
-	//animation complete callback
-	$.fn.animationComplete = function( callback ) {
-		if ( $.support.cssTransitions ) {
-			return $( this ).one( "webkitAnimationEnd animationend", callback );
-		}
-		else{
-			// defer execution for consistency between webkit/non webkit
-			setTimeout( callback, 0 );
-			return $( this );
-		}
-	};
+	// Exposed $.mobile methods
 
 	$.mobile.changePage = function( to, options ) {
 		$.mobile.pageContainer.pagecontainer( "change", to, options );
@@ -434,12 +426,28 @@ define( [
 		$.mobile.pageContainer.pagecontainer();
 
 		//set page min-heights to be device specific
-		$.mobile.document.bind( "pageshow", $.mobile.resetActivePageHeight );
+		$.mobile.document.bind( "pageshow", function() {
+
+			// We need to wait for window.load to make sure that styles have already been rendered,
+			// otherwise heights of external toolbars will have the wrong value
+			if ( loadDeferred ) {
+				loadDeferred.done( $.mobile.resetActivePageHeight );
+			} else {
+				$.mobile.resetActivePageHeight();
+			}
+		});
 		$.mobile.window.bind( "throttledresize", $.mobile.resetActivePageHeight );
 
 	};//navreadyDeferred done callback
 
 	$( function() { domreadyDeferred.resolve(); } );
+
+	$.mobile.window.load( function() {
+
+		// Resolve and null the deferred
+		loadDeferred.resolve();
+		loadDeferred = null;
+	});
 
 	$.when( domreadyDeferred, $.mobile.navreadyDeferred ).done( function() { $.mobile._registerInternalEvents(); } );
 })( jQuery );

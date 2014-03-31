@@ -5,8 +5,10 @@
 
 (function( $ ){
 
-	var defaults = $.mobile.panel.prototype.options,
-		classes = defaults.classes;
+	var count,
+		defaults = $.mobile.panel.prototype.options,
+		classes = defaults.classes,
+		originalWidget = $.mobile.panel.prototype;
 
 	function getPageFromPanel( $panel ) {
 		return $panel.closest( ":jqmData(role='page')" );
@@ -282,6 +284,259 @@
 		});
 
 		$panel.panel( "open" );
+	});
+
+	// Test for https://github.com/jquery/jquery-mobile/issues/6693
+	asyncTest( "unrelated link does not close the panel", function() {
+		var panel = $( "#panel-test-ignore-unrelated-link" ),
+			eventNs = ".ignoreUnrelatedLinkClick";
+
+		$( "#unrelated-link" ).one( "click", function( event ) {
+			event.preventDefault();
+		});
+
+		$.testHelper.detailedEventCascade([
+			function() {
+				panel.panel( "open" );
+			},
+
+			{
+				panelopen: { src: panel, event: "panelopen" + eventNs + "1" }
+			},
+
+			function( result ) {
+				deepEqual( result.panelopen.timedOut, false,
+					"Panel opened successfully" );
+				$( "#unrelated-link" ).click();
+			},
+
+			{
+				panelclose: { src: panel, event: "panelclose" + eventNs + "2" }
+			},
+
+			function( result ) {
+				deepEqual( result.panelclose.timedOut, true,
+					"Panel did not close in response to unrelated click" );
+				panel.panel( "close" );
+			},
+
+			{
+				panelclose: { src: panel, event: "panelclose" + eventNs + "3" }
+			},
+
+			start
+		]);
+	});
+
+	asyncTest( "Panel still opens after changing its ID", function() {
+		var eventNs = ".panelStillOpensAfterChangingItsId",
+			idTestPanel = $( "#panel-test-id-change" ),
+			idTestLink = $( "a[href='#panel-test-id-change']" );
+
+		expect( 1 );
+
+		idTestPanel.attr( "id", "something-else" );
+		idTestLink.attr( "href", "#something-else" );
+
+		$.testHelper.detailedEventCascade([
+			function() {
+				idTestLink.click();
+			},
+			{
+				panelopen: { src: idTestPanel, event: "panelopen" + eventNs + "1" }
+			},
+			function( result ) {
+				deepEqual( result.panelopen.timedOut, false, "Renamed panel has opened" );
+				idTestPanel.panel( "close" );
+			},
+			{
+				panelclose: { src: idTestPanel, event: "panelclose" + eventNs + "2" }
+			},
+			start
+		]);
+	});
+	module( "wrapper generation", {
+		setup: function() {
+			count = 0;
+			$.widget( "mobile.panel", $.mobile.panel, {
+				_getWrapper: function() {
+					this._super();
+					count++;
+				}
+			});
+		},
+		teardown: function() {
+			$.mobile.panel.prototype = originalWidget;
+		}
+	});
+	asyncTest( "overlay panel should not call getWrapper", function(){
+		expect( 5 );
+		var testPanel = $( "#panel-test-get-wrapper-overlay" );
+
+		testPanel.panel({
+			"display": "overlay"
+		});
+		ok( count === 0, "getWrapper only called once durring create" );
+		testPanel.panel( "open" );
+		testPanel.one( "panelopen", function(){
+			ok( count === 0, "getWrapper not called on open" );
+		});
+		testPanel.panel( "close" );
+		testPanel.one( "panelclose", function(){
+			ok( count === 0, "getWrapper not called on close" );
+			$.mobile.changePage( "#page2" );
+		});
+		$( "body" ).one( "pagechange", function(){
+			ok( count === 0, "getWrapper not called on pagechange" );
+			$.mobile.changePage( "#page1" );
+			$( "body" ).one( "pagechange", function(){
+				ok( count === 0, "getWrapper not called on pagechange back to inital page" );
+				start();
+			});
+		});
+
+	});
+	asyncTest( "push should call getWrapper only once on create", function(){
+		expect( 5 );
+		var testPanel = $( "#panel-test-get-wrapper-push" );
+
+		testPanel.panel({
+			"display": "push"
+		});
+		ok( count === 1, "getWrapper only called once durring create" );
+		testPanel.panel( "open" );
+		testPanel.one( "panelopen", function(){
+			ok( count === 1, "getWrapper not called on open" );
+		});
+		testPanel.panel( "close" );
+		testPanel.one( "panelclose", function(){
+			ok( count === 1, "getWrapper not called on close" );
+			$.mobile.changePage( "#page2" );
+		});
+		$( "body" ).one( "pagechange", function(){
+			ok( count === 1, "getWrapper not called on pagechange" );
+			$.mobile.changePage( "#page1" );
+			$( "body" ).one( "pagechange", function(){
+				ok( count === 1, "getWrapper not called on pagechange back to inital page" );
+				start();
+			});
+		});
+
+	});
+	asyncTest( "reveal panel should call getWrapper only once on create", function(){
+		expect( 5 );
+		var testPanel = $( "#panel-test-get-wrapper" );
+
+		testPanel.panel();
+		ok( count === 1, "getWrapper only called once durring create" );
+		testPanel.panel( "open" );
+		testPanel.one( "panelopen", function(){
+			ok( count === 1, "getWrapper not called on open" );
+		});
+		testPanel.panel( "close" );
+		testPanel.one( "panelclose", function(){
+			ok( count === 1, "getWrapper not called on close" );
+			$.mobile.changePage( "#page2" );
+		});
+		$( "body" ).one( "pagechange", function(){
+			ok( count === 1, "getWrapper not called on pagechange" );
+			$.mobile.changePage( "#page1" );
+			$( "body" ).one( "pagechange", function(){
+				ok( count === 1, "getWrapper not called on pagechange back to inital page" );
+				start();
+			});
+		});
+
+	});
+	asyncTest( "external panel should call panel once on create and on page changes", function(){
+		expect( 5 );
+		var testPanel = $( "#external-panel-getWrapper-test" );
+
+		testPanel.panel();
+		ok( count === 1, "getWrapper only called once durring create" );
+		testPanel.panel( "open" );
+		testPanel.one( "panelopen", function(){
+			ok( count === 1, "getWrapper not called on open" );
+		});
+		testPanel.panel( "close" );
+		testPanel.one( "panelclose", function(){
+			ok( count === 1, "getWrapper not called on close" );
+			$.mobile.changePage( "#page2" );
+			$( "body" ).one( "pageshow", function(){
+				window.setTimeout( function(){
+					ok( count === 2, "getWrapper called on pagechange" );
+				}, 0 );
+
+				$( "body" ).one( "pageshow", function(){
+					window.setTimeout( function(){
+						ok( count === 3, "getWrapper called on pagechange back to inital page" );
+						start();
+					}, 0 );
+				});
+				$.mobile.changePage( "#page1" );
+			});
+		});
+	});
+
+	asyncTest( "external panel: test classes during A>B>A transition", function() {
+		expect( 16 );
+
+		var $panel = $( "#panel-test-external" ).panel(),
+			$firstPage = $( ":jqmData(role='page')" ).first(),
+			$secondPage = $( ":jqmData(role='page')" ).last(),
+			$openButton = $firstPage.find( "a[href='\\#panel-test-external']" ),
+			$link = $panel.find( "a[href='\\#multipage']" ),
+			$back = $panel.find( "a[data-nstest-rel='back']" );
+
+		$panel.one( "panelopen", function( event ) {
+
+			ok( !$panel.hasClass( defaults.classes.panelClosed ), "closed class removed" );
+			ok( $panel.hasClass( defaults.classes.panelOpen ), "open class added" );
+			ok( $firstPage.data("nstestPanel") === "open", "open flag set on first page" );
+			equal( $firstPage.find(".ui-panel-wrapper").length, 1, "wrapper exists." );
+
+			$link.trigger( "click" );
+
+		}).one( "panelclose", function( event ) {
+
+			ok( $panel.hasClass( defaults.classes.panelClosed ), "closed class removed" );
+			ok( !$panel.hasClass( defaults.classes.panelOpen ), "open class added" );
+			ok( $firstPage.data("nstestPanel") === undefined, "no open flag on first" );
+
+			$panel.trigger( "continue" );
+
+		}).one( "continue", function( event ) {
+
+			setTimeout(function() {
+				$panel.panel( "open" );
+
+				ok( !$panel.hasClass( defaults.classes.panelClosed ), "closed class removed" );
+				ok( $panel.hasClass( defaults.classes.panelOpen ), "open class added" );
+				ok( $secondPage.data("nstestPanel") === "open", "open flag set on 2nd page" );
+				equal( $secondPage.find(".ui-panel-wrapper").length, 1, "wrapper exists." );
+
+				$back.trigger( "click" );
+
+			},500);
+
+		}).panel( "open" );
+
+		$back.one( "click", function( event ) {
+
+			ok( $firstPage.data("nstestPanel") === undefined,
+				"no open flag on first page on backwards transition" );
+			equal( $firstPage.find(".ui-panel-wrapper").length, 1, "wrapper exists." );
+
+			setTimeout(function() {
+				$panel.panel( "open" );
+
+				ok( $firstPage.data("nstestPanel") === "open", "open flag set on first page" );
+				ok( !$panel.hasClass( defaults.classes.panelClosed ), "closed class removed" );
+				ok( $panel.hasClass( defaults.classes.panelOpen ), "open class added" );
+
+				start();
+			},500);
+		});
 	});
 
 }( jQuery ));

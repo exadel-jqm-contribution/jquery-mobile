@@ -32,17 +32,10 @@ $.mobile.document.on( "slidestop", function() {
 	opacity: 0.8;
 }
 #open-alignment-example {
-	position: absolute;
-	width: 3em;
-	min-width: 3em;
-	max-width: 3em;
-	height: 1.2em;
-	min-height: 1.2em;
-	max-height: 1.2em;
-	margin-left: -1.5em;
-	margin-top: -0.6em;
+	position: relative;
 	left: 50%;
-	top: 50%;
+	width: 6em;
+	margin-left: -3em;
 	background-color: #ffa0a0;
 	border-color: black;
 }
@@ -64,15 +57,16 @@ $.mobile.document.on( "slidestop", function() {
 				<form data-role="fieldset">
 					<div class="ui-field-contain">
 						<label for="xalign">X Alignment</label>
-						<input type="range" id="xalign" name="xalign" value="0.5" min="-1" max="2" step="0.5"></input>
+						<input type="range" id="xalign" name="xalign" value="0.5" min="-1" max="2" step="0.5">
 					</div>
 					<div class="ui-field-contain">
 						<label for="yalign">Y Alignment</label>
-						<input type="range" id="yalign" name="yalign" value="0.5" min="-1" max="2" step="0.5"></input>
+						<input type="range" id="yalign" name="yalign" value="0.5" min="-1" max="2" step="0.5">
 					</div>
 				</form>
 			</div>
 		</div>
+		<a href="#alignment-example" id="open-alignment-example" data-rel="popup" role="button" class="ui-btn ui-corner-all ui-shadow ui-btn-inline">Open Popup</a>
 	</div><!-- /content -->
 
 	<?php include( '../jqm-navmenu.php' ); ?>

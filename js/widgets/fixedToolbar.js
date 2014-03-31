@@ -5,7 +5,7 @@
 //>>css.structure: ../css/structure/jquery.mobile.fixedToolbar.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jquery.mobile.navigation", "./page","./toolbar","../jquery.mobile.zoom" ], function( jQuery ) {
+define( [ "jquery", "../widget", "../core", "../animationComplete", "../navigation", "./page","./toolbar","../zoom" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
@@ -46,7 +46,6 @@ define( [ "jquery", "../jquery.mobile.widget", "../jquery.mobile.core", "../jque
 			this._addTransitionClass();
 			this._bindPageEvents();
 			this._bindToggleHandlers();
-			this._setOptions( this.options );
 		},
 
 		_setOptions: function( o ) {

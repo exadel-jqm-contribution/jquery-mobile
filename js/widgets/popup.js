@@ -13,15 +13,16 @@
 
 define( [
 	"jquery",
-	"../jquery.mobile.links",
-	"../jquery.mobile.widget",
-	"../jquery.mobile.support",
+	"../links",
+	"../widget",
+	"../support",
 	"../events/navigate",
 	"../navigation/path",
 	"../navigation/history",
 	"../navigation/navigator",
 	"../navigation/method",
-	"../jquery.mobile.navigation",
+	"../animationComplete",
+	"../navigation",
 	"jquery-plugins/jquery.hashchange" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
@@ -542,9 +543,9 @@ $.widget( "mobile.popup", {
 			}
 			if ( this._fallbackTransition ) {
 				this._ui.container
-					.animationComplete( $.proxy( args.prerequisites.container, "resolve" ) )
 					.addClass( args.containerClassToAdd )
-					.removeClass( args.classToRemove );
+					.removeClass( args.classToRemove )
+					.animationComplete( $.proxy( args.prerequisites.container, "resolve" ) );
 				return;
 			}
 		}

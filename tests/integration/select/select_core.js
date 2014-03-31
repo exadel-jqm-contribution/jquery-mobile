@@ -3,7 +3,7 @@
  */
 
 (function($){
-	var libName = "jquery.mobile.forms.select",
+	var libName = "forms.select",
 		originalDefaultDialogTrans = $.mobile.defaultDialogTransition,
 		originalDefTransitionHandler = $.mobile.defaultTransitionHandler.prototype.transition,
 		originalGetEncodedText = $.fn.getEncodedText,
@@ -488,6 +488,30 @@
 				pagechange: { src: $.mobile.pageContainer, event: "pagechange" + prefix + "5" }
 			},
 
+			start
+		]);
+	});
+
+	asyncTest( "Custom select passes overlay theme to its dialog", function() {
+
+		expect( 2 );
+
+		var dialog,
+			eventNs = ".passesOnOverlayThemeToDialog";
+
+		$.testHelper.pageSequence([
+			function() {
+				$( "#select-overlay-theme-container a:first" ).click();
+			},
+			function() {
+				dialog = $( "#select-choice-many-overlay-theme-test-dialog" );
+				deepEqual(
+					$( ":mobile-pagecontainer" ).hasClass( "ui-overlay-x" ),
+					true, "Page container has appropriate theme." );
+				deepEqual( dialog.dialog( "option", "overlayTheme" ), "x",
+					"Dialog widget overlayTheme option is correct." );
+				dialog.dialog( "close" );
+			},
 			start
 		]);
 	});

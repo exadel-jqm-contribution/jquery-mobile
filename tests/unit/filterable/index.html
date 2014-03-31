@@ -15,7 +15,7 @@
 		$.testHelper.asyncLoad([
 			[ "widgets/page" ],
 			[
-				"jquery.mobile.navigation",
+				"navigation",
 				"widgets/listview",
 				"widgets/filterable",
 				"widgets/filterable.backcompat",
@@ -26,10 +26,10 @@
 				"widgets/controlgroup",
 				"widgets/forms/select",
 				"widgets/forms/textinput",
-				"jquery.mobile.buttonMarkup",
+				"buttonMarkup",
 				"widgets/forms/checkboxradio"
 			],
-			[ "jquery.mobile.init" ],
+			[ "init" ],
 			[ "filterable_core.js" ]
 		]);
 	</script>
@@ -49,6 +49,14 @@
 		<div class="ui-content">
 			<div id="hidedividers-option-test" data-nstest-role="listview" data-nstest-filter="true">
 			</div>
+			<form id="test-input-preventDefault-form">
+				<input id="test-input-preventDefault">
+			</form>
+			<ul data-nstest-filter="true" id="test-input-preventDefault-list" data-nstest-input="#test-input-preventDefault">
+				<li>Alabama</li>
+				<li>California</li>
+				<li>Oregon</li>
+			</ul>
 		</div>
 	</div>
 

@@ -61,7 +61,7 @@
 			</div><!--/demo-html -->
 
 		<h2>Linked</h2>
-		<p>List items with links are styled as button.
+		<p>List items with links are styled as button.</p>
 			<div data-demo-html="true">
 				<ul data-role="listview">
 					<li><a href="#">Acura</a></li>
@@ -125,9 +125,9 @@
 			</div><!--/demo-html -->
 
 		<h2>Autodividers</h2>
-		<p><p>A listview can be configured to automatically generate dividers for its items by adding a <code>data-autodividers="true"</code> attribute to any listview. By default, the text used to create dividers is the uppercased first letter of the item's text. Alternatively you can specify divider text by setting the <code>autodividersSelector</code> option on the listview programmatically. This feature is designed to work seamlessly with the filter.</p>
+		<p>A listview can be configured to automatically generate dividers for its items by adding a <code>data-autodividers="true"</code> attribute to any listview. By default, the text used to create dividers is the uppercased first letter of the item's text. Alternatively you can specify divider text by setting the <code>autodividersSelector</code> option on the listview programmatically. This feature is designed to work seamlessly with the filter.</p>
 			<div data-demo-html="true">
-				<ul data-role="listview" data-autodividers="true"  data-filter="true" data-inset="true">
+				<ul data-role="listview" data-autodividers="true" data-filter="true" data-inset="true">
 					<li><a href="index.html">Adam Kinkaid</a></li>
 					<li><a href="index.html">Alex Wickerham</a></li>
 					<li><a href="index.html">Avery Johnson</a></li>
@@ -277,13 +277,13 @@
 		<p>To specify the swatch for the split button, add the <code>data-split-theme</code> to the list and specify a swatch letter. This attribute can also be added to individual split inside list items by adding a <code> data-theme</code> attribute to specific links  (see second list item). The icon for the split button can be set at the list level by adding the <code>data-split-icon</code>.</p>
 
 			<div data-demo-html="true">
-				<ul data-role="listview" data-split-icon="plus" data-theme="a" data-split-theme="b" data-split-icon="plus" data-inset="true">
-					<li><a href="#">
-					<h2>Broken Bells</h2>
+				<ul data-role="listview" data-split-icon="plus" data-theme="a" data-split-theme="b" data-inset="true">
+					<li>
+						<a href="#"><h2>Broken Bells</h2></a>
 						<a href="#purchase" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
 					</li>
-					<li><a href="#">
-					<h2>Phoenix</h2>
+					<li>
+						<a href="#"><h2>Phoenix</h2></a>
 						<a href="#purchase" data-theme="a" data-rel="popup" data-position-to="window" data-transition="pop">Purchase album</a>
 					</li>
 				</ul>
@@ -373,7 +373,7 @@
 		<p>You can also use listviews inside a <a href="../accordions/">collapsible set</a> (accordion) to visually group the list and ensure that only a single item can be open at once.</p>
 
 			<div data-demo-html="true">
-				<div data-role="collapsible-set" data-theme="a" data-content-theme="b">
+				<div data-role="collapsibleset" data-theme="a" data-content-theme="b">
 					<div data-role="collapsible">
 					<h2>Filtered list</h2>
 						<ul data-role="listview" data-filter="true" data-filter-theme="a" data-divider-theme="b">
@@ -433,7 +433,7 @@
 		<p>Setting <code>data-inset="false"</code> on a collapsible or a collapsible set makes the collapsible full width (non-inset), like a full width listview.</p>
 
 			<div data-demo-html="true">
-				<div data-role="collapsible-set" data-theme="a" data-inset="false">
+				<div data-role="collapsibleset" data-theme="a" data-inset="false">
 					<div data-role="collapsible">
 					<h2>Mailbox</h2>
 						<ul data-role="listview">

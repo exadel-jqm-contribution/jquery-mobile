@@ -2,10 +2,12 @@ module.exports = function( grunt ) {
 	"use strict";
 
 	var _ = require( "underscore" ),
+		cheerio = require( "cheerio" ),
 
-		replaceCombinedCssReference = function( content, processedName ) {
-			return content.replace( /\.\.\/css\//, "css/" )
-				.replace( /jquery\.mobile\.css/gi, processedName + ".min.css" );
+		replaceCombinedCssReference = function( href, processedName ) {
+			return href
+				.replace( /\.\.\/css/, "css" )
+				.replace( /jquery\.mobile\.css/, processedName + ".min.css" );
 		},
 
 		// Ensure that modules specified via the --modules option are in the same
@@ -390,37 +392,96 @@ module.exports = function( grunt ) {
 			"demos.processed": {
 				options: {
 					processContent: function( content, srcPath ) {
-						var processedName = grunt.config.process( name + "<%= versionSuffix %>" );
-						content = content.replace( /_assets\/js\/">/gi, "_assets/js/index.js\">" );
-						content = content.replace( /\.\.\/external\/jquery\//gi, "js/" );
-						content = content.replace( /\.\.\/js\//gi, "js/" );
-						content = content.replace( /js\/"/gi, "js/" + processedName + ".min.js\"" );
-						content = replaceCombinedCssReference( content, processedName );
+						var processedName, $;
+
 						content = content.replace( /^\s*<\?php include\(\s*['"]([^'"]+)['"].*$/gmi,
 							function( match, includePath /*, offset, string */ ) {
-								var fileToInclude, newSrcPath = srcPath;
+								var newSrcPath = srcPath;
 
 								// If we've already handled the nested includes use the version
 								// that was copied to the dist folder
 								// TODO use the config from copy:demos.nested.files
-								if( includePath.match(/jqm\-contents.php|jqm\-navmenu.php|jqm\-search.php/) ) {
+								if( includePath.match(/jqm\-(contents|navmenu|search)\.php/) ) {
 									newSrcPath = "dist/" + newSrcPath;
 								}
 
-								fileToInclude = path.resolve( path.join(path.dirname(newSrcPath), includePath) );
-
-								return grunt.file.read( fileToInclude );
+								return grunt.file.read( path.resolve( path.join(
+									path.dirname( newSrcPath ), includePath ) ) );
 							}
 						);
-						content = content.replace( /\.php/gi, ".html" );
 
-						// Demos that separately refer to the structure need to be processed here
-						content = content.replace( /css\/structure\/jquery\.mobile\.structure\.css/gi,
-							path.join( "css", "themes", "default", processedName + ".structure" + ".min.css" ) );
+						if ( content.substring( 0, 15 ).toLowerCase() === "<!doctype html>" || srcPath.match( /\.php$/ ) ) {
+							processedName = grunt.config.process( name + "<%= versionSuffix %>" );
+							$ = cheerio.load( content );
+							$( "script" ).each( function() {
+								var text,
+									element = $( this ),
+									src = element.attr( "src" );
 
-						// References to the icons CSS file need to be processed here
-						content = content.replace( /css\/themes\/default\/jquery\.mobile\.icons\.css/gi,
-							path.join( "..", "jquery.mobile.icons.min.css" ) );
+								if ( src ) {
+									element.attr( "src", src
+										.replace( /_assets\/js\/?$/, "_assets/js/index.js" )
+										.replace( /\.\.\/external\/jquery\/jquery.js$/,
+											"js/jquery.js" )
+										.replace( /\.\.\/js\/?$/,
+											"js/" + processedName + ".min.js" )
+										.replace( /^js\/?$/, "demos/js/" + processedName + ".min.js" ) );
+								} else {
+									text = element.text();
+
+									// References to stylesheets via grunticon need to be updated
+									text = text.replace( /(grunticon\( \[([^\]]*))/,
+											function( match, group ) {
+												var index,
+													offset = group.indexOf( "[" ),
+													prefix = group.substring( 0, offset + 1 );
+
+												group = group.substring( offset + 1 ).split( "," );
+
+												for ( index in group ) {
+													group[ index ] = "\"" + group[ index ]
+														.trim()
+														.replace( /(^['"])|(['"]$)/g, "" )
+														.replace( /\.\.\/css\//, "css/" )
+														.replace( /\.css$/, ".min.css" ) + "\"";
+												}
+
+												return prefix + " " + group.join( "," ) + " ";
+											});
+
+									//element.html( text );
+									element[ 0 ].children[ 0 ].data = text;
+								}
+							});
+
+							$( "link[rel='stylesheet'][href]" ).each( function() {
+								var element = $( this );
+
+								element.attr( "href",
+									replaceCombinedCssReference( element.attr( "href" ),
+										processedName )
+
+									// Demos that separately refer to the structure need to be
+									// processed here
+									.replace( /css\/structure\/jquery\.mobile\.structure\.css/gi,
+										path.join( "css", "themes", "default",
+											processedName + ".structure" + ".min.css" ) )
+
+									// References to the icons CSS file need to be processed here
+									.replace( /css\/themes\/default\/jquery\.mobile\.icons\.css/,
+										path.join( "..", "jquery.mobile.icons.min.css" ) ) );
+
+							});
+
+							$( "a[href]" ).each( function() {
+								var element = $( this );
+
+								element.attr( "href",
+									element.attr( "href" ).replace( /\.php$/, ".html" ) );
+							});
+
+							content = $.html();
+						}
 						return content;
 					}
 				},
@@ -435,15 +496,51 @@ module.exports = function( grunt ) {
 			},
 			"demos.backbone": {
 				options: {
-					processContent: function( content /*, srcPath */ ) {
-						var processedName = grunt.config.process( name + "<%= versionSuffix %>" );
-						content = content.replace( /"jquery": "\.\.\/\.\.\/\.\.\/js\/jquery"/,
-								"\"jquery\": \"../../js/jquery\"" );
-						content = replaceCombinedCssReference( content, processedName );
+					processContent: function( content, srcPath ) {
+						var $,
+							processedName = grunt.config.process( name + "<%= versionSuffix %>" );
 
-						// Update dependency to jquery.mobile claimed by jquerymobile.js
-						content = content.replace( /\[ "\.\.\/\.\.\/js\/\?noext" \]/,
-							"[ \"../../../" + processedName + "\" ]" );
+						if ( /\.html$/.test( srcPath ) ) {
+
+							$ = cheerio.load( content );
+
+							$( "link[rel='stylesheet'][href]" ).each( function() {
+								var element = $( this );
+
+								element.attr( "href",
+									replaceCombinedCssReference( element.attr( "href" ),
+										processedName ) );
+							});
+
+							$( "script" ).each( function ( idx, element ) {
+								var script = $( element );
+								if ( /requirejs\.config\.js$/.test( script.attr( "src" ) ) ) {
+
+									// Get rid of the requirejs.config.js script tag since we're using the built bundle
+									script.remove();
+								} else if ( /require.js$/.test( script.attr( "src" ) ) ) {
+
+									// Use the rawgithub.com version for requirejs
+									script.attr( "src",
+										"//rawgithub.com/jrburke/requirejs/" +
+										grunt.template.process( "<%= pkg.devDependencies.requirejs %>" ) +
+										"/require.js" );
+								}
+							});
+
+							// write out newly created file contents
+							content = $.html();
+						} else if ( /\.js$/.test( srcPath ) ) {
+
+							// Redifines paths for compiled demos
+							content = content.replace( /baseUrl:.*$/m, "baseUrl: \"../js\"," );
+							content = content.replace( /\.\.\/external\/jquery\//, "" );
+							content = content.replace( /jquery\.mobile/, processedName );
+							content = content.replace(
+								/"backbone-requirejs-demos".*$/m,
+								"\"backbone-requirejs-demos\": \"../backbone-requirejs/js\"" );
+						}
+
 						return content;
 					}
 				},
@@ -459,7 +556,7 @@ module.exports = function( grunt ) {
 				files: [
 					{
 						expand: true,
-						cwd: "js",
+						cwd: "external/jquery",
 						src: [ "jquery.js" ],
 						dest: path.join( dist, "demos/js/" )
 					},
@@ -647,8 +744,8 @@ module.exports = function( grunt ) {
 						"!js/requirejs.config.js"
 					],
 					instrumentedFiles: "temp/",
-					htmlReport: "build/report/coverage",
-					lcovReport: "build/report/lcov",
+					htmlReport: "_tests/reports/coverage",
+					lcovReport: "_tests/reports/lcov",
 					linesThresholdPct: 0
 				}
 			},
@@ -754,10 +851,13 @@ module.exports = function( grunt ) {
 		},
 
 		coveralls: {
+			options: {
+				force: true
+			},
 			all: {
 
 				// LCOV coverage file relevant to every target
-				src: "build/report/lcov/lcov.info"
+				src: "_tests/reports/lcov/lcov.info"
 			}
 		},
 
@@ -831,28 +931,14 @@ module.exports = function( grunt ) {
 			dist: [ dist ],
             git: [ path.join( dist, "git" ) ],
 			tmp: [ "<%= dirs.tmp %>" ],
+			testsOutput: [ "_tests" ],
 			"googleCDN": [ "<%= dirs.cdn.google %>" ],
 			"jqueryCDN": [ "<%= dirs.cdn.jquery %>" ]
 		}
 	});
 
 	// grunt plugins
-	grunt.loadNpmTasks( "grunt-bowercopy" );
-	grunt.loadNpmTasks( "grunt-contrib-jshint" );
-	grunt.loadNpmTasks( "grunt-contrib-clean" );
-	grunt.loadNpmTasks( "grunt-contrib-copy" );
-	grunt.loadNpmTasks( "grunt-contrib-compress" );
-	grunt.loadNpmTasks( "grunt-contrib-concat" );
-	grunt.loadNpmTasks( "grunt-contrib-connect" );
-	grunt.loadNpmTasks( "grunt-contrib-cssmin" );
-	grunt.loadNpmTasks( "grunt-coveralls" );
-	grunt.loadNpmTasks( "grunt-qunit-istanbul" );
-	grunt.loadNpmTasks( "grunt-contrib-requirejs" );
-	grunt.loadNpmTasks( "grunt-contrib-uglify" );
-	grunt.loadNpmTasks( "grunt-git-authors" );
-	grunt.loadNpmTasks( "grunt-qunit-junit" );
-	grunt.loadNpmTasks( "grunt-hash-manifest" );
-
+	require( "load-grunt-tasks" )( grunt );
 	// load the project's default tasks
 	grunt.loadTasks( "build/tasks");
 
@@ -901,7 +987,15 @@ module.exports = function( grunt ) {
 
 	grunt.registerTask( "updateDependencies", [ "bowercopy" ] );
 
-	grunt.registerTask( "test", [ "jshint", "config:fetchHeadHash", "js:release", "connect", "qunit:http" ] );
+	grunt.registerTask( "test",
+		[
+			"clean:testsOutput",
+			"jshint",
+			"config:fetchHeadHash",
+			"js:release",
+			"connect", "qunit:http"
+		]
+	);
 	grunt.registerTask( "test:ci", [ "qunit_junit", "connect", "qunit:http" ] );
 
 	// Default grunt

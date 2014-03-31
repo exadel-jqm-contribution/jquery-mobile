@@ -60,13 +60,13 @@
 
 		<div data-demo-html="true">
 			<div data-role="header" data-theme="b">
-			<h1>Page Title</h1>
+				<h1>Page Title</h1>
 			</div>
 		</div><!-- /demo-html -->
 
 		<h2>External toolbars</h2>
 
-		<p>If you want to use the same toolbar on multiple pages, you can use <a href="../toolbar-external/" data-ajax="false">external toolbars</a>.
+		<p>If you want to use the same toolbar on multiple pages, you can use <a href="../toolbar-external/" data-ajax="false">external toolbars</a>.</p>
 
 		<h2>Fixed position</h2>
 
@@ -96,12 +96,12 @@
 			<div data-role="header">
 				<a href="#" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-delete">Cancel</a>
 			<h1>My App</h1>
-				<button class="ui-btn-right ui-btn ui-btn-b ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-check">Save</a>
+				<button class="ui-btn-right ui-btn ui-btn-b ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-check">Save</button>
 			</div>
 		</div><!-- /demo-html -->
 
 		<div data-demo-html="true">
-			<div data-role="header" >
+			<div data-role="header">
 			<h1>Page Title</h1>
 				<a href="#" class="ui-btn-right ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-right ui-icon-gear">Options</a>
 			</div>
@@ -112,7 +112,7 @@
 		<p>The heading in the header bar has some margin that will give the bar its height. If you choose not to use a heading, you will need to add an element with <code>class="ui-title"</code> so that the bar can get the height and display correctly.</p>
 
 		<div data-demo-html="true">
-			<div data-role="header" >
+			<div data-role="header">
 				<a href="#" class="ui-btn-left ui-btn ui-btn-inline ui-mini ui-corner-all ui-btn-icon-left ui-icon-grid">View</a>
 				<span class="ui-title"></span>
 			</div>
@@ -120,7 +120,7 @@
 
 		<h2>Adding back button to header</h2>
 
-		<p>jQuery Mobile has a feature to automatically create and append "back" buttons to any header, though it is disabled by default. This is primarily useful in chromeless installed applications, such as those running in a native app webview. The framework automatically generates a "back" button on a header when the page plugin's <code>addBackBtn</code> option is true. This can also be set via markup if the page div has a <code>data-add-back-btn="true"</code> attribute.</p>
+		<p>jQuery Mobile has a feature to automatically create and append "back" buttons to any header, though it is disabled by default. This is primarily useful in chromeless installed applications, such as those running in a native app webview. The framework automatically generates a "back" button on a header when the page plugin's <code>addBackBtn</code> option is true. This can also be set via markup if the header has a <code>data-add-back-btn="true"</code> attribute.</p>
 
 		<p>If you use the attribute <code>data-rel="back"</code> on an anchor, any clicks on that anchor will mimic the back button, going back one history entry and ignoring the anchor's default href. This is particularly useful when linking back to a named page, such as a link that says "home", or when generating "back" buttons with JavaScript, such as a button to close a dialog. When using this feature in your source markup, <strong>be sure to provide a meaningful href that actually points to the URL of the referring page. This will allow the feature to work for users in C-Grade browsers.</strong></p>
 
@@ -128,11 +128,11 @@
 
 		<h3>Customizing the back button text</h3>
 
-		<p>If you'd like to configure the back button text, you can either use the <code>data-back-btn-text="previous"</code> attribute on your header element, or set it programmatically via the page plugin's options:<br><code>$.mobile.toolbar.prototype.options.backBtnText = "previous";</code></p>
+		<p>If you'd like to configure the back button text, you can either use the <code>data-back-btn-text="previous"</code> attribute on your header element, or set it programmatically via the toolbar plugin's options:<br><code>$.mobile.toolbar.prototype.options.backBtnText = "previous";</code></p>
 
 		<h3>Default back button style</h3>
 
-		<p>If you'd like to configure the back button role-theme, you can use:<br>
+		<p>If you'd like to configure the back button theme, you can use:<br>
 		<code>$.mobile.toolbar.prototype.options.backBtnTheme = "a";</code><br>
 		If you're doing this programmatically, set this option inside the <code>mobileinit</code> event handler.</p>
 
