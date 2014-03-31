@@ -255,7 +255,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
       setTimeout( function(){
         this._onresize();
-        this.to(this.__index);
+        this.to(this.__index, true);
       }.bind(this), 0 );
 
       return this;
@@ -317,8 +317,8 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
         t.delta = {};
 
-        self.element.on('touchmove mousemove', {self: self}, tmove);
-        self.element.on('touchend mouseup', {self: self}, tend);
+        self.element.on('MSPointerMove PointerMove touchmove mousemove', {self: self}, tmove);
+        self.element.on('MSPointerOut PointerOut touchend mouseup', {self: self}, tend);
       };
 
       function tmove(ev){
@@ -363,16 +363,16 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         if ( !t.isScrolling && isValidSlide) {
           self[direction].call(self);
         }
-        self.element.off('touchmove mousemove', tmove);
-        self.element.off('touchend mouseup', tend);
+        self.element.off('touchmove MSPointerMove PointerMove mousemove', tmove);
+        self.element.off('touchend MSPointerUp PointerUp mouseup', tend);
       };
 
-      this.element.on("touchstart mousedown", {self: this}, tstart);
+      this.element.on("touchstart MSPointerDown PointerDown mousedown", {self: this}, tstart);
 
       $(window).on( 'resize', this._onresize.bind(this) );
 
       this.unBindEvents = function(){
-        this.element.off("touchstart mousedown", tstart);
+        this.element.off("touchstart MSPointerDown PointerDown mousedown", tstart);
       };
     },
 
@@ -389,9 +389,19 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       this.element.find( ".ui-left-arrow" ).on( 'click', this.__swiperight );
     },
 
+    _update_from_attr: function( $el ){
+      var cached_data = $el.data();
+      $el.removeData();
+      $.each( "title imageUrl type".split(" "), function(k, v){
+        $el.data(v);
+      });
+      $el.data( $.extend( {}, cached_data, $el.data() ) );
+      return $el.data();
+    },
+
     _render_frame: function( index, el, data ) {
       var $el = $( el ),
-        params = data || $el.data(),
+        params = data || this._update_from_attr( $el ),
         $item, $indicator,
         el_id = $el.attr("id") || this._UID(),
         is_new_element = $el.data("_processed") === undefined;
@@ -441,10 +451,10 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
             });
         }
         $indicator.on( "click", {
-          move: this.to.bind( this )
+          to: this.to.bind( this )
         }, function ( event ) {
           var id = "#" + $( this ).data( "targetElement" );
-          event.data.move( $(id).data('itemIndex') );
+          event.data.to( $(id).data('itemIndex') );
         });
       }
       return $el.data("_processed", el_id);
@@ -615,16 +625,20 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       return (this.length() + (index % this.length())) % this.length();
     },
 
-    to: function( index ) {
-      if ( this.options.disabled ) return false;
-      this.__index = parseInt( index, 10 ) || 0;
+    to: function( index, specialCase ) {
+      if ( this.options.disabled || !this.options.enabled ) return false;
+
+      index = parseInt( index, 10 ) || 0;
+      if ( this.__index == index && typeof specialCase == "undefined" ) return false;
+
+      this.__index = index;
       this.element.trigger( "goto", this.__index );
       this.slide( false, this.__enabledFramesList().eq( this.__index ) );
       return this;
     },
 
     slide: function( move_type, $next ) {
-      if ( this._sliding || this.options.disabled ) {
+      if ( this._sliding || this.options.disabled || !this.options.enabled ) {
         return;
       }
 
@@ -633,13 +647,16 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         move_type = $($next).nextAll(".ui-carousel-active").length === 0 ? "next" : "prev";
       }
 
-      var $flist = this.__enabledFramesList(),
-        direction = move_type == "next" ? 1 : -1;
+      var $flist = this.__enabledFramesList();
 
       this.active = this.__enabledFramesList().filter(".ui-carousel-active");
 
+      if ( this.active.attr("id") == $next.attr("id") ) {
+        this.element.trigger( "slidingcanceled" );
+        return false;
+      }
+
       // in the beginning we doesn't have any active frames
-      console.log( 'fire' );
       if ( this.active.length === 0 ) {
         $next.addClass( "ui-carousel-active" ).trigger( "show" );
         this.active = $next;
@@ -657,7 +674,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         this._sliding = false;
         this.element.trigger( "slidingdone", this._sliding_type);
       };
-
       this._animation( this.active, $next, done.bind(this) );
 
       // prevent any sliding before main sliding is done
@@ -749,7 +765,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       return indicator;
     }
   });
-  $( document ).bind( "pageshow", function( e ) {
+  $( document ).bind( "pagecontainershow pageshow", function( e ) {
     $( document ).trigger( "ui-carouselbeforecreate" );
     var c = $( ":jqmData(role='carousel')", e.target ).carousel();
     $( ":jqmData(role='carousel')", e.target ).carousel( "bindEvents" );
