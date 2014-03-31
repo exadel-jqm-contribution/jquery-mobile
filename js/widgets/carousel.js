@@ -79,8 +79,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
       if ( options['indicators'] !== undefined ) {
         this.__rerender_indicators = true;
-
-        $(this.options.indicators).remove();
       }
 
       if ( options['showIndicator'] !== undefined && !!options['showIndicator'] != this.options.indicators ) {
@@ -99,22 +97,6 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
     },
 
     _init: function() {
-      if ( this.options.showIndicator ) {
-        if ( this.options.indicators === null ) {
-          this.options.indicators = $('<div></div>');
-          this.options.indicators.appendTo(this.element);
-        } else if (typeof this.options.indicators === "string") {
-          this.options.indicators = $(this.options.indicators);
-        }
-        this.options.indicators.addClass(this.options.indicatorsListClass +
-          ' ' + this.options.indicatorsListClass + '-theme-' + this.options.theme);
-        if ( this.options.createIndicator === null ) {
-          this.options.createIndicator = this._createIndicator.bind(this);
-        }
-      } else {
-        this.options.createIndicator = function(){};
-      }
-
       if ( this.options.createTitle === null ) {
         this.options.createTitle = this._create_title.bind(this);
       }
@@ -221,6 +203,11 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
     refresh: function( data ) {
       var $list;
+
+      // just remove inner elements
+      $(this.options.indicators).html("");
+      this._initIndicators();
+
       if ( data && $.isArray(data) ) {
         // we can't define compliance of frames and new data
         // in new versions we can add optional support for data-items
@@ -228,6 +215,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
         this.clear();
         $.map( data, this._addJSON.bind(this) );
         $list = this._update_items_list();
+
       } else {
         // check updates in DOM
         $list = this._update_items_list();
@@ -399,6 +387,26 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       return $el.data();
     },
 
+    _initIndicators: function(){
+      if (this.options.showIndicator) {
+        if (this.options.indicators === null || $( this.options.indicators[0], this.element ).length == 0 ) {
+          this.options.indicators = $( "<div></div>" );
+          this.options.indicators.appendTo( this.element )
+        } else if ( typeof this.options.indicators === "string" ) {
+          this.options.indicators = $( this.options.indicators );
+        }
+
+        this.options.indicators.addClass( this.options.indicatorsListClass )
+        this.options.indicators.addClass( this.options.indicatorsListClass + "-theme-" + this.options.theme );
+
+        if (this.options.createIndicator === null) {
+          this.options.createIndicator = this._createIndicator.bind(this)
+        }
+      } else {
+        this.options.createIndicator = function() {}
+      }
+    },
+
     _render_frame: function( index, el, data ) {
       var $el = $( el ),
         params = data || this._update_from_attr( $el ),
@@ -424,32 +432,28 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       if ( this.options.showIndicator ) {
         $el.data("_processed", el_id);
 
-        if ( !is_new_element && !this.__rerender_indicators ) {
-          $indicator = $( '#' + $el.data("indicator") );
-        } else {
-          var indicator_id = this._UID();
-          $indicator = this.options.createIndicator( this.options.indicators, params.title || "");
+        var indicator_id = this._UID();
+        $indicator = this.options.createIndicator( this.options.indicators, params.title || "");
 
-          $indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
-          $el.data( "indicator", indicator_id );
+        $indicator.attr( "id", indicator_id ).data( "targetElement", el_id );
+        $el.data( "indicator", indicator_id );
 
-          $indicator
-            .on( "show", function( event ) {
-              $( this ).addClass('ui-carousel-indicator-active ui-radio-on');
-            })
-            .on( "hide", function( event ) {
-              $( this ).removeClass('ui-carousel-indicator-active ui-radio-on');
-            });
+        $indicator
+          .on( "show activate", function( event ) {
+            $( this ).addClass('ui-carousel-indicator-active ui-radio-on');
+          })
+          .on( "hide deactivate", function( event ) {
+            $( this ).removeClass('ui-carousel-indicator-active ui-radio-on');
+          });
 
-          // indicators can have actions for show and hide events
-          $el
-            .on( "hide", function( event ) {
-              $( "#" + $(this).data("indicator") ).trigger( "hide" );
-            })
-            .on( "show" , function( event ) {
-              $( "#" + $(this).data("indicator") ).trigger( "show" );
-            });
-        }
+        // indicators can have actions for show and hide events
+        $el
+          .on( "hide", function( event ) {
+            $( "#" + $(this).data("indicator") ).trigger( "deactivate" );
+          })
+          .on( "show" , function( event ) {
+            $( "#" + $(this).data("indicator") ).trigger( "activate" );
+          });
         $indicator.on( "click", {
           to: this.to.bind( this )
         }, function ( event ) {
@@ -629,7 +633,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       if ( this.options.disabled || !this.options.enabled ) return false;
 
       index = parseInt( index, 10 ) || 0;
-      if ( this.__index == index && typeof specialCase == "undefined" ) return false;
+      if ( this.__index == index && typeof specialCase == "undefined" ) {
+        return false;
+      }
 
       this.__index = index;
       this.element.trigger( "goto", this.__index );
@@ -653,6 +659,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
       if ( this.active.attr("id") == $next.attr("id") ) {
         this.element.trigger( "slidingcanceled" );
+        $( "#" + this.active.data("indicator"), this.element ).trigger( "activate" );
         return false;
       }
 
