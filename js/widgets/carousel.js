@@ -5,10 +5,6 @@
 //>>css.structure: ../css/structure/jquery.mobile.carousel.css
 //>>css.theme: ../css/themes/default/jquery.mobile.theme.css
 
-// Author: Anton Artyukh
-// deeperton@gmail.com,
-//        aartyukh@exadel.com
-
 define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 //>>excludeEnd( "jqmBuildExclude" );
 
@@ -104,7 +100,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
       if ( !this.options.useLegacyAnimation ) {
         this._animation_meta = this._mainAnimationEnd;
 
-        var is_webview_and_iOS7 = navigator.userAgent.match(/(iPad|iPhone);.*CPU.*OS 7_\d.*(Safari)?/i);
+        var is_webview_and_iOS7 = navigator.userAgent.match(/(iPad|iPhone);.*CPU.*OS 7_0 .*(Safari)?/i);
         if (is_webview_and_iOS7 !== null) {
           if (is_webview_and_iOS7[2] != 'Safari') {
             this._animation_meta = this._ios7Webview_AnimationEnd;
@@ -176,7 +172,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
           style.OTransitionDuration =
           style.transitionDuration = duration + 'ms';
 
-        style.webkitTransform = 'translate(-' + this.__offsets[this.__index] + 'px,0)' + 'translateZ(0)';
+        style.webkitTransform =
           style.msTransform =
           style.MozTransform =
           style.OTransform = 'translateX(-' + this.__offsets[this.__index] + 'px)';
@@ -389,7 +385,7 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
     _initIndicators: function(){
       if (this.options.showIndicator) {
-        if (this.options.indicators === null || $( this.options.indicators[0], this.element ).length == 0 ) {
+        if (this.options.indicators === null) {
           this.options.indicators = $( "<div></div>" );
           this.options.indicators.appendTo( this.element )
         } else if ( typeof this.options.indicators === "string" ) {
@@ -655,7 +651,9 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 
       var $flist = this.__enabledFramesList();
 
-      this.active = this.__enabledFramesList().filter(".ui-carousel-active");
+      this.__index = $next.data('itemIndex');
+
+      this.active = $flist.filter(".ui-carousel-active");
 
       if ( this.active.attr("id") == $next.attr("id") ) {
         this.element.trigger( "slidingcanceled" );
@@ -784,3 +782,4 @@ define( ["jquery", "../jquery.mobile.widget" ], function ( $ ) {
 //>>excludeStart("jqmBuildExclude", pragmas.jqmBuildExclude);
 });
 //>>excludeEnd( "jqmBuildExclude" );
+
