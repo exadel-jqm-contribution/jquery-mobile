@@ -92,6 +92,9 @@
 	asyncTest( "The page should be enhanced correctly" , function(){
 		setTimeout(function() {
 			ok($('#reflow-table-test .ui-table-reflow').length, ".ui-table-reflow class added to table element");
+			deepEqual(
+				$( "#reflow-table-test .ui-table-reflow > tbody span.make-it-red" ).length, 1,
+					"span was copied from table header" );
 			start();
 		}, 800);
 	});
@@ -174,7 +177,7 @@
 	});
 
 	asyncTest( "Toggle column", function() {
-		expect( 6 );
+		expect( 9 );
 
 		var initial, post,
 			input = $( "#toggle-column-test-popup input:nth(1)" ),
@@ -224,6 +227,17 @@
 					post = checkColumn( "After clicking: " );
 					deepEqual( initial !== post, true,
 						"Visibility was toggled by clicking the checkbox" );
+					input.prop( "checked", false ).checkboxradio( "refresh" ).trigger( "change" );
+					post = initial;
+				},
+				{
+					change: { src: input, event: "change.toggleColumn2" }
+				},
+				function() {
+					post = checkColumn( "After unchecking checkbox via its 'checked' property" );
+					deepEqual( initial === post, true,
+						"Unchecking already unchecked checkbox via its 'checked' property does " +
+						"not affect column visibility" );
 					start();
 				}
 			]);
@@ -273,7 +287,7 @@
 	asyncTest( "Column toggle table rebuild" , function(){
 
 		var $last_input, $visibleCells, $visibleHeaders,
-			$input = $( ".ui-popup-container" ).find( "input" ).eq(2),
+			$input = $( "#movie-table-column-popup" ).find( "input" ).eq(2),
 			$table = $('#movie-table-column');
 
 		$input.trigger('click');
@@ -282,7 +296,7 @@
 
 			$(window).trigger("refresh_col_table", ["#column-table-test"]);
 
-			$last_input = $( ".ui-popup-container" ).find( "input" ).last(),
+			$last_input = $( "#movie-table-column-popup" ).find( "input" ).last(),
 			$visibleCells = $table.find("tbody tr").first().find("th, td").not('.ui-table-cell-hidden'),
 			$visibleHeaders = $table.find("thead tr").first().find("th, td").not('.ui-table-cell-hidden');
 

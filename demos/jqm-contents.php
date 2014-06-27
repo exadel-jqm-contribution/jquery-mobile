@@ -4,8 +4,8 @@
 <li data-filtertext="form button widget input button submit reset"><a href="../button/" data-ajax="false">Button widget</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
-			Checkboxradio widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
+		    Checkboxradio widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
 	<div class="ui-collapsible-content ui-body-inherit ui-collapsible-content-collapsed" aria-hidden="true">
@@ -17,7 +17,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Collapsible (set) widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -31,7 +31,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Controlgroup widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -45,7 +45,7 @@
 <li data-filtertext="form datepicker widget date input"><a href="../datepicker/" data-ajax="false">Datepicker</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Events<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -60,7 +60,7 @@
 <li data-filtertext="form flipswitch widget flip toggle switch binary select checkbox input"><a href="../flipswitch/" data-ajax="false">Flipswitch widget</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Forms<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -76,7 +76,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Grids<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -91,7 +91,7 @@
 <li data-filtertext="blocks content formatting sections heading"><a href="../body-bar-classes/" data-ajax="false">Grouping and dividing content</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Icons<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -104,7 +104,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Listview widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -115,7 +115,7 @@
 			<li data-filtertext="autocomplete filterable reveal listview remote data filtertextbeforefilter placeholder"><a href="../listview-autocomplete-remote/" data-ajax="false">Listview autocomplete remote data</a></li>
 			<li data-filtertext="autodividers anchor jump scroll linkbars listview lists ul ol"><a href="../listview-autodividers-linkbar/" data-ajax="false">Listview autodividers linkbar</a></li>
 			<li data-filtertext="listview autodividers selector autodividersselector lists ul ol"><a href="../listview-autodividers-selector/" data-ajax="false">Listview autodividers selector</a></li>
-			<li data-filtertext="listview nested list items"><a href="../listview-nested-lists/" data-ajax="false">Listview Nested Listviews</a></li>
+			<li data-filtertext="listview nested list items"><a href="../listview-nested-lists/" data-ajax="false">Nested Listviews</a></li>
 			<li data-filtertext="listview collapsible list items flat"><a href="../listview-collapsible-item-flat/" data-ajax="false">Listview collapsible list items (flat)</a></li>
 			<li data-filtertext="listview collapsible list indented"><a href="../listview-collapsible-item-indented/" data-ajax="false">Listview collapsible list items (indented)</a></li>
 			<li data-filtertext="grid listview responsive grids responsive listviews lists ul"><a href="../listview-grid/" data-ajax="false">Listview responsive grid</a></li>
@@ -126,7 +126,7 @@
 <li data-filtertext="navbar widget navmenu toolbars header footer"><a href="../navbar/" data-ajax="false">Navbar widget</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Navigation<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -136,12 +136,13 @@
 			<li data-filtertext="linking pages page links navigation ajax prefetch cache"><a href="../navigation-linking-pages/" data-ajax="false">Linking pages</a></li>
 			<li data-filtertext="php redirect server redirection server-side navigation"><a href="../navigation-php-redirect/" data-ajax="false">PHP redirect demo</a></li>
 			<li data-filtertext="navigation redirection hash query"><a href="../navigation-hash-processing/" data-ajax="false">Hash processing demo</a></li>
+			<li data-filtertext="navigation redirection hash query"><a href="../page-events/" data-ajax="false">Page Navigation Events</a></li>
 		</ul>
 	</div>
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Pages<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -156,7 +157,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Panel widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -174,7 +175,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Popup widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -194,7 +195,7 @@
 <li data-filtertext="responsive web design rwd adaptive progressive enhancement PE accessible mobile breakpoints media query media queries"><a href="../rwd/" data-ajax="false">Responsive Web Design</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Selectmenu widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -208,7 +209,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Slider widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -222,7 +223,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Table widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -243,7 +244,7 @@
 <li data-filtertext="form textinput widget text input textarea number date time tel email file color password"><a href="../textinput/" data-ajax="false">Textinput widget</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Theming<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -256,7 +257,7 @@
 </li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			Toolbar widget<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>
@@ -277,7 +278,7 @@
 <li data-filtertext="page transitions animated pages popup navigation flip slide fade pop"><a href="../transitions/" data-ajax="false">Transitions</a></li>
 <li data-role="collapsible" data-enhanced="true" data-collapsed-icon="carat-d" data-expanded-icon="carat-u" data-iconpos="right" data-inset="false" class="ui-collapsible ui-collapsible-themed-content ui-collapsible-collapsed">
 	<h3 class="ui-collapsible-heading ui-collapsible-heading-collapsed">
-		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-btn-inherit ui-icon-carat-d">
+		<a href="#" class="ui-collapsible-heading-toggle ui-btn ui-btn-icon-right ui-icon-carat-d">
 			3rd party API demos<span class="ui-collapsible-heading-status"> click to expand contents</span>
 		</a>
 	</h3>

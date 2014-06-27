@@ -70,6 +70,7 @@ module.exports = function( grunt ) {
 		},
 		path = require( "path" ),
 		httpPort =  Math.floor( 9000 + Math.random()*1000 ),
+		phpPort = Math.floor( 8000 + Math.random()*1000 ),
 		name = "jquery.mobile",
 		dist = "dist" + path.sep,
 		copyrightYear = grunt.template.today( "UTC:yyyy" ),
@@ -222,7 +223,6 @@ module.exports = function( grunt ) {
 				files: {
 					src: [
 						"js/**/*.js",
-						"!js/jquery.hashchange.js",
 						"!js/jquery.js",
 						"!js/jquery.ui.widget.js",
 						"!js/widgets/jquery.ui.tabs.js",
@@ -613,7 +613,8 @@ module.exports = function( grunt ) {
 							content = content.replace( re, "" );
 						}
 						return content;
-					}
+					},
+					processContentExclude: [ "**/*.+(gif|png)" ]
 				},
 				files: {
 					// WARNING: This will be modified by the config:copy:noversion task
@@ -693,6 +694,37 @@ module.exports = function( grunt ) {
 			}
 		},
 
+		php: {
+			server: {
+				options: {
+					port: phpPort,
+					baseUrl: "."
+				}
+			}
+		},
+
+		casper: {
+			options: {
+				test: true,
+				verbose : false,
+				"log-level": "error",
+				parallel: true,
+				concurrency: 5
+			},
+			"demos.src": {
+				options: {
+					args: [ "--port=" + phpPort ]
+				},
+				src: [ "tests/casperjs/**/*.js" ]
+			},
+			"demos.dist": {
+				options: {
+					args: [ "--port=" + phpPort ]
+				},
+				src: [ "tests/casperjs/**/*.js" ]
+			}
+		},
+
 		connect: {
 			server: {
 				options: {
@@ -754,7 +786,7 @@ module.exports = function( grunt ) {
 				options: {
 					urls: (function() {
 						var allSuites, patterns, paths,
-							testDirs = [ "unit", "integration" ],
+							testDirs = [ "unit", "integration", "css" ],
 							suites = ( grunt.option( "suites" ) || process.env.SUITES || "" ).split( "," ),
 							types = ( grunt.option( "types" ) || process.env.TYPES || "" ).split( "," ),
 							versionedPaths = [],
@@ -872,6 +904,7 @@ module.exports = function( grunt ) {
 				files: {
 					"qunit/qunit.js": "qunit/qunit/qunit.js",
 					"qunit/qunit.css": "qunit/qunit/qunit.css",
+					"qunit/MIT-LICENSE.txt": "qunit/MIT-LICENSE.txt",
 					"jshint/jshint.js": "jshint/dist/jshint.js"
 				}
 			},
@@ -884,7 +917,7 @@ module.exports = function( grunt ) {
 			},
 			jquery: {
 				files: {
-					"jquery/jquery.js": "jquery/jquery.js"
+					"jquery/jquery.js": "jquery/dist/jquery.js"
 				}
 			},
 			"jquery-ui": {
@@ -901,30 +934,11 @@ module.exports = function( grunt ) {
 				},
 				files: {
 					"jquery-ui/jquery.ui.core.js": "jquery-ui/ui/jquery.ui.core.js",
-					"jquery-ui/jquery.ui.widget.js": "jquery-ui/ui/jquery.ui.widget.js"
+					"jquery-ui/jquery.ui.widget.js": "jquery-ui/ui/jquery.ui.widget.js",
+					"jquery-ui/jquery.ui.tabs.js": "jquery-ui/ui/jquery.ui.tabs.js",
+					"jquery-ui/MIT-LICENSE.txt": "jquery-ui/MIT-LICENSE.txt"
 				}
 			},
-			"jquery-ui-tabs": {
-				options: {
-					copyOptions: {
-						process: function( content ) {
-							var version = grunt.file.readJSON( "bower.json" ).dependencies[ "jquery-ui-tabs" ];
-							if ( /#/.test( version ) ) {
-								version = version.split( "#" )[ 1 ];
-							}
-							return content.replace( /@VERSION/g, version );
-						}
-					}
-				},
-				files: {
-					"jquery-ui/jquery.ui.tabs.js": "jquery-ui-tabs/ui/jquery.ui.tabs.js"
-				}
-			},
-			"jquery-plugins": {
-				files: {
-					"jquery/plugins/jquery.hashchange.js": "jquery-hashchange/jquery.ba-hashchange.js"
-				}
-			}
 		},
 
 		clean: {
@@ -987,13 +1001,21 @@ module.exports = function( grunt ) {
 
 	grunt.registerTask( "updateDependencies", [ "bowercopy" ] );
 
+	grunt.registerTask( "test:demos:src", [ "php", "casper:demos.src" ] );
+
+	grunt.registerTask( "test:demos:dist", [ "casper:demos.dist" ] );
+
 	grunt.registerTask( "test",
 		[
 			"clean:testsOutput",
 			"jshint",
+			"test:demos:src",
 			"config:fetchHeadHash",
 			"js:release",
-			"connect", "qunit:http"
+			"demos",
+			"connect",
+			"test:demos:dist",
+			"qunit:http"
 		]
 	);
 	grunt.registerTask( "test:ci", [ "qunit_junit", "connect", "qunit:http" ] );

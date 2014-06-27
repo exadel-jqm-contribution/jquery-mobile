@@ -62,7 +62,9 @@ $.widget( "mobile.filterable", {
 			}
 
 			this._timer = this._delay( function() {
-				this._trigger( "beforefilter", null, { input: search } );
+				if ( this._trigger( "beforefilter", null, { input: search } ) === false ) {
+					return false;
+				}
 
 				// Change val as lastval for next execution
 				search[ 0 ].setAttribute( "data-" + $.mobile.ns + "lastval", val );
@@ -110,7 +112,8 @@ $.widget( "mobile.filterable", {
 		// If nothing is hidden, then the decision whether to hide or show the items
 		// is based on the "filterReveal" option.
 		if ( hide.length === 0 ) {
-			filterItems[ opts.filterReveal ? "addClass" : "removeClass" ]( "ui-screen-hidden" );
+			filterItems[ ( opts.filterReveal && val.length === 0 ) ?
+				"addClass" : "removeClass" ]( "ui-screen-hidden" );
 		} else {
 			$( hide ).addClass( "ui-screen-hidden" );
 			$( show ).removeClass( "ui-screen-hidden" );

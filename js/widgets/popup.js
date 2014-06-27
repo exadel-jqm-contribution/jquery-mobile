@@ -22,8 +22,7 @@ define( [
 	"../navigation/navigator",
 	"../navigation/method",
 	"../animationComplete",
-	"../navigation",
-	"jquery-plugins/jquery.hashchange" ], function( jQuery ) {
+	"../navigation" ], function( jQuery ) {
 //>>excludeEnd("jqmBuildExclude");
 (function( $, undefined ) {
 
@@ -75,6 +74,14 @@ $.widget( "mobile.popup", {
 		history: !$.mobile.browser.oldIE
 	},
 
+	// When the user depresses the mouse/finger on an element inside the popup while the popup is
+	// open, we ignore resize events for a short while. This prevents #6961.
+	_handleDocumentVmousedown: function( theEvent ) {
+		if ( this._isOpen && $.contains( this._ui.container[ 0 ], theEvent.target ) ) {
+			this._ignoreResizeEvents();
+		}
+	},
+
 	_create: function() {
 		var theElement = this.element,
 			myId = theElement.attr( "id" ),
@@ -84,6 +91,10 @@ $.widget( "mobile.popup", {
 		// We can't do it in the option declarations because those are run before
 		// it is determined whether there shall be AJAX nav.
 		currentOptions.history = currentOptions.history && $.mobile.ajaxEnabled && $.mobile.hashListeningEnabled;
+
+		this._on( this.document, {
+			"vmousedown": "_handleDocumentVmousedown"
+		});
 
 		// Define instance variables
 		$.extend( this, {

@@ -145,11 +145,15 @@ $.widget( "mobile.listview", $.extend( {
 							.attr( "title", $.trim( last.getEncodedText() ) )
 							.addClass( altButtonClass )
 							.empty();
+
+						// Reduce to the first anchor, because only the first gets the buttonClass
+						a = a.first();
 					} else if ( icon ) {
 						buttonClass += " ui-btn-icon-right ui-icon-" + icon;
 					}
 
-					a.first().addClass( buttonClass );
+					// Apply buttonClass to the (first) anchor
+					a.addClass( buttonClass );
 				} else if ( isDivider ) {
 					dividerTheme = ( getAttr( item[ 0 ], "theme" ) || o.dividerTheme || o.theme );
 
@@ -192,7 +196,7 @@ $.widget( "mobile.listview", $.extend( {
 			$( this ).closest( "li" ).addClass( "ui-li-has-count" );
 		});
 		if ( countThemeClass ) {
-			countBubbles.addClass( countThemeClass );
+			countBubbles.not( "[class*='ui-body-']" ).addClass( countThemeClass );
 		}
 
 		// Deprecated in 1.4. From 1.5 you have to add class ui-li-has-thumb or ui-li-has-icon to the LI.

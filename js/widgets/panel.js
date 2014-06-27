@@ -144,14 +144,6 @@ $.widget( "mobile.panel", {
 		this.element.addClass( this._getPanelClasses() );
 	},
 
-	_handleCloseClickAndEatEvent: function( event ) {
-		if ( !event.isDefaultPrevented() ) {
-			event.preventDefault();
-			this.close();
-			return false;
-		}
-	},
-
 	_handleCloseClick: function( event ) {
 		if ( !event.isDefaultPrevented() ) {
 			this.close();
@@ -238,7 +230,6 @@ $.widget( "mobile.panel", {
 				});
 			}
 			this.toggle();
-			return false;
 		}
 	},
 
@@ -308,7 +299,7 @@ $.widget( "mobile.panel", {
 				o = self.options,
 
 				_openPanel = function() {
-					self.document.off( "panelclose" );
+					self._off( self.document , "panelclose" );
 					self._page().jqmData( "panel", "open" );
 
 					if ( $.support.cssTransform3d && !!o.animate && o.display !== "overlay" ) {
@@ -317,7 +308,8 @@ $.widget( "mobile.panel", {
 					}
 
 					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
-						self.element.animationComplete( complete, "transition" );
+						( self._wrapper || self.element )
+							.animationComplete( complete, "transition" );
 					} else {
 						setTimeout( complete, 0 );
 					}
@@ -350,6 +342,11 @@ $.widget( "mobile.panel", {
 				},
 				complete = function() {
 
+					// Bail if the panel was closed before the opening animation has completed
+					if ( !self._open ) {
+						return;
+					}
+
 					if ( o.display !== "overlay" ) {
 						self._wrapper.addClass( o.classes.pageContentPrefix + "-open" );
 						self._fixedToolbars().addClass( o.classes.pageContentPrefix + "-open" );
@@ -365,8 +362,8 @@ $.widget( "mobile.panel", {
 			self._trigger( "beforeopen" );
 
 			if ( self._page().jqmData( "panel" ) === "open" ) {
-				self.document.on( "panelclose", function() {
-					_openPanel();
+				self._on( self.document, {
+					"panelclose": _openPanel
 				});
 			} else {
 				_openPanel();
@@ -391,13 +388,16 @@ $.widget( "mobile.panel", {
 					}
 
 					if ( !immediate && $.support.cssTransform3d && !!o.animate ) {
-						self.element.animationComplete( complete, "transition" );
+						( self._wrapper || self.element )
+							.animationComplete( complete, "transition" );
 					} else {
 						setTimeout( complete, 0 );
 					}
 
 					if ( self._modal ) {
-						self._modal.removeClass( self._modalOpenClasses );
+						self._modal
+							.removeClass( self._modalOpenClasses )
+							.height( "" );
 					}
 				},
 				complete = function() {
